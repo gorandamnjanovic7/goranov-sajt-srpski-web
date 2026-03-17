@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🟠 GLOBALNI VERTIKALNI SCROLLBAR 🟠 */
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 6px; /* Širina skrola - da bude tanak */
+}
+
+::-webkit-scrollbar-track {
+  background: #050505; /* Tamna pozadina koja se stapa sa sajtom */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f97316; /* Tvoja narandžasta boja */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #fb923c; /* Malo svetlija narandžasta kad se pređe mišem */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #f97316 #050505;
+}
+
+/* 🟠 HORIZONTALNI SKROL ZA KARUSELE 🟠 */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px; /* Tanji horonzontalni skrol */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 10px;
+}
