@@ -157,7 +157,7 @@ export const TutorialCard = ({ vid }) => {
 
 
 // ============================================================================
-// GIGANTSKI NIZOVI PODATAKA (NIŠTA NIJE OBRISANO)
+// GIGANTSKI NIZOVI PODATAKA (NETAKNUTI)
 // ============================================================================
 
 export const DICE_PROMPTS = [
@@ -2307,7 +2307,7 @@ export const UNIQUE_PHOTOREAL_COMBOS = [
   "ARRI Alexa 65 + Panavision System 65 50mm × EpicScaleDepth × massive cinematic scale",
   "RED Monstro 8K + Sigma Cine 50mm × UltraClarityEngine × crystal sharp rendering",
   "Sony A9 III + Sony 24mm GM × SpeedCaptureReality × frozen motion realism",
-  "Canon 5D Mark IV + EF 50mm × ClassicPhotoRealism × timeless photographic look",
+  "Canon 5D Mark IV + EF 50mm × ClassicPhotoRealism × timeless photography",
   "Nikon D6 + Nikkor 70-200mm × TeleCompressionLook × subject isolation",
   "Leica Q3 + Summilux 28mm × LeicaStreetRealism × candid photographic authenticity",
   "Hasselblad H5D + HC 80mm × NordicTonalBalance × elegant color science",
@@ -2514,7 +2514,7 @@ export const generateDetailedPrompts = (subject, aspect_ratio) => {
     const cinEnv = getRand(ENV_TOKENS, 1);
     const cinOptics = getRand(OPTICS_TOKENS, 2);
     const cinMod = getRand(MODIFIER_TOKENS, 2);
-    const cinematic_composition = `${cleanSubject} set in a ${cinEnv}. An epic Hollywood blockbuster cinematic still. Master setup: ${cinCombo}. Illumination: ${cinLight}. Cinematic protocol: ${cinMeta}. Lens optics: ${cinOptics}. ${cinMod}. Grand storytelling framing, dramatic narrative composition, hyper-detailed. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
+    const cinematic_composition = `A high-octane Hollywood blockbuster cinematic frame capturing ${cleanSubject} frozen in the middle of a highly dynamic, intense action sequence, set against a ${cinEnv}. Master camera setup: ${cinCombo}. Illumination: ${cinLight}. Cinematic protocol: ${cinMeta}. Lens optics: ${cinOptics}. ${cinMod}. Perfect storytelling framing, dramatic tension, kinetic energy, hyper-detailed. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
 
     // 3. BESPREKORAN NEXT-GEN FOTOREALISTIČNI RENDER
     const photoCombo = getRand(PHOTOREAL_COMBINATIONS, 1);
@@ -2526,13 +2526,21 @@ export const generateDetailedPrompts = (subject, aspect_ratio) => {
     const photoreal_composition = `${cleanSubject}. Flawless next-gen photorealistic render. Capture system: ${photoCombo}. Physical properties: ${physTokens}. Optics: ${optTokens}. Surface realism: ${realTokens}. Render engine: ${photoRender}. ${photoMod}. Uncompromising photographic fidelity, true-to-life material response, real-world texture depth. Absolutely no CGI artifacts, no text. [Aspect Ratio: ${aspect_ratio}]`;
 
     // 4. NAJUNIKATNIJA FOTOREALISTIČNA SLIKA IKADA
+    // OVO JE SADA APSOLUTNI GIGANT OD PROMPTA (V8 MAXIMUM OVERRIDE PROTOCOL)
     const uniqCombo = getRand(UNIQUE_PHOTOREAL_COMBOS, 1);
-    const uniqMeta = getRand(THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 4);
-    const uniqAdd = getRand(ADDITIONAL_REALISM_TOKENS, 2);
-    const uniqEnv = getRand(ENV_TOKENS, 1);
-    const uniqPhys = getRand(PHYSICS_TOKENS, 2);
-    const uniqOptics = getRand(OPTICS_TOKENS, 2);
-    const unique_composition = `${cleanSubject} perfectly integrated within a ${uniqEnv}. A one-in-a-billion photographic masterpiece. Ultimate setup: ${uniqCombo}. Physical light transport: ${uniqPhys}. Master optics: ${uniqOptics}. Realism modifiers: ${uniqMeta}, ${uniqAdd}. True-to-life physical accuracy, perfect optical physics, path-traced global illumination, retina-display clarity. Raw unedited aesthetic. Zero CGI artifacts, absolutely no text, no signatures. [Aspect Ratio: ${aspect_ratio}]`;
+    const uniqMeta = getRand(THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 6);
+    const uniqAdd = getRand(ADDITIONAL_REALISM_TOKENS, 4);
+    const uniqEnv = getRand(ENV_TOKENS, 3);
+    const uniqPhys = getRand(PHYSICS_TOKENS, 5);
+    const uniqOptics = getRand(OPTICS_TOKENS, 4);
+    const uniqAbs = getRand(ABSTRACT_META_TOKENS, 4);
+    const uniqRender = getRand(AI_RENDER_TOKENS, 4);
+    const uniqLight = getRand(LIGHTING_TOKENS, 4);
+    const uniqMod = getRand(MODIFIER_TOKENS, 5);
+    const uniqCamera = getRand(CAMERA_TOKENS, 1);
+    const uniqLens = getRand(LENS_TOKENS, 1);
+
+    const unique_composition = `/// V8 MAXIMUM OVERRIDE PROTOCOL INITIATED /// A staggering, unprecedented, one-of-a-kind visual paradox that redefines the boundaries of digital art. CORE SUBJECT: ${cleanSubject}. The subject exists in a hyper-detailed, mind-bending surreal juxtaposition, bridging multiple dimensional realities. PRIMARY ENVIRONMENT SCAPE: A seamlessly blended, impossible multi-environment featuring ${uniqEnv}. MASTER CAPTURE SETUP: ${uniqCombo}, additionally reinforced by ${uniqCamera} paired with ${uniqLens}. ILLUMINATION & ATMOSPHERIC PHYSICS: ${uniqLight}, strictly governed by hyper-accurate physical light transport algorithms including ${uniqPhys}. ADVANCED OPTICAL ENGINE: ${uniqOptics}, achieving impossible spatial depth and micro-contrast. CONCEPTUAL ABSTRACTION BLEND: Fusing raw, unfiltered photographic truth with impossible geometric concepts like ${uniqAbs}. NEXT-GEN RENDER PIPELINE: Powered by ${uniqRender}. EXTREME REALISM MODIFIERS: ${uniqMeta}, ${uniqAdd}, ${uniqMod}. This masterpiece must break the boundaries of human imagination while maintaining absolute, uncompromising photographic fidelity, molecular-level texture mapping, and retina-display clarity. Raw unedited aesthetic, true-to-life material response, insanely detailed. Zero CGI artifacts, absolutely no text, no signatures, no watermarks, flawless perfection. [Aspect Ratio: ${aspect_ratio}]`;
 
     return {
         abstract: abstract_composition,
