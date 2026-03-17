@@ -83,7 +83,6 @@ const FullScreenBoot = ({ onComplete }) => {
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
   
-  // React Spring za glatko punjenje opruge
   const { offset, percent } = useSpring({
     offset: circumference - (Math.min(progress, 100) / 100) * circumference,
     percent: Math.min(progress, 100),
@@ -125,7 +124,6 @@ const getRibbonStyle = (index) => {
   return colors[Math.max(0, index - 1) % colors.length];
 };
 
-// FRAMER MOTION PRIMENJEN NA KARTICE
 const MarketplaceCard = ({ app, index }) => {
   const isVideo = app.media?.[0]?.type === 'video' || app.media?.[0]?.url?.match(/\.(mp4|webm|ogg|mov)$/i);
   const displayUrl = isVideo ? `${app.media[0].url}#t=0.001` : (app.media?.[0]?.url || data.bannerUrl);
@@ -216,7 +214,6 @@ const SmartScrollButton = () => {
   );
 };
 
-// FRAMER MOTION PRIMENJEN NA BANER
 const WelcomeBanner = ({ onClose }) => (
   <div className="fixed inset-0 z-[6000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <motion.div 
@@ -245,7 +242,6 @@ const OptionButton = ({ label, selected, onClick, type }) => {
 const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
   let title = type.toUpperCase();
   let icon = null;
-  // DODATA gsap-result-box KLASA ZA ANIMACIJU
   let containerClass = "gsap-result-box w-full bg-[#0a0a0a]/40 backdrop-blur-xl border rounded-2xl p-6 pb-20 relative flex flex-col h-full min-h-[250px] transition-all duration-500 hover:-translate-y-1 group ";
   let labelClass = "text-[10px] md:text-[11px] font-black uppercase tracking-widest mb-4 border-b pb-3 flex items-center transition-colors duration-500 ";
   let buttonClass = "absolute bottom-6 right-6 px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg ";
@@ -314,7 +310,6 @@ function EnhancerPage() {
 
   const containerRef = useRef();
 
-  // GSAP STAGGER ANIMACIJA ZA REZULTATE
   useGSAP(() => {
     if (generatedPrompts.abstract) {
       gsap.from('.gsap-result-box', {
@@ -467,8 +462,12 @@ function EnhancerPage() {
       <div className="mb-8 relative z-10"><Link to="/" className="text-zinc-400 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-all w-fit"><ChevronLeft className="w-4 h-4" /> Sistemski Registar</Link></div>
       <div className="mb-12 text-left lg:text-center w-full relative z-10 flex flex-col items-start lg:items-center">
         <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 text-gradient-animate drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">10X PROMPT ENHANCER</h1>
-        <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center gap-3"><span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>Premium 3-u-1 alat vredan 200$/mesečno. Trenutno BESPLATAN.</div>
+        <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center flex-wrap gap-3 justify-center text-center">
+          <span className="relative flex h-3 w-3 shrink-0"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
+          Premium 3-u-1 alat vredan 200$/mesečno. SAMO 12.000 RSD DOŽIVOTNO.
+        </div>
         <p className="text-white text-[12px] md:text-[14px] max-w-2xl font-bold uppercase tracking-[0.2em] leading-relaxed mt-6">PREMIUM AI SISTEM ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</p>
+        <a href="#" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-all mt-4 w-fit">KUPI SAD</a>
       </div>
       <div className="flex flex-col gap-12 w-full items-stretch relative z-10">
          <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 hover:border-blue-500/60 group">
@@ -609,7 +608,8 @@ function HomePage({ apps = [] }) {
   return (
     <>
       <Helmet><title>AI TOOLS PRO SMART | PROMPT GENERATOR</title></Helmet>
-      <div id="home-banner" className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white">
+      {/* DODATA LINIJA ISPOD BANERA */}
+      <div id="home-banner" className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white border-b border-orange-500/20">
         <div className="absolute inset-0 z-0 bg-black">{(data.BANNER_DATA || []).map((item, idx) => (<div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === activeSlide ? 'opacity-100' : 'opacity-0'} z-0`}><img src={item.image} className="w-full h-full object-cover opacity-80" alt="banner" /></div>))}</div>
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent z-10" />
         <div className="absolute inset-0 z-20 w-full h-full pointer-events-none opacity-40"><MatrixRain /></div>
@@ -624,16 +624,54 @@ function HomePage({ apps = [] }) {
       </div>
       <div className="max-w-7xl mx-auto px-6 py-12 text-left">
         <div id="protocols" className="flex items-center gap-4 mb-10"><div className="flex items-center gap-2.5 shrink-0"><Youtube className="text-red-600 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic">Najnoviji Intel Protokoli</h3></div><div className="h-[1px] w-32 bg-gradient-to-r from-red-600/80 to-transparent"></div></div>
-        {isLoadingVideos ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{[...Array(4)].map((_, i) => <div key={i} className="animate-pulse bg-[#0a0a0a] rounded-[2.4rem] p-6 h-48" />)}</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{liveVideos.map((vid, i) => <TutorialCard key={i} vid={vid} />)}</div>}
+        {isLoadingVideos ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{[...Array(4)].map((_, i) => <div className="animate-pulse bg-[#0a0a0a] rounded-[2.4rem] p-6 h-48" key={i} />)}</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{liveVideos.map((vid, i) => <TutorialCard key={i} vid={vid} />)}</div>}
+        
         <div id="enhancer" className="mb-24 flex flex-col items-center justify-center text-center py-20 border-y border-orange-500/30 scroll-mt-32">
           <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
-          <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-8">Premium 3-u-1 alat vredan 200$/mesečno. Trenutno BESPLATAN.</div>
-          <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mb-10 mx-auto">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.<br /><br /><span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span></p>
-          <Link to="/enxance" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all">POKRENI SISTEM</Link>
+          <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-8">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 12.000 RSD DOŽIVOTNO.</div>
+          {/* BOLDOVAN TEKST U BELOJ BOJI */}
+          <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mb-10 mx-auto">
+            <span className="font-black text-white">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</span>
+            <br /><br />
+            <span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span>
+          </p>
+          
+          {/* OBA DUGMETA JEDNO PORED DRUGOG (KUPI SAD i POGLEDAJ STRANICU) */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
+            <a href="#" target="_blank" rel="noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-all flex items-center justify-center">
+              KUPI SAD
+            </a>
+            <Link to="/enxance" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center">
+              POGLEDAJ STRANICU
+            </Link>
+          </div>
         </div>
-        <div id="marketplace" className="flex items-center gap-4 mb-10 text-left"><div className="flex items-center gap-2.5 shrink-0"><Sparkles className="text-blue-500 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic text-left">Premium Prodavnica AI Sredstava</h3></div><div className="h-[1px] w-32 bg-gradient-to-r from-blue-500/80 to-transparent"></div></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">{sortedApps.map((app, index) => <MarketplaceCard key={app.id} app={app} index={index} />)}</div>
+        
+        <div id="marketplace" className="flex items-center gap-4 mb-6 text-left">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Sparkles className="text-blue-500 w-6 h-6" />
+            <h3 className="text-white font-black uppercase text-[20px] tracking-widest italic text-left">Premium Prodavnica AI Sredstava</h3>
+          </div>
+          <div className="h-[1px] w-32 bg-gradient-to-r from-blue-500/80 to-transparent"></div>
+        </div>
+
+        {/* UPOZORENJE ZA KUPCE */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="bg-blue-900/10 border border-blue-500/30 rounded-2xl p-5 mb-10 shadow-[0_0_15px_rgba(37,99,235,0.1)] flex items-start gap-4"
+        >
+          <HelpCircle className="w-6 h-6 text-blue-500 shrink-0 mt-1 animate-pulse" />
+          <p className="text-[11px] md:text-[13px] text-zinc-300 font-medium uppercase tracking-[0.1em] leading-relaxed">
+            <span className="text-blue-400 font-black">VAŽNA NAPOMENA:</span> Svi proizvodi iz sekcije Premium Prodavnica AI Sredstava su sajtovi koji koriste <span className="text-white font-bold">isključivo engleski jezik</span> za generisanje promptova radi boljeg postizanja rezultata.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">
+          {sortedApps.map((app, index) => <MarketplaceCard key={app.id} app={app} index={index} />)}
+        </div>
       </div>
     </>
   );

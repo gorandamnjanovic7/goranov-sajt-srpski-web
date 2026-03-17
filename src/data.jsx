@@ -21,42 +21,41 @@ export const logoUrl = mojLogo;
 export const BANNER_DATA = [
   { 
     image: slikaHubImg, 
-    badge: "SYSTEM UPGRADE", 
-    title: "WELCOME TO OUR HUB", 
-    subtitle: "Ultra-fast processing for maximum quality." 
+    badge: "SISTEMSKA NADOGRADNJA", 
+    title: "DOBRODOŠLI U NAŠ CENTAR", 
+    subtitle: "Ultrabrze procesiranje za maksimalan kvalitet." 
   },
   { 
     image: zmajImg, 
-    badge: "NEW PROTOCOL", 
-    title: "EPIC REVIVAL OF AN ANCIENT CIVILIZATION v8", 
-    subtitle: "Hyper-realistic temporal diffusion models are now active. Create 4K cinematic sequences from raw text inputs." 
+    badge: "NOVI PROTOKOL", 
+    title: "EPSKO OŽIVLJAVANJE DREVNE CIVILIZACIJE v8", 
+    subtitle: "Hiper-realistični modeli temporalne difuzije su sada aktivni. Kreiraj 4K kinematografske sekvence iz sirovog tekstualnog unosa." 
   },
   { 
     image: novaSlikaImg, 
-    badge: "CORE UPDATE", 
-    title: "QUANTUM PROMPT ENGINE", 
-    subtitle: "Leverage the new multi-modal prompt architecture. Achieve 99.8% prompt adherence." 
+    badge: "AŽURIRANJE JEZGRA", 
+    title: "KVANTNI PROMPT SISTEM", 
+    subtitle: "Iskoristi novu multi-modalnu prompt arhitekturu. Ostvari 99.8% preciznosti prompta." 
   },
   { 
     image: slikaVideoImg, 
-    badge: "CINEMATIC", 
-    title: "VIRAL CONTENT ON THE EDGE", 
-    subtitle: "Achieve the most unique photorealistic images ever." 
+    badge: "KINEMATOGRAFSKI", 
+    title: "VIRALNI SADRŽAJ NA IVICI", 
+    subtitle: "Ostvari najunikatnije fotorealistične slike ikada." 
   },
   { 
     image: slikaCopyImg, 
-    badge: "NEW FEATURE", 
-    title: "ADVANCED DATA PARSING", 
-    subtitle: "Extract and manipulate complex visual structures." 
+    badge: "NOVA FUNKCIJA", 
+    title: "NAPREDNO PARSIRANJE PODATAKA", 
+    subtitle: "Ekstrahuj i manipuliši složenim vizuelnim strukturama." 
   },
   { 
     image: hollywoodImg, 
-    badge: "PREMIUM ASSET", 
-    title: "HOLLYWOOD VSX CINEMATIC GRADE ", 
-    subtitle: "Access classified rendering algorithms used by top-tier visual architects." 
+    badge: "PREMIUM SREDSTVO", 
+    title: "HOLLYWOOD VSX KINEMATOGRAFSKI NIVO ", 
+    subtitle: "Pristupi tajnim algoritmima za renderovanje koje koriste vrhunski vizuelni arhitekti." 
   }
-];
-export const formatExternalLink = (url) => { if (!url) return '#'; if (!url.startsWith('http://') && !url.startsWith('https://')) return `https://${url}`; return url; };
+];export const formatExternalLink = (url) => { if (!url) return '#'; if (!url.startsWith('http://') && !url.startsWith('https://')) return `https://${url}`; return url; };
 export const extractSys = (desc) => { if (!desc) return { d: '', s: {} }; const m = desc.match(/\[SYS\]([\s\S]*?)\[\/SYS\]/i); if (!m) return { d: desc, s: {} }; try { return { d: desc.replace(m[0], '').trim(), s: JSON.parse(m[1]) }; } catch { return { d: desc, s: {} }; } };
 export const renderDescription = (text) => { if (!text) return null; const { d } = extractSys(text); return <div className="w-full text-left"><p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-6 whitespace-pre-wrap font-sans">{d}</p></div>; };
 export const getMediaThumbnail = (url) => { if (!url) return ''; if (url.match(/\.(mp4|webm|ogg|mov)$/i)) return `${url}#t=0.001`; return url; };
@@ -1748,11 +1747,8 @@ export const ABSTRACT_AI_IMAGE_COMBINATIONS = [
 ];
 
 export const ABSTRACT_META_TOKENS = [
-  // Tvoji stari tokeni (ako ih je bilo, ostavio sam par osnovnih, ali ovo su sada glavni)
   "surreal fluid art", 
   "vivid masterpiece",
-  
-  // --- NOVI V8 ABSTRACT TOKENI ---
   "abstract_visual_structure",
   "abstract_form_language",
   "abstract_composition_flow",
@@ -1851,12 +1847,6 @@ export const ABSTRACT_META_TOKENS = [
 ];
   
 export const ENV_TOKENS = [
-  // --- TVOJI STARI TOKENI OSTAJU OVDE ---
-  // (Ostavi sve ono što si već imao u nizu)
-  // "tvoj_stari_token_1",
-  // "tvoj_stari_token_2",
-  
-  // --- NOVI V8 ENVIRONMENT TOKENI (fiksirano) ---
   "ancient_forest",
   "misty_pine_valley",
   "snow_covered_mountains",
@@ -1918,7 +1908,7 @@ export const ENV_TOKENS = [
   "frozen_glacier_crack",
   "high_altitude_peak",
   "toxic_swamp_marsh",
-  "dust_storm_wasteland", // <-- FIKSIRANO (zarez dodat)
+  "dust_storm_wasteland",
   "ash_filled_volcanic_air",
   "polar_night_landscape"
 ];export const CINEMATIC_TOKENS = [
@@ -2501,45 +2491,49 @@ export const getRandomTokens = (tokensArray, count) => {
 export const generateDetailedPrompts = (subject, aspect_ratio) => {
     if (!subject || subject.trim() === "") return { abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
     const cleanSubject = subject.trim();
-    const low = cleanSubject.toLowerCase();
 
-    // 1. PAMETNA LOGIKA ZA KAMERE I SVETLO
-    let camera = "Shot on Leica M11 + Summilux 50mm f/1.4"; 
-    let lighting = "natural ambient lighting with soft shadow transitions";
+    // Pametna helper funkcija za precizno čupanje niza
+    const getRand = (arr, count = 1) => {
+        if (!arr || arr.length === 0) return "";
+        const shuffled = [...arr].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count).join(", ");
+    };
 
-    if (low.includes('car') || low.includes('vehicle') || low.includes('bmw') || low.includes('motorcycle')) {
-        camera = "Shot on Sony A7R V, 35mm f/1.4 GM, high-speed shutter, CPL filter";
-        lighting = "automotive studio lighting, dynamic environmental reflections";
-    } else if (low.includes('landscape') || low.includes('mountain') || low.includes('nature') || low.includes('forest')) {
-        camera = "Shot on Hasselblad H6D-100c, 24mm wide angle, f/11 deep focus";
-        lighting = "golden hour volumetric lighting, rich atmospheric haze";
-    } else if (low.includes('portrait') || low.includes('man') || low.includes('woman') || low.includes('face') || low.includes('person')) {
-        camera = "Shot on Canon EOS R5, 85mm f/1.2L II USM, ultra-sharp eye focus";
-        lighting = "soft-box studio lighting, perfectly balanced Rembrandt lighting";
-    } else if (low.includes('macro') || low.includes('watch') || low.includes('insect') || low.includes('jewelry') || low.includes('close up')) {
-        camera = "Shot on Nikon Z9, 105mm f/2.8 Macro, extreme focus stacking";
-        lighting = "surgical precision lighting, high micro-contrast ring light";
-    }
+    // 1. VRHUNSKO APSTRAKTNO REMEK-DELO
+    const absCombo = getRand(ABSTRACT_AI_IMAGE_COMBINATIONS, 1);
+    const absMeta = getRand(ABSTRACT_META_TOKENS, 4);
+    const absRender = getRand(AI_RENDER_TOKENS, 2);
+    const absLight = getRand(LIGHTING_TOKENS, 2);
+    const absMod = getRand(MODIFIER_TOKENS, 2);
+    const abstract_composition = `${cleanSubject}. A breathtaking, surreal abstract masterpiece. Built upon: ${absCombo}. Visual structure defined by: ${absMeta}. Illumination: ${absLight}. Rendered with: ${absRender}. ${absMod}. Pure fluid geometric perfection, intricate multi-layered refraction. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
 
-    // 2. DINAMIČKO IZVLAČENJE TOKENA 
-    const renderTokens = getRandomTokens(AI_RENDER_TOKENS, 4);
-    const physicsTokens = getRandomTokens(PHYSICS_TOKENS, 4);
-    const opticsTokens = getRandomTokens(OPTICS_TOKENS, 3);
-    
-    // 3. BOGATE I DETALJNE KOMPOZICIJE (Univerzalne, čitaju ih svi generatori)
-    const abstract_structure = getRandomTokens(ABSTRACT_META_TOKENS, 4);
-    const abstract_composition = `A breathtaking, surreal, and highly detailed abstract masterpiece featuring a deconstructed representation of ${cleanSubject}. The subject is morphing into complex, fluid algorithmic geometry and expanding into a vast space of prismatic liquid light. Every element is intricately woven with ${abstract_structure}. Rendered with absolute precision using ${renderTokens}. [Aspect Ratio: ${aspect_ratio}]`;
+    // 2. EPSKI HOLIVUDSKI KINEMATOGRAFSKI KADAR
+    const cinCombo = getRand(CINEMATIC_COMBINATIONS, 1);
+    const cinMeta = getRand(CINEMATIC_TOKENS, 3);
+    const cinLight = getRand(LIGHTING_TOKENS, 2);
+    const cinEnv = getRand(ENV_TOKENS, 1);
+    const cinOptics = getRand(OPTICS_TOKENS, 2);
+    const cinMod = getRand(MODIFIER_TOKENS, 2);
+    const cinematic_composition = `${cleanSubject} set in a ${cinEnv}. An epic Hollywood blockbuster cinematic still. Master setup: ${cinCombo}. Illumination: ${cinLight}. Cinematic protocol: ${cinMeta}. Lens optics: ${cinOptics}. ${cinMod}. Grand storytelling framing, dramatic narrative composition, hyper-detailed. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
 
-    const cinematic_frame = getRandomTokens(CINEMATIC_TOKENS, 4);
-    const cinematic_composition = `An epic, dramatic, and highly detailed wide cinematic shot of ${cleanSubject}. The scene is constructed with profound narrative visual focus, capturing a monumental storytelling moment characterized by ${cinematic_frame}. ${camera}. The atmosphere is defined by ${lighting}, creating deep shadows and luminous highlights. Processed with ${renderTokens}. [Aspect Ratio: ${aspect_ratio}]`;
+    // 3. BESPREKORAN NEXT-GEN FOTOREALISTIČNI RENDER
+    const photoCombo = getRand(PHOTOREAL_COMBINATIONS, 1);
+    const physTokens = getRand(PHYSICS_TOKENS, 3);
+    const optTokens = getRand(OPTICS_TOKENS, 2);
+    const realTokens = getRand(REALISM_TOKENS, 3);
+    const photoRender = getRand(AI_RENDER_TOKENS, 2);
+    const photoMod = getRand(MODIFIER_TOKENS, 2);
+    const photoreal_composition = `${cleanSubject}. Flawless next-gen photorealistic render. Capture system: ${photoCombo}. Physical properties: ${physTokens}. Optics: ${optTokens}. Surface realism: ${realTokens}. Render engine: ${photoRender}. ${photoMod}. Uncompromising photographic fidelity, true-to-life material response, real-world texture depth. Absolutely no CGI artifacts, no text. [Aspect Ratio: ${aspect_ratio}]`;
 
-    const photoreal_texture = getRandomTokens(REALISM_TOKENS, 4);
-    const photoreal_composition = `A flawless, hyper-realistic, and uncompromisingly detailed photographic capture of ${cleanSubject}. ${camera}. The scene is illuminated by ${lighting}, revealing every microscopic detail. Enhanced by ${opticsTokens} and ${photoreal_texture}. The image boasts true-to-life physical accuracy, ${physicsTokens}, and unparalleled photographic fidelity. [Aspect Ratio: ${aspect_ratio}]`;
+    // 4. NAJUNIKATNIJA FOTOREALISTIČNA SLIKA IKADA
+    const uniqCombo = getRand(UNIQUE_PHOTOREAL_COMBOS, 1);
+    const uniqMeta = getRand(THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 4);
+    const uniqAdd = getRand(ADDITIONAL_REALISM_TOKENS, 2);
+    const uniqEnv = getRand(ENV_TOKENS, 1);
+    const uniqPhys = getRand(PHYSICS_TOKENS, 2);
+    const uniqOptics = getRand(OPTICS_TOKENS, 2);
+    const unique_composition = `${cleanSubject} perfectly integrated within a ${uniqEnv}. A one-in-a-billion photographic masterpiece. Ultimate setup: ${uniqCombo}. Physical light transport: ${uniqPhys}. Master optics: ${uniqOptics}. Realism modifiers: ${uniqMeta}, ${uniqAdd}. True-to-life physical accuracy, perfect optical physics, path-traced global illumination, retina-display clarity. Raw unedited aesthetic. Zero CGI artifacts, absolutely no text, no signatures. [Aspect Ratio: ${aspect_ratio}]`;
 
-    const unique_env = getRandomTokens(ENV_TOKENS, 2);
-    const unique_composition = `A one-in-a-billion photographic masterpiece. ${cleanSubject} placed perfectly within a highly detailed and atmospheric ${unique_env}. ${camera}, captured from an impossible, breathtaking perspective. The interplay of light and matter is governed by ${physicsTokens} and ${opticsTokens}, producing a visually staggering and utterly unique composition. Rendered with ${renderTokens}. [Aspect Ratio: ${aspect_ratio}]`;
-
-    // 4. SPAJANJE SVEGA ZAJEDNO
     return {
         abstract: abstract_composition,
         cinematic: cinematic_composition,
