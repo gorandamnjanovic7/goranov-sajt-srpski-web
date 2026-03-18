@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth"; 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDKR7dyv4tlLUgZn8axQ4ObNV8qxTpFEBY",
+  apiKey: "AIzaSyDKR7dyv4tLlUgZn8axQ4ObNV8qxTpFEBY",
   authDomain: "ai-tools-pro-smart.firebaseapp.com",
   projectId: "ai-tools-pro-smart",
   storageBucket: "ai-tools-pro-smart.firebasestorage.app",
