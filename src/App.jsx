@@ -5,7 +5,7 @@ import {
   PlayCircle, Sparkles, Youtube, X, ChevronLeft, ChevronRight, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick, Clock, Users, Zap, HelpCircle, ChevronDown,
-  ChevronUp, Activity, BarChart, Layers, Settings
+  ChevronUp, Activity, BarChart, Layers, Settings, Lock
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 
@@ -15,9 +15,9 @@ import { useSpring, animated } from '@react-spring/web';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-// FIREBASE IMPORTS - POPRAVLJENO DA GOOGLE LOGIN RADI!
+// FIREBASE IMPORTS
 import { db, auth, provider } from './firebase';
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import * as data from './data';
 import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription, TypewriterText } from './data';
@@ -166,7 +166,6 @@ const FullScreenBoot = ({ onComplete }) => {
     </div>
   );
 };
-
 const getRibbonStyle = (index) => {
   if (index === 0) return "bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.7)]";
   const colors = ["bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)]", "bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.5)]", "bg-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.5)]", "bg-pink-600 shadow-[0_0_15px_rgba(219,39,119,0.5)]", "bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]"];
@@ -345,7 +344,12 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
       )}
     </div>
   );
-};function EnhancerPage() {
+};
+
+// ==========================================
+// TVOJA NOVA ZAKLJUČANA 10X ENHANCER STRANICA
+// ==========================================
+function EnhancerPage() {
   const [demoInput, setDemoInput] = useState(''); 
   const [customerPrompt, setCustomerPrompt] = useState(''); 
   const [generatedPrompts, setGeneratedPrompts] = useState({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); 
@@ -364,6 +368,49 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
 
   const containerRef = useRef();
+
+  // NOVO: ZA ZAKLJUČAVANJE I IPS PLAĆANJE NA OVOJ STRANICI
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [ipsModalData, setIpsModalData] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email === "damnjanovicgoran7@gmail.com") {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handlePaymentV8 = async (tip, cena) => {
+    if (auth.currentUser) {
+      const user = auth.currentUser;
+      try {
+        await setDoc(doc(db, "posetioci", user.uid), {
+          poslednjiKlik: serverTimestamp(),
+          zainteresovanZa: tip
+        }, { merge: true });
+      } catch (err) {}
+      setIpsModalData({ tip, cena });
+    } else {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        await setDoc(doc(db, "posetioci", user.uid), {
+          ime: user.displayName,
+          email: user.email,
+          vremePrijave: serverTimestamp(),
+          zainteresovanZa: tip,
+          identitet: "V8-Klijent"
+        }, { merge: true });
+        setIpsModalData({ tip, cena });
+      } catch (error) {
+        alert("Greška pri prijavi: " + error.message);
+      }
+    }
+  };
 
   useGSAP(() => {
     if (generatedPrompts.abstract) {
@@ -548,113 +595,138 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
           <span className="relative flex h-3 w-3 shrink-0"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
           Premium 3-u-1 alat vredan 200$/mesečno. SAMO 15.000 RSD DOŽIVOTNO.
         </div>
-        <p className="text-white text-[12px] md:text-[14px] max-w-2xl font-bold uppercase tracking-[0.2em] leading-relaxed mt-6">PREMIUM AI SISTEM ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</p>
-        <MagneticButton href="#" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors mt-4 w-fit">KUPI SAD</MagneticButton>
+        <p className="text-white text-[12px] md:text-[14px] max-w-2xl font-bold uppercase tracking-[0.2em] leading-relaxed mt-6 mb-4">PREMIUM AI SISTEM ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</p>
       </div>
-      <div className="flex flex-col gap-12 w-full items-stretch relative z-10">
-         <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 hover:border-blue-500/60 group">
-            <div className="w-full text-center border-b border-blue-500/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-wider">PRETVORITE VAŠE IDEJE U UMETNIČKA DELA, BACI KOCKICE, ILI OTPREMITE VAŠU ILI NAŠU SLIKU</h2></div>
-            <div className="w-full flex flex-col lg:flex-row gap-8">
-               <div className="w-full lg:w-1/3 flex flex-col justify-start text-left">
-                 <label className="text-[14px] md:text-[16px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2 mb-3"><PlayCircle className="w-5 h-5" /> Koncept / Subjekat</label>
-                 <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Unesi svoju osnovnu ideju ili baci V8 Kockice.</p>
-               </div>
-               
-               <div className="w-full lg:w-2/3 relative flex flex-col">
-                 <div className="relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-blue-500/50">
-                   {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
-                   <textarea value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; } setDemoInput(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="npr. 'zlatni sat' ili Otpremi Sliku" className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'}`} />
-                   {!demoInput && customerPrompt.length === 0 && <label title="DODAJTE SLIKU" className="absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 transition-all cursor-pointer z-10">{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></label>}
-                   {!demoInput && customerPrompt.length === 0 && <button type="button" title="BACITE KOCKICE" onClick={handleRollDice} disabled={isRolling} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 cursor-pointer z-10"><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
-                   {demoInput && <button type="button" onClick={handleClearAll} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
-                 </div>
+
+      {/* GLAVNI OMOTAČ GDE ZAKLJUČAVAMO ALAT AKO NIJE ADMIN */}
+      <div className="relative w-full flex flex-col gap-12 items-stretch z-10">
+         
+         {/* OVERLAY KOJI POKRIVA SVE AKO KORISNIK NIJE ADMIN */}
+         {!isAdmin && (
+           <div className="absolute inset-0 z-50 bg-[#050505]/85 backdrop-blur-xl flex flex-col items-center justify-center rounded-[2.5rem] p-6 border-2 border-orange-500/30">
+              <Lock className="w-16 h-16 text-orange-500 mb-6 drop-shadow-[0_0_15px_rgba(234,88,12,0.6)]" />
+              <h2 className="text-3xl md:text-5xl font-black uppercase text-white tracking-tighter mb-4 text-center">PREMIUM PRISTUP ZAKLJUČAN</h2>
+              <p className="text-zinc-400 font-black tracking-widest text-[12px] uppercase mb-10 text-center">10X PROMPT ENHANCER JE DOSTUPAN SAMO PREMIUM KORISNICIMA</p>
+              
+              {/* DUGMIĆI ZA KUPOVINU I YOUTUBE LINK */}
+              <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl justify-center mt-2">
+                 <RippleButton onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="w-full sm:w-1/2 bg-gradient-to-r from-green-600 to-emerald-500 text-white px-8 py-5 rounded-2xl font-black text-[13px] uppercase tracking-widest shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:scale-105 transition-all">
+                    KUPI SAD (15.000 RSD)
+                 </RippleButton>
                  
-                 {uploadedImage && (
-                   <button 
-                     type="button" 
-                     onClick={handleAnalyzeImage} 
-                     disabled={isAnalyzingImage} 
-                     className="mt-4 w-full bg-gradient-to-r from-purple-800 to-indigo-600 hover:from-purple-700 hover:to-indigo-500 text-white py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center justify-center gap-3 transition-all border border-purple-500/50 cursor-pointer hover:scale-[1.01]"
-                   >
-                     {isAnalyzingImage ? <Loader2 className="w-4 h-4 animate-spin text-purple-300" /> : <Eye className="w-4 h-4 text-purple-300" />}
-                     {isAnalyzingImage ? "V8 VISION DUBINSKO SKENIRANJE U TOKU..." : "DUBINSKI ANALIZIRAJ SLIKU (V8 VISION GPT)"}
-                   </button>
-                 )}
-               </div>
-
-            </div>
-            <div className="w-full flex flex-col border-t border-blue-500/20 pt-8">
-               <label className="text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2 mb-6 border-b border-blue-500/20 pb-4"><Sparkles className="w-4 h-4 mr-1" /> Izlaz V8 Kinematografskog Sistema</label>
-               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full text-left">
-                   {['abstract', 'cinematic', 'photoreal', 'uniquePhoto'].map((type) => (<PromptResultBox key={type} type={type} text={generatedPrompts[type]} copiedBox={copiedBox} onCopy={handleCopy} />))}
-               </div>
-            </div>
-            <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-blue-500/20 pt-8">
-               <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left">
-                  <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">ODNOS STRANICA</span><div className="flex flex-wrap gap-2">{['1:1', '9:16', '16:9', '21:9'].map(ar => <OptionButton key={`ar-${ar}`} label={ar} selected={selectedAR === ar} onClick={() => setSelectedAR(ar)} type="ar" />)}</div></div>
-                  <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div>
-               </div>
-               <RippleButton onClick={(e) => handleEnhance(e, 'concept')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
-                 {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Kinematografski Koncept"}
-               </RippleButton>
-            </div>
-         </div>
-         <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 hover:border-amber-400/60 group">
-            <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[12px] md:text-[15px] font-black uppercase text-amber-400 tracking-wider">POBOLJŠAĆEMO VAŠ PROMT 10X BOLJIM</h2></div>
-            <div className="w-full flex flex-col lg:flex-row gap-8">
-               <div className="w-full lg:w-1/3 text-left">
-                 <label className="text-[14px] md:text-[16px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-3"><Zap className="w-5 h-5" /> Nalepi Korisnički Prompt</label>
-                 <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Nalepi sirovi prompt da bismo ga rekonstruisali.</p>
-               </div>
-               <div className="w-full lg:w-2/3 relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-amber-400/50">
-                 {isScanning && customerPrompt.trim() !== "" && <div className="animate-scan-amber" />}
-                 <textarea value={customerPrompt} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (demoInput.trim() !== "" || uploadedImage) { setExclusiveWarning("Moraš prvo očistiti polje 'Koncept / Subjekat'."); return; } setCustomerPrompt(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="NALEPI SVOJ SIROVI PROMPT OVDE" className="w-full flex-1 bg-transparent p-6 text-white text-[12px] md:text-[14px] outline-none resize-none min-h-[160px]" />
-                 {customerPrompt && <button type="button" onClick={() => { setCustomerPrompt(''); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); setIsScanning(false); }} className="absolute right-4 top-4 bg-red-600/10 p-2.5 rounded-xl hover:bg-red-600 cursor-pointer"><Trash2 className="w-4 h-4 text-red-500 animate-pulse" /></button>}
-               </div>
-            </div>
-            <div className="w-full flex flex-col border-t border-amber-400/20 pt-8">
-               <label className="text-[10px] md:text-[12px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-6 border-b border-amber-400/20 pb-4"><Eye className="w-4 h-4 mr-1" /> Izlaz V8 Matrice</label>
-               <div className="w-full ray-container min-h-[300px]">
-                 <div className="ray-beam" />
-                 <div className="ray-inner pb-20">
-                   <div className="text-amber-400 font-black text-[12px] uppercase mb-6 border-b border-amber-400/10 pb-4 flex items-center gap-3"><Zap className="w-4 h-4" /> Premium Unikatni Izlaz Matrice</div>
-                   <div className="w-full font-mono text-[11px] md:text-[13px] leading-relaxed text-left text-zinc-200 whitespace-pre-wrap"><ScrambleText text={generatedPrompts.single} /></div>
-                   {generatedPrompts.single && <button type="button" onClick={() => handleCopy(generatedPrompts.single, 'single')} className="absolute bottom-6 right-6 px-6 py-3 rounded-xl text-[11px] font-black uppercase bg-amber-400/10 border border-amber-400/20 text-amber-300 hover:bg-amber-400 hover:text-black transition-colors z-20">Kopiraj 10X Prompt</button>}
-                 </div>
-               </div>
-            </div>
-            <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-amber-400/20 pt-8">
-               <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left"><div className="flex flex-col gap-4"><span className="text-[12px] font-black text-amber-100 uppercase">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q2-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div></div>
-               <RippleButton onClick={(e) => handleEnhance(e, 'prompt')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
-                 {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Unikatni Prompt"}
-               </RippleButton>
-            </div>
-         </div>
-
-         {/* BOKS 3: REFERENCE GALERIJA */}
-         {gallery.length > 0 && (
-           <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative flex flex-col gap-6 transition-all duration-500 hover:border-orange-500/60 mt-4 text-center items-center">
-             <div className="flex items-center justify-center gap-3 border-b border-orange-500/20 pb-4 mb-4 w-full">
-               <Zap className="w-6 h-6 text-orange-500 animate-pulse" />
-               <h2 className="text-xl md:text-2xl font-black text-orange-500 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(234,88,12,0.4)]">Premium V8 Galerija</h2>
-             </div>
-             <div className="w-full max-w-4xl mx-auto aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 relative group bg-black shadow-inner">
-                <img src={gallery[activeGalleryIndex]?.url} alt="Main Enhancer Reference" className="w-full h-full object-cover transition-opacity duration-1000" />
-                <div className="absolute bottom-6 right-12 z-20 flex justify-center items-center group/tooltip">
-                    <span className="absolute bottom-full mb-3 px-4 py-2 bg-[#0a0a0a] border border-blue-500/50 rounded-xl text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-all shadow-xl pointer-events-none">DODAJ SLIKU</span>
-                    <button type="button" title="DODAJ SLIKU" onClick={() => { if (uploadedImage) { setShowWarningModal(true); return; } const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3.5 bg-blue-600 rounded-xl text-white hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer"><UploadCloud className="w-5 h-5" /></button>
-                </div>
-             </div>
-             <div className="flex flex-wrap justify-center gap-4 pb-4 pt-2 w-full max-w-5xl mx-auto">
-                {gallery.map((img, idx) => (
-                   <button key={img.id} type="button" onClick={() => setActiveGalleryIndex(idx)} className={`relative w-24 h-16 md:w-32 md:h-20 shrink-0 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${activeGalleryIndex === idx ? 'border-orange-500 scale-105 shadow-[0_0_15px_rgba(234,88,12,0.5)] opacity-100' : 'border-white/5 opacity-40 hover:opacity-100 hover:border-white/20'}`}>
-                      <img src={img.url} className="w-full h-full object-cover" alt="Thumbnail" />
-                      {activeGalleryIndex === idx && <div className="absolute inset-0 border-4 border-orange-500 rounded-2xl pointer-events-none"></div>}
-                   </button>
-                ))}
-             </div>
+                 <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="w-full sm:w-1/2 flex items-center justify-center bg-transparent border-2 border-orange-500 text-orange-500 px-8 py-5 rounded-2xl font-black text-[13px] uppercase tracking-widest hover:bg-orange-500/10 hover:scale-105 transition-all">
+                    <PlayCircle className="w-5 h-5 mr-2" /> POGLEDAJ DEMO
+                 </a>
+              </div>
            </div>
          )}
+
+         {/* ALAT (KOJI JE MUTAN AKO NIJE ADMIN) */}
+         <div className={`flex flex-col gap-12 w-full transition-all duration-500 ${!isAdmin ? 'pointer-events-none blur-md opacity-30 select-none' : ''}`}>
+           <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 hover:border-blue-500/60 group">
+              <div className="w-full text-center border-b border-blue-500/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-wider">PRETVORITE VAŠE IDEJE U UMETNIČKA DELA, BACI KOCKICE, ILI OTPREMITE VAŠU ILI NAŠU SLIKU</h2></div>
+              <div className="w-full flex flex-col lg:flex-row gap-8">
+                 <div className="w-full lg:w-1/3 flex flex-col justify-start text-left">
+                   <label className="text-[14px] md:text-[16px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2 mb-3"><PlayCircle className="w-5 h-5" /> Koncept / Subjekat</label>
+                   <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Unesi svoju osnovnu ideju ili baci V8 Kockice.</p>
+                 </div>
+                 
+                 <div className="w-full lg:w-2/3 relative flex flex-col">
+                   <div className="relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-blue-500/50">
+                     {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
+                     <textarea value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; } setDemoInput(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="npr. 'zlatni sat' ili Otpremi Sliku" className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'}`} />
+                     {!demoInput && customerPrompt.length === 0 && <label title="DODAJTE SLIKU" className="absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 transition-all cursor-pointer z-10">{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></label>}
+                     {!demoInput && customerPrompt.length === 0 && <button type="button" title="BACITE KOCKICE" onClick={handleRollDice} disabled={isRolling} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 cursor-pointer z-10"><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
+                     {demoInput && <button type="button" onClick={handleClearAll} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
+                   </div>
+                   
+                   {uploadedImage && (
+                     <button 
+                       type="button" 
+                       onClick={handleAnalyzeImage} 
+                       disabled={isAnalyzingImage} 
+                       className="mt-4 w-full bg-gradient-to-r from-purple-800 to-indigo-600 hover:from-purple-700 hover:to-indigo-500 text-white py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center justify-center gap-3 transition-all border border-purple-500/50 cursor-pointer hover:scale-[1.01]"
+                     >
+                       {isAnalyzingImage ? <Loader2 className="w-4 h-4 animate-spin text-purple-300" /> : <Eye className="w-4 h-4 text-purple-300" />}
+                       {isAnalyzingImage ? "V8 VISION DUBINSKO SKENIRANJE U TOKU..." : "DUBINSKI ANALIZIRAJ SLIKU (V8 VISION GPT)"}
+                     </button>
+                   )}
+                 </div>
+
+              </div>
+              <div className="w-full flex flex-col border-t border-blue-500/20 pt-8">
+                 <label className="text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2 mb-6 border-b border-blue-500/20 pb-4"><Sparkles className="w-4 h-4 mr-1" /> Izlaz V8 Kinematografskog Sistema</label>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full text-left">
+                     {['abstract', 'cinematic', 'photoreal', 'uniquePhoto'].map((type) => (<PromptResultBox key={type} type={type} text={generatedPrompts[type]} copiedBox={copiedBox} onCopy={handleCopy} />))}
+                 </div>
+              </div>
+              <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-blue-500/20 pt-8">
+                 <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left">
+                    <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">ODNOS STRANICA</span><div className="flex flex-wrap gap-2">{['1:1', '9:16', '16:9', '21:9'].map(ar => <OptionButton key={`ar-${ar}`} label={ar} selected={selectedAR === ar} onClick={() => setSelectedAR(ar)} type="ar" />)}</div></div>
+                    <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div>
+                 </div>
+                 <RippleButton onClick={(e) => handleEnhance(e, 'concept')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
+                   {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Kinematografski Koncept"}
+                 </RippleButton>
+              </div>
+           </div>
+           <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 hover:border-amber-400/60 group">
+              <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[12px] md:text-[15px] font-black uppercase text-amber-400 tracking-wider">POBOLJŠAĆEMO VAŠ PROMT 10X BOLJIM</h2></div>
+              <div className="w-full flex flex-col lg:flex-row gap-8">
+                 <div className="w-full lg:w-1/3 text-left">
+                   <label className="text-[14px] md:text-[16px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-3"><Zap className="w-5 h-5" /> Nalepi Korisnički Prompt</label>
+                   <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Nalepi sirovi prompt da bismo ga rekonstruisali.</p>
+                 </div>
+                 <div className="w-full lg:w-2/3 relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-amber-400/50">
+                   {isScanning && customerPrompt.trim() !== "" && <div className="animate-scan-amber" />}
+                   <textarea value={customerPrompt} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (demoInput.trim() !== "" || uploadedImage) { setExclusiveWarning("Moraš prvo očistiti polje 'Koncept / Subjekat'."); return; } setCustomerPrompt(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="NALEPI SVOJ SIROVI PROMPT OVDE" className="w-full flex-1 bg-transparent p-6 text-white text-[12px] md:text-[14px] outline-none resize-none min-h-[160px]" />
+                   {customerPrompt && <button type="button" onClick={() => { setCustomerPrompt(''); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); setIsScanning(false); }} className="absolute right-4 top-4 bg-red-600/10 p-2.5 rounded-xl hover:bg-red-600 cursor-pointer"><Trash2 className="w-4 h-4 text-red-500 animate-pulse" /></button>}
+                 </div>
+              </div>
+              <div className="w-full flex flex-col border-t border-amber-400/20 pt-8">
+                 <label className="text-[10px] md:text-[12px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-6 border-b border-amber-400/20 pb-4"><Eye className="w-4 h-4 mr-1" /> Izlaz V8 Matrice</label>
+                 <div className="w-full ray-container min-h-[300px]">
+                   <div className="ray-beam" />
+                   <div className="ray-inner pb-20">
+                     <div className="text-amber-400 font-black text-[12px] uppercase mb-6 border-b border-amber-400/10 pb-4 flex items-center gap-3"><Zap className="w-4 h-4" /> Premium Unikatni Izlaz Matrice</div>
+                     <div className="w-full font-mono text-[11px] md:text-[13px] leading-relaxed text-left text-zinc-200 whitespace-pre-wrap"><ScrambleText text={generatedPrompts.single} /></div>
+                     {generatedPrompts.single && <button type="button" onClick={() => handleCopy(generatedPrompts.single, 'single')} className="absolute bottom-6 right-6 px-6 py-3 rounded-xl text-[11px] font-black uppercase bg-amber-400/10 border border-amber-400/20 text-amber-300 hover:bg-amber-400 hover:text-black transition-colors z-20">Kopiraj 10X Prompt</button>}
+                   </div>
+                 </div>
+              </div>
+              <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-amber-400/20 pt-8">
+                 <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left"><div className="flex flex-col gap-4"><span className="text-[12px] font-black text-amber-100 uppercase">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q2-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div></div>
+                 <RippleButton onClick={(e) => handleEnhance(e, 'prompt')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
+                   {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Unikatni Prompt"}
+                 </RippleButton>
+              </div>
+           </div>
+
+           {/* BOKS 3: REFERENCE GALERIJA */}
+           {gallery.length > 0 && (
+             <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative flex flex-col gap-6 transition-all duration-500 hover:border-orange-500/60 mt-4 text-center items-center">
+               <div className="flex items-center justify-center gap-3 border-b border-orange-500/20 pb-4 mb-4 w-full">
+                 <Zap className="w-6 h-6 text-orange-500 animate-pulse" />
+                 <h2 className="text-xl md:text-2xl font-black text-orange-500 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(234,88,12,0.4)]">Premium V8 Galerija</h2>
+               </div>
+               <div className="w-full max-w-4xl mx-auto aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 relative group bg-black shadow-inner">
+                  <img src={gallery[activeGalleryIndex]?.url} alt="Main Enhancer Reference" className="w-full h-full object-cover transition-opacity duration-1000" />
+                  <div className="absolute bottom-6 right-12 z-20 flex justify-center items-center group/tooltip">
+                      <span className="absolute bottom-full mb-3 px-4 py-2 bg-[#0a0a0a] border border-blue-500/50 rounded-xl text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-all shadow-xl pointer-events-none">DODAJ SLIKU</span>
+                      <button type="button" title="DODAJ SLIKU" onClick={() => { if (uploadedImage) { setShowWarningModal(true); return; } const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3.5 bg-blue-600 rounded-xl text-white hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer"><UploadCloud className="w-5 h-5" /></button>
+                  </div>
+               </div>
+               <div className="flex flex-wrap justify-center gap-4 pb-4 pt-2 w-full max-w-5xl mx-auto">
+                  {gallery.map((img, idx) => (
+                     <button key={img.id} type="button" onClick={() => setActiveGalleryIndex(idx)} className={`relative w-24 h-16 md:w-32 md:h-20 shrink-0 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${activeGalleryIndex === idx ? 'border-orange-500 scale-105 shadow-[0_0_15px_rgba(234,88,12,0.5)] opacity-100' : 'border-white/5 opacity-40 hover:opacity-100 hover:border-white/20'}`}>
+                        <img src={img.url} className="w-full h-full object-cover" alt="Thumbnail" />
+                        {activeGalleryIndex === idx && <div className="absolute inset-0 border-4 border-orange-500 rounded-2xl pointer-events-none"></div>}
+                     </button>
+                  ))}
+               </div>
+             </div>
+           )}
+         </div>
       </div>
 
       {/* FRAMER MOTION NA MODALIMA */}
@@ -732,7 +804,7 @@ function HomePage({ apps = [] }) {
         <div id="protocols" className="flex items-center gap-4 mb-10"><div className="flex items-center gap-2.5 shrink-0"><Youtube className="text-red-600 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic">Najnoviji Intel Protokoli</h3></div><div className="h-[1px] w-32 bg-gradient-to-r from-red-600/80 to-transparent"></div></div>
         {isLoadingVideos ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{[...Array(4)].map((_, i) => <div className="animate-pulse bg-[#0a0a0a] rounded-[2.4rem] p-6 h-48" key={i} />)}</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{liveVideos.map((vid, i) => <TutorialCard key={i} vid={vid} />)}</div>}
         
-        {/* --- 10X ENHANCER SEKCIJA --- */}
+        {/* --- 10X ENHANCER SEKCIJA POČETNA --- */}
         <div id="enhancer" className="mb-24 flex flex-col items-center justify-center text-center py-20 border-y border-orange-500/30 scroll-mt-32">
           <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
@@ -745,9 +817,13 @@ function HomePage({ apps = [] }) {
             <span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span>
           </p>
           
+          {/* NOVO: DVA DUGMETA KAO ŠTO SI TRAŽIO NA POČETNOJ */}
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
-            <MagneticButton href="/enxance" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center">
-              POGLEDAJ STRANICU
+            <MagneticButton href="/enxance" className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center">
+              KUPI SAD
+            </MagneticButton>
+            <MagneticButton href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center">
+              POGLEDAJ DEMO
             </MagneticButton>
           </div>
         </div>
@@ -1121,7 +1197,6 @@ const AnalyticsDashboard = () => {
 };
 
 function AdminPage({ apps = [], refreshData }) {
-  const [password, setPassword] = useState(''); 
   const [isAuthenticated, setIsAuthenticated] = useState(false); 
   const [editingId, setEditingId] = useState(null); 
   const [isUploading, setIsUploading] = useState(false); 
@@ -1129,7 +1204,23 @@ function AdminPage({ apps = [], refreshData }) {
   const initialForm = { id: '', name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
   const [formData, setFormData] = useState(initialForm); 
   const sortedAppsAdmin = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
-  const handleLogin = (e) => { e.preventDefault(); const coreHash = password.split('').reduce((acc, char) => (((acc << 5) - acc) + char.charCodeAt(0)) | 0, 0); if (coreHash === 110755051) setIsAuthenticated(true); else alert("DENIED"); };
+  
+  // --- V8 GOOGLE ADMIN LOGIN ---
+  const handleGoogleLogin = async (e) => { 
+    e.preventDefault(); 
+    try { 
+      const result = await signInWithPopup(auth, provider); 
+      if (result.user.email === "damnjanovicgoran7@gmail.com") { 
+        setIsAuthenticated(true); 
+      } else { 
+        alert("PRISTUP ODBIJEN: Samo Goran (V8 Admin) ima pristup!"); 
+        auth.signOut(); 
+      } 
+    } catch (err) { 
+      alert("Greška: " + err.message); 
+    } 
+  };
+
   const handleEditClick = (app) => { const parts = (app.whopLink || "").split("[SPLIT]"); const loadedFaq = app.faq || []; const paddedFaq = Array.from({ length: 7 }, (_, i) => loadedFaq[i] || { q: '', a: '' }); setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); };
   
   const handleSubmit = async (e) => { 
@@ -1150,11 +1241,17 @@ function AdminPage({ apps = [], refreshData }) {
       <div className="bg-[#0a0a0a] p-12 rounded-[2rem] border-2 border-red-900 shadow-[0_0_30px_rgba(185,28,28,0.2)] max-w-md w-full relative group">
         <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-red-700 rounded-tr-xl"></div><div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-red-700 rounded-tl-xl"></div>
         <ShieldAlert className="w-16 h-16 text-red-600 mx-auto mb-10 shadow-[0_0_15px_rgba(185,28,28,0.3)] animate-pulse" />
-        <div className="space-y-4 mb-12"><h1 className="text-xl font-black text-red-500 uppercase tracking-[0.3em] font-sans">CLASSIFIED // ADMIN</h1></div>
-        <form onSubmit={handleLogin} className="space-y-6"><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="CORE KEY" className="w-full bg-black/40 border-2 border-red-900 p-4 rounded-xl text-red-100 outline-none text-center text-[11px] tracking-[0.6em] focus:border-red-600 transition-all" /><button type="submit" className="w-full rounded-2xl bg-gradient-to-r from-red-900 to-red-600 px-6 py-4 font-black uppercase text-[10px] tracking-widest text-white shadow-xl hover:shadow-[0_0_20px_rgba(185,28,28,0.3)] transition-all">Authorize</button></form>
+        <div className="space-y-4 mb-12"><h1 className="text-xl font-black text-red-500 uppercase tracking-[0.3em] font-sans">V8 ADMIN SISTEM</h1></div>
+        
+        {/* NOVO DUGME ZA GOOGLE LOGIN */}
+        <button onClick={handleGoogleLogin} className="w-full rounded-2xl bg-gradient-to-r from-red-900 to-red-600 px-6 py-5 font-black uppercase text-[12px] tracking-widest text-white shadow-xl hover:shadow-[0_0_20px_rgba(185,28,28,0.3)] transition-all flex items-center justify-center gap-3">
+          <Zap className="w-5 h-5" /> PRIJAVI SE KAO GORAN
+        </button>
+        
       </div>
     </div>
   );
+
   return (
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white relative">
       <div className="flex gap-4 mb-12 border-b border-white/5 pb-6">
@@ -1220,6 +1317,7 @@ function AppContent({ appsData, refreshData }) {
               <img src={data.logoUrl} className="h-8 md:h-10 object-contain animate-pulse" alt="logo" />
               <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] hidden sm:block"><span className="text-blue-500">AI TOOLS</span> <span className="text-orange-500">PRO SMART</span></span>
             </Link>
+            
             <div className="flex items-center gap-3 md:gap-4 font-black uppercase text-[10px] md:text-[11px] tracking-widest">
               <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all">Početna</Link>
               <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all">Prodavnica</Link>
