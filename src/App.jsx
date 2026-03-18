@@ -7,6 +7,7 @@ import {
   Dices, Eye, MousePointerClick, Clock, Users, Zap, HelpCircle, ChevronDown,
   ChevronUp, Activity, BarChart
 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 // --- ANIMACIJE ---
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +19,7 @@ import { db } from './firebase';
 import { collection, getDocs, query, orderBy, limit, addDoc, deleteDoc, doc } from "firebase/firestore";
 
 import * as data from './data';
-import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription } from './data';
+import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription, TypewriterText } from './data';
 import mojBaner from './moj-baner.png'; 
 
 if (typeof window !== 'undefined') {
@@ -179,9 +180,6 @@ const MarketplaceCard = ({ app, index }) => {
   const videoRef = useRef(null);
   const handlePlay = (e) => { e.preventDefault(); e.stopPropagation(); setIsPlaying(true); if (videoRef.current) { videoRef.current.muted = false; videoRef.current.currentTime = 0; videoRef.current.play(); } };
   
-  // ==========================================
-  // 4. 3D PARALLAX TILT EFEKAT
-  // ==========================================
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -360,7 +358,7 @@ function EnhancerPage() {
   const [isRolling, setIsRolling] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
-  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); // NOVO: Za V8 Vision API status
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); 
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [exclusiveWarning, setExclusiveWarning] = useState('');
   const [gallery, setGallery] = useState([]);
@@ -426,9 +424,6 @@ function EnhancerPage() {
     } catch (err) {} finally { setIsImageUploading(false); }
   };
 
-  // ==========================================
-  // NOVO: V8 VISION (GPT-4o-mini) ANALIZA SLIKE
-  // ==========================================
   const handleAnalyzeImage = async (e) => {
     if (e) e.preventDefault();
     if (!uploadedImage) return;
@@ -785,22 +780,55 @@ function HomePage({ apps = [] }) {
     </>
   );
 }
-
+// ==========================================
+// V8 SINGLE PRODUCT STRANICA (DOMAĆE TRŽIŠTE PRIORITET + IPS)
+// ==========================================
+// ==========================================
+// V8 SINGLE PRODUCT STRANICA (DOMAĆE TRŽIŠTE PRIORITET + IPS)
+// ==========================================
 function SingleProductPage({ apps = [] }) {
-  const { id } = useParams(); const app = apps.find(a => a.id === id); const [activeMedia, setActiveMedia] = useState(0); const [fullScreenImage, setFullScreenImage] = useState(null); const navigate = useNavigate(); const mainVideoRef = useRef(null);
+  const { id } = useParams(); 
+  const app = apps.find(a => a.id === id); 
+  const [activeMedia, setActiveMedia] = useState(0); 
+  const [fullScreenImage, setFullScreenImage] = useState(null); 
+  
+  // V8 UPGRADE: Stanje za pametni modal (pamti cenu i tip paketa)
+  const [ipsModalData, setIpsModalData] = useState(null); 
+
+  const navigate = useNavigate(); 
+  const mainVideoRef = useRef(null);
+  
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
+  
   if (!app) return <div className="min-h-screen bg-black flex items-center justify-center text-zinc-500 uppercase text-[10px] tracking-widest">Učitavanje...</div>;
+  
   const currentMedia = app.media?.[activeMedia] || { url: data.bannerUrl, type: 'image' }; 
   const isVideo = currentMedia?.type === 'video' || currentMedia?.url?.match(/\.(mp4|webm|ogg|mov)$/i); 
-  const { s: sysData } = data.extractSys(app.description); const parts = (app.whopLink || "").split("[SPLIT]");
+  const { s: sysData } = data.extractSys(app.description); 
+  const parts = (app.whopLink || "").split("[SPLIT]");
   const sortedApps = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
   const ribbonClass = getRibbonStyle(sortedApps.findIndex(a => a.id === id));
+
+  // --- V8 MATEMATIKA ZA OBA PLANA ---
+  const KURS_DOLARA = 115; 
+  const cenaMesecnoUDolarima = app.price ? parseFloat(app.price) : 15;
+  const cenaLifetimeUDolarima = app.priceLifetime ? parseFloat(app.priceLifetime) : 89;
+  
+  const mesecnaCenaRsd = Math.ceil(cenaMesecnoUDolarima * KURS_DOLARA);
+  const lifetimeCenaRsd = Math.ceil(cenaLifetimeUDolarima * KURS_DOLARA);
+  
+  // --- IPS GENERATOR LOGIKA (NBS STANDARD - RAIFFEISEN RAČUN) ---
+  const formatiranIznos = ipsModalData ? `RSD${ipsModalData.cena},00` : 'RSD0,00';
+  const skracenoIme = (app.name || 'AI Alat').substring(0, 15); 
+  const svrhaPlacanja = ipsModalData ? `${ipsModalData.tip} ${skracenoIme}` : '';
+  const ipsString = `K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:${formatiranIznos}|SF:289|S:${svrhaPlacanja}|RO:V8-${app.id}`;
+  // -------------------------------------
   
   return (
     <div className="bg-[#050505] pt-32 pb-32 px-6 font-sans text-white text-left relative">
       <Helmet><title>{app.name} | AI TOOLS PRO SMART</title></Helmet>
       
-      {/* ANIMIRANI FULLSCREEN MODAL */}
+      {/* FULLSCREEN PREGLED SLIKE */}
       <AnimatePresence>
         {fullScreenImage && (
           <div className="fixed inset-0 z-[6000] bg-black/95 flex items-center justify-center p-4" onClick={() => setFullScreenImage(null)}>
@@ -815,6 +843,8 @@ function SingleProductPage({ apps = [] }) {
       <div className="max-w-7xl mx-auto">
         <button onClick={() => navigate('/')} className="text-zinc-400 hover:text-white flex items-center gap-2 mb-10 uppercase text-[10px] font-black tracking-widest transition-all"><ChevronLeft className="w-4 h-4" /> Sistemski Registar</button>
         <div className="flex flex-col lg:flex-row gap-12 items-start">
+          
+          {/* LEVI DEO - GALERIJA I OPIS */}
           <div className="w-full lg:w-[65%]">
             {app.type && <div className={`mb-6 px-6 py-2.5 rounded-full inline-block text-white text-[13px] font-black uppercase tracking-[0.2em] shadow-xl ${ribbonClass}`}>{app.type}</div>}
             <div className="relative mb-6 aspect-video rounded-[2.5rem] overflow-hidden border-2 border-blue-500 bg-black shadow-2xl group">
@@ -827,6 +857,8 @@ function SingleProductPage({ apps = [] }) {
             {app.headline && <p className="text-[18px] md:text-[22px] text-white font-black mb-10 border-l-[5px] border-orange-500 pl-5 italic leading-relaxed">{app.headline}</p>}
             <div className="border-t border-white/5 pt-10 mb-12">
                <FormattedDescription text={app.description} />
+               
+               {/* FAQ SEKCIJA */}
                <div className="mt-14 border-t border-white/5 pt-12">
                  <details className="group">
                    <summary className="w-full flex items-center justify-between text-left cursor-pointer outline-none list-none [&::-webkit-details-marker]:hidden"><h3 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-widest border-l-[5px] border-orange-500 pl-5 italic flex items-center gap-4 transition-colors group-hover:text-orange-500 m-0"><HelpCircle className="w-6 h-6 text-orange-500" /> ČESTO POSTAVLJANA PITANJA</h3><ChevronDown className="w-8 h-8 text-zinc-500 group-hover:text-orange-500 transition-transform duration-300 group-open:rotate-180" /></summary>
@@ -835,28 +867,111 @@ function SingleProductPage({ apps = [] }) {
                </div>
             </div>
           </div>
+
+          {/* DESNI DEO - STICKY SIDEBAR ZA PRODAJU */}
           <div className="w-full lg:w-[35%] lg:sticky lg:top-40">
             <div className="bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
-              <img src={mojBaner} alt="" className="w-full h-40 object-cover rounded-2xl mb-8" />
-              <div className="space-y-6 mb-8">
-                <div className="relative rounded-2xl bg-white/[0.02] border border-white/10 py-3.5 flex items-center justify-center"><div className="absolute -top-3 px-4 py-1 rounded-full bg-blue-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Mesečno</div><span className="text-2xl font-black">${app.price || '14.99'}</span></div>
-                <div className="relative rounded-2xl bg-orange-500/[0.03] border border-orange-500/30 py-3.5 flex items-center justify-center mt-6"><div className="absolute -top-3 px-4 py-1 rounded-full bg-orange-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Doživotno</div><span className="text-2xl font-black">${app.priceLifetime || '88.99'}</span></div>
-              </div>
-              <a href={data.formatExternalLink(sysData.w || parts[0])} target="_blank" rel="noreferrer" className="w-full py-5 rounded-2xl flex items-center justify-center bg-blue-600 text-white font-black text-[13px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl">Otključaj na Whop-u</a>
-              <div className="pt-6 border-t border-white/5 mt-6">
-                <div className="flex items-center justify-center gap-2 mb-4 text-orange-500"><Award className="w-5 h-5" /><span className="text-[11px] font-black uppercase tracking-widest">Dev Paket</span></div>
+              <img src={mojBaner} alt="Banner" className="w-full h-40 object-cover rounded-2xl mb-8 border border-white/5" />
+              
+              {/* 1. SRPSKI BLOK (PRIORITET - ODMAH ISPOD BANERA) */}
+              <div className="bg-[#050505] border border-orange-500/40 p-5 rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] relative overflow-hidden group mb-8">
+                <div className="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-lg z-10">Srbija 🇷🇸</div>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-4 mt-1 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> Plaćanje Uplatnicom / E-banking
+                </p>
+                
                 <div className="flex flex-col gap-3">
-                  <a href={data.formatExternalLink(sysData.g || parts[1])} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-blue-900 bg-[#0f172a] text-blue-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-blue-900 hover:text-white transition-all shadow-lg text-center px-2">OTKLJUČAJ REACT IZVORNI KOD NA WHOP-U <ArrowRight className="w-4 h-4 shrink-0" /></a>
-                  {app.gumroadLink && <a href={data.formatExternalLink(app.gumroadLink)} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-purple-800 bg-[#2e1065] text-purple-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-purple-800 hover:text-white transition-all shadow-lg text-center px-2">OTKLJUČAJ REACT IZVORNI KOD NA GUMROAD-U <ArrowRight className="w-4 h-4 shrink-0" /></a>}
+                  <button
+                    onClick={() => setIpsModalData({ tip: 'Mesečno', cena: mesecnaCenaRsd })}
+                    className="w-full py-3.5 rounded-xl flex items-center justify-between px-4 bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-white font-black text-[11px] uppercase tracking-widest transition-all"
+                  >
+                    <span className="flex items-center gap-2"><Zap className="w-4 h-4 text-orange-500" /> Mesečno</span>
+                    <span className="text-orange-400">{mesecnaCenaRsd.toLocaleString('sr-RS')} RSD</span>
+                  </button>
+
+                  <button
+                    onClick={() => setIpsModalData({ tip: 'Lifetime', cena: lifetimeCenaRsd })}
+                    className="w-full py-3.5 rounded-xl flex items-center justify-between px-4 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/40 hover:from-orange-600 hover:to-amber-600 text-white font-black text-[11px] uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(234,88,12,0.2)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)]"
+                  >
+                    <span className="flex items-center gap-2"><Award className="w-4 h-4 text-amber-400" /> Doživotno</span>
+                    <span className="text-white drop-shadow-md">{lifetimeCenaRsd.toLocaleString('sr-RS')} RSD</span>
+                  </button>
                 </div>
               </div>
+
+              {/* 2. INTERNACIONALNI BLOK (DOLARI I WHOP) */}
+              <div className="pt-6 border-t border-white/5 mb-8">
+                <div className="flex items-center justify-center gap-2 mb-6 text-zinc-500"><span className="text-[10px] font-black uppercase tracking-widest">Internacionalno (USD)</span></div>
+                
+                <div className="space-y-6 mb-8">
+                  <div className="relative rounded-2xl bg-white/[0.02] border border-white/10 py-3.5 flex items-center justify-center"><div className="absolute -top-3 px-4 py-1 rounded-full bg-blue-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Mesečno</div><span className="text-2xl font-black">${app.price || '14.99'}</span></div>
+                  <div className="relative rounded-2xl bg-orange-500/[0.03] border border-orange-500/30 py-3.5 flex items-center justify-center mt-6"><div className="absolute -top-3 px-4 py-1 rounded-full bg-orange-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Doživotno</div><span className="text-2xl font-black">${app.priceLifetime || '88.99'}</span></div>
+                </div>
+                
+                <a href={data.formatExternalLink(sysData.w || parts[0])} target="_blank" rel="noreferrer" className="w-full py-5 rounded-2xl flex items-center justify-center bg-blue-600 text-white font-black text-[13px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl">Otključaj na Whop-u</a>
+              </div>
+
+              {/* 3. SEKCIJA ZA SOURCE CODE */}
+              <div className="pt-6 border-t border-white/5 mt-6 mb-2">
+                <div className="flex items-center justify-center gap-2 mb-4 text-blue-400"><Award className="w-5 h-5" /><span className="text-[11px] font-black uppercase tracking-widest">Dev Paket</span></div>
+                <div className="flex flex-col gap-3">
+                  <a href={data.formatExternalLink(sysData.g || parts[1])} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-blue-900 bg-[#0f172a] text-blue-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-blue-900 hover:text-white transition-all shadow-lg text-center px-2">Kupi React Kod na Whop-u <ArrowRight className="w-4 h-4 shrink-0" /></a>
+                  {app.gumroadLink && <a href={data.formatExternalLink(app.gumroadLink)} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-purple-800 bg-[#2e1065] text-purple-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-purple-800 hover:text-white transition-all shadow-lg text-center px-2">Kupi React Kod na Gumroad-u <ArrowRight className="w-4 h-4 shrink-0" /></a>}
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
       </div>
+
+      {/* === PAMETNI MODAL ZA UPLATNICU / IPS === */}
+      <AnimatePresence>
+        {ipsModalData && (
+          <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden"
+            >
+              <button onClick={() => setIpsModalData(null)} className="absolute top-5 right-5 bg-white/5 p-2.5 rounded-full text-zinc-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all z-10"><X size={20} strokeWidth={3} /></button>
+              <div className="p-10 flex flex-col items-center">
+                <h3 className="text-[18px] font-black uppercase tracking-widest mb-2 text-orange-500 flex items-center gap-3"><Zap className="w-5 h-5" /> Instrukcije za uplatu</h3>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6">Paket: {ipsModalData.tip}</p>
+                
+                <div className="w-52 h-52 bg-white p-3 rounded-3xl mb-5 flex items-center justify-center border-4 border-dashed border-orange-500/30 shadow-inner overflow-hidden relative">
+                  {/* GENERATOR KODA UŽIVO */}
+                  <QRCodeCanvas 
+                    value={ipsString} 
+                    size={180} 
+                    bgColor={"#ffffff"} 
+                    fgColor={"#000000"} 
+                    level={"M"} 
+                    includeMargin={false}
+                  />
+                </div>
+
+                <div className="text-[10px] font-black bg-orange-500/10 border border-orange-500/20 text-orange-400 px-5 py-2.5 rounded-full uppercase tracking-widest mb-10 shadow-lg">Skeniraj m-banking aplikacijom</div>
+                <div className="w-full bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-4 text-[13px] font-mono shadow-inner">
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Primalac:</span><span className="font-bold text-white text-right">Goran Damnjanović</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Račun:</span><span className="font-bold text-white text-[11px] md:text-[13px]">265-0000006535770-83</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={svrhaPlacanja}>{svrhaPlacanja}</span></div>
+                  <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
+                </div>
+                <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-8 text-center leading-relaxed font-bold">Nakon uplate, pošaljite nam dokaz na email i odmah dobijate pristup.</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+// ==========================================
+// TVOJA NADOGRAĐENA SINGLE PRODUCT STRANICA SA IPS MODALOM KRAJ
+// ==========================================
 
 const EnhancerAdminGallery = () => {
   const [gallery, setGallery] = useState([]);

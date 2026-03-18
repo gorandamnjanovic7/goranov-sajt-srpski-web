@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+// NOVO: Importujemo modul za logovanje
+import { getAuth, GoogleAuthProvider } from "firebase/auth"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKR7dyv4tlLUgZn8axQ4ObNV8qxTpFEBY",
@@ -13,3 +15,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+// NOVO: Izvozimo funkcije za logovanje kako bismo ih koristili u App.jsx
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
