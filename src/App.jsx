@@ -18,10 +18,7 @@ import { db } from './firebase';
 import { collection, getDocs, query, orderBy, limit, addDoc, deleteDoc, doc } from "firebase/firestore";
 
 import * as data from './data';
-import { 
-  TypewriterText, UniversalVideoPlayer, 
-  MatrixRain, TutorialCard, FormattedDescription 
-} from './data';
+import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription } from './data';
 import mojBaner from './moj-baner.png'; 
 
 if (typeof window !== 'undefined') {
@@ -34,7 +31,8 @@ if (typeof window !== 'undefined') {
   window.scrollTo(0, 0);
 }
 
-const BASE_BACKEND_URL = "https://aitoolsprosmart-becend-production.up.railway.app"; 
+// TVOJ NOVI RAILWAY CLOUD SERVER LINK
+const BASE_BACKEND_URL = "https://goranov-sajt-srpski-backend-production.up.railway.app"; 
 const API_URL = `${BASE_BACKEND_URL}/api/products`;
 
 // --- V8 SYSTEM CONFIG ---
@@ -62,56 +60,105 @@ export const logAnalyticsEvent = async (type, details) => {
   } catch (err) {}
 };
 
+// ==========================================
+// 1. SCRAMBLE TEXT (MATRIX DEKODIRANJE)
+// ==========================================
+const ScrambleText = ({ text }) => {
+  const [displayed, setDisplayed] = useState('');
+  useEffect(() => {
+    if (!text) { setDisplayed(''); return; }
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!<>-_\\/[]{}—=+*^?#';
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayed(text.split('').map((char, index) => {
+        if(index < iteration) return char;
+        if(char === ' ' || char === '\n') return char;
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join(''));
+      if (iteration >= text.length) clearInterval(interval);
+      iteration += text.length > 500 ? 6 : text.length > 100 ? 3 : 1;
+    }, 25);
+    return () => clearInterval(interval);
+  }, [text]);
+  return <span>{displayed || "ČEKAM UNOS U JEZGRO..."}<span className="animate-pulse opacity-50 text-orange-500">_</span></span>;
+};
+
+// ==========================================
+// 2. MAGNETIC BUTTON (MAGNETNA DUGMAD)
+// ==========================================
+const MagneticButton = ({ children, className, onClick, href, target, rel }) => {
+  const ref = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const handleMouse = (e) => {
+    const { clientX, clientY } = e;
+    const { height, width, left, top } = ref.current.getBoundingClientRect();
+    const x = (clientX - (left + width / 2)) * 0.3;
+    const y = (clientY - (top + height / 2)) * 0.3;
+    setPos({ x, y });
+  };
+  const reset = () => setPos({ x: 0, y: 0 });
+  const Component = href ? motion.a : motion.button;
+  return (
+    <Component ref={ref} href={href} target={target} rel={rel} onClick={onClick} onMouseMove={handleMouse} onMouseLeave={reset} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }} className={className} style={{ display: 'inline-flex', position: 'relative', zIndex: 50 }}>
+      {children}
+    </Component>
+  );
+};
+
+// ==========================================
+// 3. RIPPLE BUTTON (UDARNI TALAS)
+// ==========================================
+const RippleButton = ({ children, onClick, disabled, className }) => {
+  const [ripples, setRipples] = useState([]);
+  const handleClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setRipples([...ripples, { id: Date.now(), x, y }]);
+    if (onClick) onClick(e);
+  };
+  return (
+    <button type="button" onClick={handleClick} disabled={disabled} className={`relative overflow-hidden ${className}`}>
+      <span className="relative z-10 flex items-center justify-center">{children}</span>
+      <AnimatePresence>
+        {ripples.map(r => (
+          <motion.span key={r.id} initial={{ scale: 0, opacity: 0.5 }} animate={{ scale: 4, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="absolute bg-white/40 rounded-full pointer-events-none z-0" style={{ left: r.x, top: r.y, width: 100, height: 100, marginTop: -50, marginLeft: -50 }} onAnimationComplete={() => setRipples(prev => prev.filter(rip => rip.id !== r.id))} />
+        ))}
+      </AnimatePresence>
+    </button>
+  );
+};
+
 // --- V8 CINEMATIC LOADER (REACT SPRING ANIMATED) ---
 const FullScreenBoot = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(onComplete, 800); 
-          return 100;
-        }
+        if (p >= 100) { clearInterval(interval); setTimeout(onComplete, 800); return 100; }
         return p + Math.floor(Math.random() * 5) + 1; 
       });
     }, 60);
     return () => clearInterval(interval);
   }, [onComplete]);
 
-  const radius = 60;
-  const circumference = 2 * Math.PI * radius;
-  
-  const { offset, percent } = useSpring({
-    offset: circumference - (Math.min(progress, 100) / 100) * circumference,
-    percent: Math.min(progress, 100),
-    config: { tension: 120, friction: 14 }
-  });
+  const radius = 60; const circumference = 2 * Math.PI * radius;
+  const { offset, percent } = useSpring({ offset: circumference - (Math.min(progress, 100) / 100) * circumference, percent: Math.min(progress, 100), config: { tension: 120, friction: 14 } });
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center">
       <div className="relative flex items-center justify-center mb-8">
         <svg className="w-56 h-56 transform -rotate-90 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)]" viewBox="0 0 140 140">
           <circle cx="70" cy="70" r={radius} fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-          <animated.circle 
-            cx="70" cy="70" r={radius} 
-            fill="transparent" stroke="#ea580c" strokeWidth="3" 
-            strokeDasharray={circumference} 
-            strokeDashoffset={offset} 
-            strokeLinecap="round" 
-          />
+          <animated.circle cx="70" cy="70" r={radius} fill="transparent" stroke="#ea580c" strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" />
         </svg>
         <img src={data.logoUrl} alt="Logo" className={`absolute w-16 h-16 object-contain transition-all duration-1000 ${progress >= 100 ? 'scale-125 drop-shadow-[0_0_30px_rgba(234,88,12,1)]' : 'animate-pulse'}`} />
       </div>
       <div className="flex flex-col items-center gap-3">
         <div className="text-orange-600 font-black uppercase tracking-[0.6em] text-[13px] drop-shadow-[0_0_10px_rgba(234,88,12,0.5)]">V8 Sistem se Pokreće</div>
         <div className="text-zinc-500 font-mono text-[10px] tracking-[0.4em] flex items-center gap-3">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
-          <span>USPOSTAVLJANJE VEZE</span>
-          <animated.span className="text-orange-500 font-black min-w-[30px]">
-            {percent.to(n => `${Math.floor(n)}%`)}
-          </animated.span>
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" /><span>USPOSTAVLJANJE VEZE</span>
+          <animated.span className="text-orange-500 font-black min-w-[30px]">{percent.to(n => `${Math.floor(n)}%`)}</animated.span>
         </div>
       </div>
     </div>
@@ -132,13 +179,23 @@ const MarketplaceCard = ({ app, index }) => {
   const videoRef = useRef(null);
   const handlePlay = (e) => { e.preventDefault(); e.stopPropagation(); setIsPlaying(true); if (videoRef.current) { videoRef.current.muted = false; videoRef.current.currentTime = 0; videoRef.current.play(); } };
   
+  // ==========================================
+  // 4. 3D PARALLAX TILT EFEKAT
+  // ==========================================
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+    const centerX = rect.width / 2; const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -12; 
+    const rotateY = ((x - centerX) / centerX) * 12;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+
   return (
-    <motion.div 
-      whileHover={{ y: -10, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="group relative rounded-[2.5rem] p-[2px] bg-gradient-to-br from-orange-500 to-blue-600 hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] flex flex-col h-full"
-    >
-      <div className="bg-[#0a0a0a] rounded-[2.4rem] p-5 flex flex-col h-full relative overflow-hidden">
+    <motion.div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} animate={{ rotateX: tilt.x, rotateY: tilt.y, scale: tilt.x === 0 && tilt.y === 0 ? 1 : 1.02 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} style={{ perspective: 1000, transformStyle: "preserve-3d" }} className="group relative rounded-[2.5rem] p-[2px] bg-gradient-to-br from-orange-500 to-blue-600 hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] flex flex-col h-full z-10 hover:z-20">
+      <div className="bg-[#0a0a0a] rounded-[2.4rem] p-5 flex flex-col h-full relative overflow-hidden transition-transform duration-300">
         {app.type && (
           <div className="absolute top-8 -right-14 w-52 text-center rotate-45 z-30 pointer-events-none drop-shadow-2xl">
             {app.type === 'THE MOST UNIQUE PHOTOREALISTIC IMAGE EVER' ? (
@@ -280,7 +337,7 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
     <div className={containerClass}>
       <label className={labelClass}>{icon}{title}</label>
       <div className="w-full font-mono text-[11px] md:text-[13px] leading-relaxed text-left flex-1 text-zinc-200 whitespace-pre-wrap mt-2">
-        {text ? <TypewriterText text={text} speed={8} /> : "ČEKAM UNOS U JEZGRO..."}
+        <ScrambleText text={text} />
       </div>
       {text && (
         <button type="button" onClick={() => onCopy(text, type)} className={buttonClass}>
@@ -303,6 +360,7 @@ function EnhancerPage() {
   const [isRolling, setIsRolling] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); // NOVO: Za V8 Vision API status
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [exclusiveWarning, setExclusiveWarning] = useState('');
   const [gallery, setGallery] = useState([]);
@@ -312,14 +370,7 @@ function EnhancerPage() {
 
   useGSAP(() => {
     if (generatedPrompts.abstract) {
-      gsap.from('.gsap-result-box', {
-        y: 50,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: 'back.out(1.2)',
-        clearProps: 'all'
-      });
+      gsap.from('.gsap-result-box', { y: 50, opacity: 0, duration: 0.6, stagger: 0.15, ease: 'back.out(1.2)', clearProps: 'all' });
     }
   }, { dependencies: [generatedPrompts.abstract], scope: containerRef });
 
@@ -338,9 +389,7 @@ function EnhancerPage() {
 
   useEffect(() => {
     if (gallery.length <= 1) return;
-    const interval = setInterval(() => {
-      setActiveGalleryIndex((prev) => (prev + 1) % gallery.length);
-    }, 15000);
+    const interval = setInterval(() => { setActiveGalleryIndex((prev) => (prev + 1) % gallery.length); }, 15000);
     return () => clearInterval(interval);
   }, [gallery.length]);
 
@@ -375,6 +424,39 @@ function EnhancerPage() {
       setUploadedImage(resData.secure_url);
       setDemoInput(prev => prev ? `${resData.secure_url} ${prev}` : resData.secure_url);
     } catch (err) {} finally { setIsImageUploading(false); }
+  };
+
+  // ==========================================
+  // NOVO: V8 VISION (GPT-4o-mini) ANALIZA SLIKE
+  // ==========================================
+  const handleAnalyzeImage = async (e) => {
+    if (e) e.preventDefault();
+    if (!uploadedImage) return;
+    setIsAnalyzingImage(true);
+    try {
+        const promptInstruction = "Kao ekspert za inženjering promptova, dubinski i tehnički analiziraj ovu sliku. Opiši glavni subjekat, atmosferu, stil, paletu boja, tip osvetljenja i podešavanja kamere/sočiva (ako izgleda kao fotografija). Napiši izlaz isključivo na engleskom jeziku u formi vrhunskog prompta, bez dodatnih uvoda ili objašnjenja.";
+        
+        const res = await fetch(`${BASE_BACKEND_URL}/api/read-image`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                imageUrl: uploadedImage,
+                prompt: promptInstruction
+            })
+        });
+        const apiData = await res.json();
+        
+        if (apiData.result) {
+            setDemoInput(apiData.result);
+            setCustomerPrompt('');
+        } else if (apiData.error) {
+            alert("V8 Vision Greška: " + apiData.error);
+        }
+    } catch (err) {
+        alert("Greška pri komunikaciji sa V8 Cloud serverom za analizu slike.");
+    } finally {
+        setIsAnalyzingImage(false);
+    }
   };
   
   const handleEnhance = (e, boxType) => {
@@ -457,6 +539,12 @@ function EnhancerPage() {
         .animate-scan-amber { position: absolute; left: 0; width: 100%; height: 2px; background: #fbbf24; box-shadow: 0 0 25px 3px #fbbf24; z-index: 50; animation: scanLineAmber 2.5s infinite; }
         @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .text-gradient-animate { background-size: 200% auto; animation: gradientMove 4s ease infinite; }
+        
+        /* GLOWING RAY ANIMATION CSS */
+        @keyframes raySpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        .ray-container { position: relative; overflow: hidden; border-radius: 2rem; padding: 2px; }
+        .ray-beam { position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: conic-gradient(from 0deg, transparent 75%, rgba(251,191,36,0.8) 90%, transparent 100%); animation: raySpin 3s linear infinite; transform-origin: 0 0; z-index: 0; }
+        .ray-inner { background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-radius: calc(2rem - 2px); position: relative; z-index: 1; height: 100%; padding: 1.5rem; display: flex; flex-direction: column; }
       `}</style>
       <Helmet><title>10X ENHANCER | AI TOOLS PRO SMART</title></Helmet>
       <div className="mb-8 relative z-10"><Link to="/" className="text-zinc-400 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-all w-fit"><ChevronLeft className="w-4 h-4" /> Sistemski Registar</Link></div>
@@ -467,23 +555,40 @@ function EnhancerPage() {
           Premium 3-u-1 alat vredan 200$/mesečno. SAMO 12.000 RSD DOŽIVOTNO.
         </div>
         <p className="text-white text-[12px] md:text-[14px] max-w-2xl font-bold uppercase tracking-[0.2em] leading-relaxed mt-6">PREMIUM AI SISTEM ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</p>
-        <a href="#" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-all mt-4 w-fit">KUPI SAD</a>
+        <MagneticButton href="#" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors mt-4 w-fit">KUPI SAD</MagneticButton>
       </div>
       <div className="flex flex-col gap-12 w-full items-stretch relative z-10">
          <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 hover:border-blue-500/60 group">
-            <div className="w-full text-center border-b border-blue-500/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-wider">PRETVORI SVOJE IDEJE, BACI KOCKICE, ILI OTPREMI SLIKU</h2></div>
+            <div className="w-full text-center border-b border-blue-500/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-wider">PRETVORITE VAŠE IDEJE U UMETNIČKA DELA, BACI KOCKICE, ILI OTPREMITE VAŠU ILI NAŠU SLIKU</h2></div>
             <div className="w-full flex flex-col lg:flex-row gap-8">
                <div className="w-full lg:w-1/3 flex flex-col justify-start text-left">
                  <label className="text-[14px] md:text-[16px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2 mb-3"><PlayCircle className="w-5 h-5" /> Koncept / Subjekat</label>
                  <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Unesi svoju osnovnu ideju ili baci V8 Kockice.</p>
                </div>
-               <div className="w-full lg:w-2/3 relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-blue-500/50">
-                 {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
-                 <textarea value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; } setDemoInput(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="npr. 'zlatni sat' ili Otpremi Sliku" className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'}`} />
-                 {!demoInput && customerPrompt.length === 0 && <label className="absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 transition-all cursor-pointer z-10">{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></label>}
-                 {!demoInput && customerPrompt.length === 0 && <button type="button" onClick={handleRollDice} disabled={isRolling} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 cursor-pointer z-10"><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
-                 {demoInput && <button type="button" onClick={handleClearAll} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
+               
+               <div className="w-full lg:w-2/3 relative flex flex-col">
+                 <div className="relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 focus-within:border-blue-500/50">
+                   {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
+                   <textarea value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; } setDemoInput(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder="npr. 'zlatni sat' ili Otpremi Sliku" className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'}`} />
+                   {!demoInput && customerPrompt.length === 0 && <label title="DODAJTE SLIKU" className="absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 transition-all cursor-pointer z-10">{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" /></label>}
+                   {!demoInput && customerPrompt.length === 0 && <button type="button" title="BACITE KOCKICE" onClick={handleRollDice} disabled={isRolling} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl hover:bg-blue-600 cursor-pointer z-10"><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
+                   {demoInput && <button type="button" onClick={handleClearAll} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
+                 </div>
+                 
+                 {/* NOVO: DUGME ZA V8 VISION ANALIZU */}
+                 {uploadedImage && (
+                   <button 
+                     type="button" 
+                     onClick={handleAnalyzeImage} 
+                     disabled={isAnalyzingImage} 
+                     className="mt-4 w-full bg-gradient-to-r from-purple-800 to-indigo-600 hover:from-purple-700 hover:to-indigo-500 text-white py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center justify-center gap-3 transition-all border border-purple-500/50 cursor-pointer hover:scale-[1.01]"
+                   >
+                     {isAnalyzingImage ? <Loader2 className="w-4 h-4 animate-spin text-purple-300" /> : <Eye className="w-4 h-4 text-purple-300" />}
+                     {isAnalyzingImage ? "V8 VISION DUBINSKO SKENIRANJE U TOKU..." : "DUBINSKI ANALIZIRAJ SLIKU (V8 VISION GPT)"}
+                   </button>
+                 )}
                </div>
+
             </div>
             <div className="w-full flex flex-col border-t border-blue-500/20 pt-8">
                <label className="text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2 mb-6 border-b border-blue-500/20 pb-4"><Sparkles className="w-4 h-4 mr-1" /> Izlaz V8 Kinematografskog Sistema</label>
@@ -496,11 +601,13 @@ function EnhancerPage() {
                   <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">ODNOS STRANICA</span><div className="flex flex-wrap gap-2">{['1:1', '9:16', '16:9', '21:9'].map(ar => <OptionButton key={`ar-${ar}`} label={ar} selected={selectedAR === ar} onClick={() => setSelectedAR(ar)} type="ar" />)}</div></div>
                   <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div>
                </div>
-               <button type="button" onClick={(e) => handleEnhance(e, 'concept')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] transition-all flex items-center justify-center shadow-lg cursor-pointer">{isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4" /> : "Poboljšaj Kinematografski Koncept"}</button>
+               <RippleButton onClick={(e) => handleEnhance(e, 'concept')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
+                 {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Kinematografski Koncept"}
+               </RippleButton>
             </div>
          </div>
          <div className="bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 hover:border-amber-400/60 group">
-            <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-amber-400 tracking-wider">UČINIĆEMO TVOJ PROMPT SAVRŠENIM</h2></div>
+            <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[12px] md:text-[15px] font-black uppercase text-amber-400 tracking-wider">POBOLJŠAĆEMO VAŠ PROMT 10X BOLJIM</h2></div>
             <div className="w-full flex flex-col lg:flex-row gap-8">
                <div className="w-full lg:w-1/3 text-left">
                  <label className="text-[14px] md:text-[16px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-3"><Zap className="w-5 h-5" /> Nalepi Korisnički Prompt</label>
@@ -514,15 +621,20 @@ function EnhancerPage() {
             </div>
             <div className="w-full flex flex-col border-t border-amber-400/20 pt-8">
                <label className="text-[10px] md:text-[12px] font-black uppercase text-amber-400 tracking-widest flex items-center gap-2 mb-6 border-b border-amber-400/20 pb-4"><Eye className="w-4 h-4 mr-1" /> Izlaz V8 Matrice</label>
-               <div className="w-full bg-[#0a0a0a]/50 border border-amber-400/20 rounded-[2rem] p-6 pb-20 relative min-h-[300px]">
-                 <div className="text-amber-400 font-black text-[12px] uppercase mb-6 border-b border-amber-400/10 pb-4 flex items-center gap-3"><Zap className="w-4 h-4" /> Premium Unikatni Izlaz Matrice</div>
-                 <div className="w-full font-mono text-[11px] md:text-[13px] leading-relaxed text-left text-zinc-200 whitespace-pre-wrap">{generatedPrompts.single ? <TypewriterText text={generatedPrompts.single} speed={10} /> : "ČEKAM UNOS U JEZGRO..."}</div>
-                 {generatedPrompts.single && <button type="button" onClick={() => handleCopy(generatedPrompts.single, 'single')} className="absolute bottom-6 right-6 px-6 py-3 rounded-xl text-[11px] font-black uppercase bg-amber-400/10 border border-amber-400/20 text-amber-300 hover:bg-amber-400 hover:text-black">Kopiraj 10X Prompt</button>}
+               <div className="w-full ray-container min-h-[300px]">
+                 <div className="ray-beam" />
+                 <div className="ray-inner pb-20">
+                   <div className="text-amber-400 font-black text-[12px] uppercase mb-6 border-b border-amber-400/10 pb-4 flex items-center gap-3"><Zap className="w-4 h-4" /> Premium Unikatni Izlaz Matrice</div>
+                   <div className="w-full font-mono text-[11px] md:text-[13px] leading-relaxed text-left text-zinc-200 whitespace-pre-wrap"><ScrambleText text={generatedPrompts.single} /></div>
+                   {generatedPrompts.single && <button type="button" onClick={() => handleCopy(generatedPrompts.single, 'single')} className="absolute bottom-6 right-6 px-6 py-3 rounded-xl text-[11px] font-black uppercase bg-amber-400/10 border border-amber-400/20 text-amber-300 hover:bg-amber-400 hover:text-black transition-colors z-20">Kopiraj 10X Prompt</button>}
+                 </div>
                </div>
             </div>
             <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-amber-400/20 pt-8">
                <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left"><div className="flex flex-col gap-4"><span className="text-[12px] font-black text-amber-100 uppercase">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q2-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" />)}</div></div></div>
-               <button type="button" onClick={(e) => handleEnhance(e, 'prompt')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">{isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4" /> : "Poboljšaj Unikatni Prompt"}</button>
+               <RippleButton onClick={(e) => handleEnhance(e, 'prompt')} disabled={isEnhancing || (!demoInput && !customerPrompt)} className="w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] shadow-lg cursor-pointer">
+                 {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Unikatni Prompt"}
+               </RippleButton>
             </div>
          </div>
 
@@ -536,8 +648,8 @@ function EnhancerPage() {
              <div className="w-full max-w-4xl mx-auto aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 relative group bg-black shadow-inner">
                 <img src={gallery[activeGalleryIndex]?.url} alt="Main Enhancer Reference" className="w-full h-full object-cover transition-opacity duration-1000" />
                 <div className="absolute bottom-6 right-12 z-20 flex justify-center items-center group/tooltip">
-                    <span className="absolute bottom-full mb-3 px-4 py-2 bg-[#0a0a0a] border border-blue-500/50 rounded-xl text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-all shadow-xl pointer-events-none">Koristi kao Sliku za Prompt</span>
-                    <button type="button" onClick={() => { if (uploadedImage) { setShowWarningModal(true); return; } const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3.5 bg-blue-600 rounded-xl text-white hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer"><UploadCloud className="w-5 h-5" /></button>
+                    <span className="absolute bottom-full mb-3 px-4 py-2 bg-[#0a0a0a] border border-blue-500/50 rounded-xl text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-all shadow-xl pointer-events-none">DODAJ SLIKU</span>
+                    <button type="button" title="DODAJ SLIKU" onClick={() => { if (uploadedImage) { setShowWarningModal(true); return; } const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3.5 bg-blue-600 rounded-xl text-white hover:bg-blue-500 transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer"><UploadCloud className="w-5 h-5" /></button>
                 </div>
              </div>
              <div className="flex flex-wrap justify-center gap-4 pb-4 pt-2 w-full max-w-5xl mx-auto">
@@ -630,21 +742,19 @@ function HomePage({ apps = [] }) {
           <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
           <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-8">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 12.000 RSD DOŽIVOTNO.</div>
-          {/* BOLDOVAN TEKST U BELOJ BOJI */}
           <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mb-10 mx-auto">
             <span className="font-black text-white">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</span>
             <br /><br />
             <span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span>
           </p>
           
-          {/* OBA DUGMETA JEDNO PORED DRUGOG (KUPI SAD i POGLEDAJ STRANICU) */}
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
-            <a href="#" target="_blank" rel="noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-all flex items-center justify-center">
+            <MagneticButton href="#" className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center">
               KUPI SAD
-            </a>
-            <Link to="/enxance" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center">
+            </MagneticButton>
+            <MagneticButton href="/enxance" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center">
               POGLEDAJ STRANICU
-            </Link>
+            </MagneticButton>
           </div>
         </div>
         
@@ -656,7 +766,6 @@ function HomePage({ apps = [] }) {
           <div className="h-[1px] w-32 bg-gradient-to-r from-blue-500/80 to-transparent"></div>
         </div>
 
-        {/* UPOZORENJE ZA KUPCE */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -845,12 +954,23 @@ function AdminPage({ apps = [], refreshData }) {
   const [editingId, setEditingId] = useState(null); 
   const [isUploading, setIsUploading] = useState(false); 
   const [adminTab, setAdminTab] = useState('assets'); 
-  const initialForm = { name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
+  const initialForm = { id: '', name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
   const [formData, setFormData] = useState(initialForm); 
   const sortedAppsAdmin = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
   const handleLogin = (e) => { e.preventDefault(); const coreHash = password.split('').reduce((acc, char) => (((acc << 5) - acc) + char.charCodeAt(0)) | 0, 0); if (coreHash === 110755051) setIsAuthenticated(true); else alert("DENIED"); };
   const handleEditClick = (app) => { const parts = (app.whopLink || "").split("[SPLIT]"); const loadedFaq = app.faq || []; const paddedFaq = Array.from({ length: 7 }, (_, i) => loadedFaq[i] || { q: '', a: '' }); setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); };
-  const handleSubmit = async (e) => { e.preventDefault(); const payload = { ...formData, id: editingId || String(Date.now()), whopLink: `${formData.whopLink}[SPLIT]${formData.reactSourceCode}`, faq: formData.faq.filter(f => f.q && f.a) }; try { const res = await fetch(editingId ? `${API_URL}/${editingId}` : API_URL, { method: editingId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (res.ok) { setFormData(initialForm); setEditingId(null); refreshData(); alert('PROTOCOL SAVED.'); } } catch (err) {} }; 
+  
+  const handleSubmit = async (e) => { 
+    e.preventDefault(); 
+    const finalId = formData.id ? String(formData.id) : (editingId || String(Date.now()));
+    const payload = { ...formData, id: finalId, whopLink: `${formData.whopLink}[SPLIT]${formData.reactSourceCode}`, faq: formData.faq.filter(f => f.q && f.a) }; 
+    try { 
+      const targetUrl = editingId ? `${API_URL}/${editingId}` : API_URL;
+      const res = await fetch(targetUrl, { method: editingId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
+      if (res.ok) { setFormData(initialForm); setEditingId(null); refreshData(); alert('PROTOCOL SAVED.'); } 
+    } catch (err) {} 
+  }; 
+  
   const handleImageUpload = async (e) => { const files = Array.from(e.target.files); setIsUploading(true); for (const file of files) { const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); try { const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd }); const resData = await res.json(); setFormData(prev => ({ ...prev, media: [...prev.media, { url: resData.secure_url, type: file.type.startsWith('video/') ? 'video' : 'image' }] })); } catch (err) {} } setIsUploading(false); };
   
   if (!isAuthenticated) return (
@@ -871,7 +991,12 @@ function AdminPage({ apps = [], refreshData }) {
       </div>
       {adminTab === 'assets' ? (
         <><form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" required /><input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Category" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Ribbon" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID (Veći broj ide prvi)" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
+                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Category" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Ribbon" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+               </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standard Price" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Price" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Headline" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-3" /></div>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="Whop Link" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.reactSourceCode} onChange={e => setFormData({...formData, reactSourceCode: e.target.value})} placeholder="React Code (Whop)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.gumroadLink} onChange={e => setFormData({...formData, gumroadLink: e.target.value})} placeholder="Gumroad React Code" className="bg-black border border-purple-500/50 text-purple-100 placeholder-purple-500/50 focus:border-purple-500 outline-none transition-all p-3 rounded-xl text-[11px]" /></div>
