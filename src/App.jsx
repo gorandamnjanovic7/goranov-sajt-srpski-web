@@ -5,7 +5,7 @@ import {
   PlayCircle, Sparkles, Youtube, X, ChevronLeft, ChevronRight, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick, Clock, Users, Zap, HelpCircle, ChevronDown,
-  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle
+  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 // --- ANIMACIJE ---
@@ -53,7 +53,7 @@ export const logAnalyticsEvent = async (type, details) => {
 };
 
 // ==========================================
-// V8 PREMIUM TOAST NOTIFIKACIJE (Custom Sistem)
+// V8 PREMIUM TOAST NOTIFIKACIJE
 // ==========================================
 export const v8Toast = {
   listeners: [],
@@ -86,10 +86,10 @@ const V8ToastContainer = () => {
 };
 
 // ==========================================
-// FOMO COUNTDOWN TIMER (Strah od propuštanja ponude)
+// FOMO COUNTDOWN TIMER
 // ==========================================
 const CountdownTimer = () => {
-  const [timeLeft, setTimeLeft] = useState(2 * 3600 + 15 * 60 + 43); // 2h 15m 43s početno
+  const [timeLeft, setTimeLeft] = useState(2 * 3600 + 15 * 60 + 43);
   useEffect(() => {
     const interval = setInterval(() => { setTimeLeft(prev => (prev > 0 ? prev - 1 : 24 * 3600)); }, 1000);
     return () => clearInterval(interval);
@@ -110,7 +110,7 @@ const CountdownTimer = () => {
 };
 
 // ==========================================
-// 1. SCRAMBLE TEXT (MATRIX DEKODIRANJE)
+// SCRAMBLE TEXT & DUGMIĆI
 // ==========================================
 const ScrambleText = ({ text }) => {
   const [displayed, setDisplayed] = useState('');
@@ -132,9 +132,6 @@ const ScrambleText = ({ text }) => {
   return <span>{displayed || "ČEKAM UNOS U JEZGRO..."}<span className="animate-pulse opacity-50 text-orange-500">_</span></span>;
 };
 
-// ==========================================
-// 2. MAGNETIC BUTTON
-// ==========================================
 const MagneticButton = ({ children, className, onClick, href, target, rel }) => {
   const ref = useRef(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -152,9 +149,6 @@ const MagneticButton = ({ children, className, onClick, href, target, rel }) => 
   );
 };
 
-// ==========================================
-// 3. RIPPLE BUTTON
-// ==========================================
 const RippleButton = ({ children, onClick, disabled, className }) => {
   const [ripples, setRipples] = useState([]);
   const handleClick = (e) => {
@@ -175,7 +169,6 @@ const RippleButton = ({ children, onClick, disabled, className }) => {
   );
 };
 
-// --- V8 CINEMATIC LOADER ---
 const FullScreenBoot = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -390,8 +383,9 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
     </div>
   );
 };
+
 // ==========================================
-// V8 SINGLE PRODUCT STRANICA (DOMAĆE TRŽIŠTE PRIORITET + IPS)
+// V8 SINGLE PRODUCT STRANICA (PAMETNI EKRAN + RSD)
 // ==========================================
 function SingleProductPage({ apps = [] }) {
   const { id } = useParams(); 
@@ -400,18 +394,53 @@ function SingleProductPage({ apps = [] }) {
   const [fullScreenImage, setFullScreenImage] = useState(null); 
   
   const [ipsModalData, setIpsModalData] = useState(null); 
+  const [hasAccess, setHasAccess] = useState(false); 
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   const navigate = useNavigate(); 
   const mainVideoRef = useRef(null);
   
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
+
+  useEffect(() => {
+    if (!app) return;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        if (user.email === "damnjanovicgoran7@gmail.com") {
+          setHasAccess(true);
+        } else {
+          try {
+            const docRef = doc(db, "vip_users", user.email.toLowerCase());
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().unlockedApps) {
+              const unlocked = docSnap.data().unlockedApps;
+              if (unlocked.includes(app.id) || unlocked.includes('FULL_ACCESS')) {
+                setHasAccess(true);
+              } else {
+                setHasAccess(false);
+              }
+            } else {
+              setHasAccess(false);
+            }
+          } catch(e) { setHasAccess(false); }
+        }
+      } else {
+        setHasAccess(false);
+      }
+      setIsCheckingAccess(false);
+    });
+    return () => unsubscribe();
+  }, [app]);
   
   if (!app) return <div className="min-h-screen bg-black flex items-center justify-center text-zinc-500 uppercase text-[10px] tracking-widest">Učitavanje...</div>;
   
   const currentMedia = app.media?.[activeMedia] || { url: data.bannerUrl, type: 'image' }; 
   const isVideo = currentMedia?.type === 'video' || currentMedia?.url?.match(/\.(mp4|webm|ogg|mov)$/i); 
-  const { s: sysData } = data.extractSys(app.description); 
+  
+  // OVDE Hvatamo tvoj Netlify link
   const parts = (app.whopLink || "").split("[SPLIT]");
+  const mainLink = parts[0] || ""; 
+
   const sortedApps = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
   const ribbonClass = getRibbonStyle(sortedApps.findIndex(a => a.id === id));
 
@@ -436,7 +465,15 @@ function SingleProductPage({ apps = [] }) {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         await setDoc(doc(db, "posetioci", user.uid), { ime: user.displayName, email: user.email, vremePrijave: serverTimestamp(), zainteresovanZa: tip, identitet: "V8-Klijent" }, { merge: true });
-        setIpsModalData({ tip, cena });
+        
+        const docRef = doc(db, "vip_users", user.email.toLowerCase());
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes(app.id) || docSnap.data().unlockedApps.includes('FULL_ACCESS'))) {
+            setHasAccess(true);
+            v8Toast.success("Dobrodošli nazad! Pristup je već otključan.");
+        } else {
+            setIpsModalData({ tip, cena });
+        }
       } catch (error) { v8Toast.error("Greška pri prijavi!"); }
     }
   };
@@ -485,35 +522,51 @@ function SingleProductPage({ apps = [] }) {
             <div className="bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
               <img src={mojBaner} alt="Banner" className="w-full h-40 object-cover rounded-2xl mb-8 border border-white/5" />
               
-              <div className="bg-[#050505] border border-orange-500/40 p-5 rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] relative overflow-hidden group mb-8">
-                <div className="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-lg z-10">Srbija 🇷🇸</div>
-                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-4 mt-1 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> Plaćanje Uplatnicom / E-banking
-                </p>
-                
-                <div className="flex flex-col gap-3">
-                  <button onClick={() => handlePaymentV8('Mesečno', mesecnaCenaRsd)} className="w-full py-3.5 rounded-xl flex items-center justify-between px-4 bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-white font-black text-[11px] uppercase tracking-widest transition-all"><span className="flex items-center gap-2"><Zap className="w-4 h-4 text-orange-500" /> Mesečno</span><span className="text-orange-400">{mesecnaCenaRsd.toLocaleString('sr-RS')} RSD</span></button>
-                  <button onClick={() => handlePaymentV8('Lifetime', lifetimeCenaRsd)} className="w-full py-3.5 rounded-xl flex items-center justify-between px-4 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/40 hover:from-orange-600 hover:to-amber-600 text-white font-black text-[11px] uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(234,88,12,0.2)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)]"><span className="flex items-center gap-2"><Award className="w-4 h-4 text-amber-400" /> Doživotno</span><span className="text-white drop-shadow-md">{lifetimeCenaRsd.toLocaleString('sr-RS')} RSD</span></button>
+              {isCheckingAccess ? (
+                 <div className="py-10 flex justify-center"><Loader2 className="w-8 h-8 text-orange-500 animate-spin" /></div>
+              ) : hasAccess ? (
+                // === EKRAN ZA VIP KORISNIKA (PRISTUP ODOBREN) ===
+                <div className="bg-[#050505] border border-green-500/50 rounded-2xl p-6 shadow-[0_0_30px_rgba(34,197,94,0.15)] text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-green-600 text-white text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 shadow-lg">PREMIUM NALOG</div>
+                  <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4 animate-bounce" />
+                  <h3 className="text-xl font-black uppercase tracking-widest text-white mb-1">Pristup Odobren</h3>
+                  <p className="text-zinc-400 text-[10px] uppercase tracking-widest font-bold mb-8">Dobrodošli u vaš VIP Trezor</p>
+                  
+                  <div className="flex flex-col gap-4">
+                    {mainLink ? (
+                      <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-5 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black text-[13px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+                        🚀 Otvori Aplikaciju
+                      </a>
+                    ) : (
+                      <div className="text-zinc-500 text-[10px] uppercase font-bold p-3 border border-white/5 rounded-xl">Link aplikacije nije postavljen</div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // === EKRAN ZA KUPCA (NEMA PRISTUP - SAMO DINARI) ===
+                <div className="bg-[#050505] border border-orange-500/40 p-5 rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 shadow-lg">Srbija 🇷🇸</div>
+                  
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6 mt-2 flex items-center justify-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> Direktno plaćanje
+                  </p>
+                  
+                  <div className="flex flex-col gap-3">
+                    <button onClick={() => handlePaymentV8('Mesečno', mesecnaCenaRsd)} className="w-full py-4 rounded-xl flex items-center justify-between px-5 bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-white font-black text-[12px] uppercase tracking-widest transition-all">
+                      <span className="flex items-center gap-2"><Zap className="w-4 h-4 text-orange-500" /> Mesečno</span>
+                      <span className="text-orange-400">{mesecnaCenaRsd.toLocaleString('sr-RS')} RSD</span>
+                    </button>
+                    <button onClick={() => handlePaymentV8('Lifetime', lifetimeCenaRsd)} className="w-full py-4 rounded-xl flex items-center justify-between px-5 bg-gradient-to-r from-orange-600/20 to-amber-600/20 border border-orange-500/40 hover:from-orange-600 hover:to-amber-600 text-white font-black text-[12px] uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(234,88,12,0.2)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)]">
+                      <span className="flex items-center gap-2"><Award className="w-4 h-4 text-amber-400" /> Doživotno</span>
+                      <span className="text-white drop-shadow-md">{lifetimeCenaRsd.toLocaleString('sr-RS')} RSD</span>
+                    </button>
+                  </div>
 
-              <div className="pt-6 border-t border-white/5 mb-8">
-                <div className="flex items-center justify-center gap-2 mb-6 text-zinc-500"><span className="text-[10px] font-black uppercase tracking-widest">Internacionalno (USD)</span></div>
-                <div className="space-y-6 mb-8">
-                  <div className="relative rounded-2xl bg-white/[0.02] border border-white/10 py-3.5 flex items-center justify-center"><div className="absolute -top-3 px-4 py-1 rounded-full bg-blue-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Mesečno</div><span className="text-2xl font-black">${app.price || '14.99'}</span></div>
-                  <div className="relative rounded-2xl bg-orange-500/[0.03] border border-orange-500/30 py-3.5 flex items-center justify-center mt-6"><div className="absolute -top-3 px-4 py-1 rounded-full bg-orange-600 text-[8px] font-black uppercase tracking-widest shadow-lg">Doživotno</div><span className="text-2xl font-black">${app.priceLifetime || '88.99'}</span></div>
+                  <p className="text-[9px] text-zinc-500 uppercase tracking-widest mt-6 text-center leading-relaxed font-bold px-2">
+                    Nakon IPS uplate, sistem će vam ovde automatski otključati dugme za pristup alatu.
+                  </p>
                 </div>
-                <a href={data.formatExternalLink(sysData.w || parts[0])} target="_blank" rel="noreferrer" className="w-full py-5 rounded-2xl flex items-center justify-center bg-blue-600 text-white font-black text-[13px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl">Otključaj na Whop-u</a>
-              </div>
-
-              <div className="pt-6 border-t border-white/5 mt-6 mb-2">
-                <div className="flex items-center justify-center gap-2 mb-4 text-blue-400"><Award className="w-5 h-5" /><span className="text-[11px] font-black uppercase tracking-widest">Dev Paket</span></div>
-                <div className="flex flex-col gap-3">
-                  <a href={data.formatExternalLink(sysData.g || parts[1])} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-blue-900 bg-[#0f172a] text-blue-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-blue-900 hover:text-white transition-all shadow-lg text-center px-2">Kupi React Kod na Whop-u <ArrowRight className="w-4 h-4 shrink-0" /></a>
-                  {app.gumroadLink && <a href={data.formatExternalLink(app.gumroadLink)} target="_blank" rel="noreferrer" className="w-full py-4 rounded-xl flex items-center justify-center gap-2 border border-purple-800 bg-[#2e1065] text-purple-300 font-black text-[11px] uppercase tracking-[0.15em] hover:bg-purple-800 hover:text-white transition-all shadow-lg text-center px-2">Kupi React Kod na Gumroad-u <ArrowRight className="w-4 h-4 shrink-0" /></a>}
-                </div>
-              </div>
-
+              )}
             </div>
           </div>
         </div>
@@ -580,9 +633,11 @@ function EnhancerPage() {
           setIsVIP(true); v8Toast.success("Dobrodošao nazad, Gorane! Sistem otključan."); loadHistory(user.email);
         } else {
           try {
-            const docRef = doc(db, "vip_users", user.email);
+            const docRef = doc(db, "vip_users", user.email.toLowerCase());
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) { setIsVIP(true); v8Toast.success("Premium Pristup Odobren!"); loadHistory(user.email); } 
+            if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) { 
+              setIsVIP(true); v8Toast.success("Premium Pristup Odobren!"); loadHistory(user.email); 
+            } 
             else { setIsVIP(false); }
           } catch(e) { setIsVIP(false); }
         }
@@ -612,10 +667,10 @@ function EnhancerPage() {
       if (user.email === "damnjanovicgoran7@gmail.com") {
         setIsVIP(true);
       } else {
-        const docRef = doc(db, "vip_users", user.email);
+        const docRef = doc(db, "vip_users", user.email.toLowerCase());
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) { setIsVIP(true); } else {
-           alert("Vaš email (" + user.email + ") nije pronađen u VIP bazi. Ako ste uplatili, pošaljite nam dokaz o uplati na email kako bismo vam odobrili pristup.");
+        if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) { setIsVIP(true); } else {
+           alert("Vaš email (" + user.email + ") nije pronađen u bazi za ovaj alat. Ako ste uplatili, pošaljite nam dokaz na email.");
            await signOut(auth);
         }
       }
@@ -666,7 +721,6 @@ function EnhancerPage() {
     if (e) e.preventDefault(); if (!uploadedImage) return; setIsAnalyzingImage(true);
     try {
         const promptInstruction = "Kao ekspert za inženjering promptova, dubinski i tehnički analiziraj ovu sliku. Opiši glavni subjekat, atmosferu, stil, paletu boja, tip osvetljenja i podešavanja kamere/sočiva (ako izgleda kao fotografija). Napiši izlaz isključivo na engleskom jeziku u formi vrhunskog prompta, bez dodatnih uvoda ili objašnjenja.";
-        // Zamenio sam BASE_BACKEND_URL sa pravim linkom da ne bi prijavljivao grešku ako negde fali
         const res = await fetch(`https://goranov-sajt-srpski-backend-production.up.railway.app/api/read-image`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageUrl: uploadedImage, prompt: promptInstruction }) });
         const apiData = await res.json();
         if (apiData.result) { setDemoInput(apiData.result); setCustomerPrompt(''); v8Toast.success("Dubinska analiza uspešna!"); } else if (apiData.error) { v8Toast.error("V8 Vision Greška: " + apiData.error); }
@@ -1110,96 +1164,44 @@ function HomePage({ apps = [] }) {
 }
 //DEO 3
 // ==========================================
-// KONTROLE ZA REFERENTNU GALERIJU
+// 🚀 V8 MASTER ADMIN PANEL
 // ==========================================
-const EnhancerAdminGallery = () => {
-  const [gallery, setGallery] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  useEffect(() => { loadGallery(); }, []);
-  const loadGallery = async () => {
-    try { const snapshot = await getDocs(collection(db, "enhancer_gallery")); const items = []; snapshot.forEach(document => items.push({ id: document.id, ...document.data() })); setGallery(items.sort((a, b) => b.createdAt - a.createdAt)); } catch (err) {}
-  };
-  const handleUpload = async (e) => {
-    const file = e.target.files[0]; if (!file) return; setIsUploading(true);
-    const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
-    try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
-      const resData = await res.json();
-      await addDoc(collection(db, "enhancer_gallery"), { url: resData.secure_url, createdAt: Date.now() }); loadGallery();
-    } catch (err) {} finally { setIsUploading(false); }
-  };
-  const handleDelete = async (id) => { if(window.confirm("Delete image?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); loadGallery(); } };
-  return (
-    <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2.5rem] p-8 shadow-[0_0_30px_rgba(234,88,12,0.1)] mt-12 mb-12">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-        <div><h2 className="text-xl md:text-2xl font-black text-orange-500 uppercase tracking-widest flex items-center gap-3"><Zap className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2><p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-2 font-bold">Slike dodate ovde će biti dostupne korisnicima na 10X Enhancer stranici.</p></div>
-        <label className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-6 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest cursor-pointer transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(234,88,12,0.4)] hover:scale-105">{isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}{isUploading ? "UPLOADING..." : "UPLOAD NEW IMAGE"}<input type="file" accept="image/*" onChange={handleUpload} className="hidden" /></label>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {gallery.map(img => (
-          <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" alt="Enhancer Ref" /><button type="button" onClick={() => handleDelete(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"><Trash2 className="w-4 h-4" /></button></div>
-        ))}
-        {gallery.length === 0 && !isUploading && <div className="col-span-full py-16 text-center text-zinc-600 text-[12px] font-black uppercase tracking-widest border-2 border-dashed border-white/10 rounded-[2rem] bg-white/[0.02]">NEMA SLIKA U ENHANCER GALERIJI</div>}
-      </div>
-    </div>
-  );
-};
-
-const AnalyticsDashboard = () => {
-  const [stats, setStats] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try { const snapshot = await getDocs(collection(db, "analytics")); const items = []; snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() })); setStats(items.sort((a, b) => b.timestamp - a.timestamp)); } catch (err) {} finally { setIsLoading(false); }
-    }; fetchAnalytics();
-  }, []);
-  if (isLoading) return <div className="py-20 text-center text-orange-500 animate-pulse font-black uppercase tracking-widest text-[12px]">SYNCING ANALYTICS...</div>;
-  const totalVisitors = new Set(stats.map(s => s.sessionId)).size;
-  const pageViews = stats.filter(s => s.type === 'page_view');
-  const clicks = stats.filter(s => s.type === 'click');
-  const enhancerActions = stats.filter(s => s.type === 'enhancer_action');
-  return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-orange-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Visitors</span><span className="text-3xl font-black text-white">{totalVisitors}</span></div>
-        <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Button Clicks</span><span className="text-3xl font-black text-white">{clicks.length}</span></div>
-        <div className="bg-[#0a0a0a] border border-amber-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Zap className="w-8 h-8 text-amber-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Enhancer Actions</span><span className="text-3xl font-black text-white">{enhancerActions.length}</span></div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
-           <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><Eye className="w-4 h-4 text-orange-500" /> Page Views (Traffic)</h3>
-           <div className="space-y-4">
-             {Object.entries(pageViews.reduce((acc, curr) => { acc[curr.path] = (acc[curr.path] || 0) + 1; return acc; }, {})).map(([path, count]) => (<div key={path} className="flex justify-between items-center border-b border-white/5 pb-2"><span className="text-[11px] text-zinc-300 font-mono truncate mr-4">{path || '/'}</span><span className="text-[13px] font-black text-orange-500 bg-orange-500/10 px-3 py-1 rounded-lg">{count}</span></div>))}
-           </div>
-         </div>
-         <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
-           <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><MousePointerClick className="w-4 h-4 text-blue-500" /> User Clicks</h3>
-           <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-             {clicks.slice(0, 50).map((click, i) => (<div key={i} className="flex flex-col border-b border-white/5 pb-3"><div className="flex justify-between items-start mb-1"><span className="text-[11px] text-zinc-100 font-bold capitalize">{click.elementText || 'Icon/Image'}</span><span className="text-[9px] text-zinc-500">{new Date(click.timestamp).toLocaleTimeString()}</span></div><span className="text-[9px] font-mono text-blue-400">Path: {click.path}</span></div>))}
-           </div>
-         </div>
-      </div>
-    </div>
-  );
-};
-
-// ==========================================
-// ADMIN PANEL (SA VIP BAZOM, GALERIJOM I PLAY IKONICAMA)
-// ==========================================
-function AdminPage({ apps = [], refreshData }) {
+const AdminPage = ({ apps = [], refreshData }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); 
-  const [editingId, setEditingId] = useState(null); 
-  const [isUploading, setIsUploading] = useState(false); 
   const [adminTab, setAdminTab] = useState('assets'); 
+  const [isUploading, setIsUploading] = useState(false); 
+  const [loading, setLoading] = useState(false);
+
+  // --- ASSETS MANAGER STATE ---
+  const [editingId, setEditingId] = useState(null); 
   const initialForm = { id: '', name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
   const [formData, setFormData] = useState(initialForm); 
   const sortedAppsAdmin = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
 
+  // --- VIP STATE ---
   const [vipEmail, setVipEmail] = useState('');
   const [vipList, setVipList] = useState([]);
-  
-  const fetchVips = async () => { try { const snap = await getDocs(collection(db, "vip_users")); setVipList(snap.docs.map(d => ({ id: d.id, ...d.data() }))); } catch(e) {} };
-  useEffect(() => { if (isAuthenticated) fetchVips(); }, [isAuthenticated]);
+  const [selectedApps, setSelectedApps] = useState([]); 
+
+  // --- ENHANCER GALLERY STATE ---
+  const [gallery, setGallery] = useState([]);
+
+  // --- ANALYTICS STATE ---
+  const [analyticsData, setAnalyticsData] = useState([]);
+
+  // === FIREBASE FETCH FUNKCIJE ===
+  const fetchAllFirebaseData = async () => {
+    try {
+      const vipSnap = await getDocs(collection(db, "vip_users"));
+      setVipList(vipSnap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.addedAt - a.addedAt));
+      const galSnap = await getDocs(collection(db, "enhancer_gallery"));
+      setGallery(galSnap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.createdAt - a.createdAt));
+      const anSnap = await getDocs(collection(db, "analytics"));
+      setAnalyticsData(anSnap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.timestamp - a.timestamp));
+    } catch(e) {}
+  };
+
+  useEffect(() => { if (isAuthenticated) fetchAllFirebaseData(); }, [isAuthenticated]);
 
   const handleGoogleLogin = async (e) => { 
     e.preventDefault(); 
@@ -1210,7 +1212,13 @@ function AdminPage({ apps = [], refreshData }) {
     } catch (err) { v8Toast.error("Greška: " + err.message); } 
   };
 
-  const handleEditClick = (app) => { const parts = (app.whopLink || "").split("[SPLIT]"); const loadedFaq = app.faq || []; const paddedFaq = Array.from({ length: 7 }, (_, i) => loadedFaq[i] || { q: '', a: '' }); setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); };
+  const handleEditClick = (app) => { 
+    const parts = (app.whopLink || "").split("[SPLIT]"); 
+    const loadedFaq = app.faq || []; 
+    const paddedFaq = Array.from({ length: 7 }, (_, i) => loadedFaq[i] || { q: '', a: '' }); 
+    setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); 
+    setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); 
+  };
   
   const handleSubmit = async (e) => { 
     e.preventDefault(); 
@@ -1219,17 +1227,54 @@ function AdminPage({ apps = [], refreshData }) {
     try { 
       const targetUrl = editingId ? `${API_URL}/${editingId}` : API_URL;
       const res = await fetch(targetUrl, { method: editingId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
-      if (res.ok) { setFormData(initialForm); setEditingId(null); refreshData(); v8Toast.success("Protokol uspešno sačuvan!"); } 
-    } catch (err) { v8Toast.error("Greška pri čuvanju!"); } 
+      if (res.ok) { setFormData(initialForm); setEditingId(null); refreshData(); v8Toast.success("Proizvod uspešno sačuvan na Railway server!"); } 
+    } catch (err) { v8Toast.error("Greška pri čuvanju proizvoda!"); } 
   }; 
   
-  const handleImageUpload = async (e) => { const files = Array.from(e.target.files); setIsUploading(true); for (const file of files) { const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); try { const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd }); const resData = await res.json(); setFormData(prev => ({ ...prev, media: [...prev.media, { url: resData.secure_url, type: file.type.startsWith('video/') ? 'video' : 'image' }] })); } catch (err) {} } setIsUploading(false); };
-  
-  const handleAddVip = async (e) => {
-    e.preventDefault(); if(!vipEmail) return; const emailLower = vipEmail.trim().toLowerCase();
-    try { await setDoc(doc(db, "vip_users", emailLower), { addedAt: Date.now() }); setVipEmail(''); fetchVips(); v8Toast.success("Premium korisnik dodat!"); } catch(e) { v8Toast.error("Greška pri dodavanju!"); }
+  const handleImageUpload = async (e) => { 
+    const files = Array.from(e.target.files); setIsUploading(true); 
+    for (const file of files) { 
+      const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); 
+      try { 
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd }); 
+        const resData = await res.json(); 
+        setFormData(prev => ({ ...prev, media: [...prev.media, { url: resData.secure_url, type: file.type.startsWith('video/') ? 'video' : 'image' }] })); 
+      } catch (err) {} 
+    } setIsUploading(false); 
   };
-  const handleDeleteVip = async (id) => { if(window.confirm("Izbrisati ovog korisnika iz VIP baze?")) { await deleteDoc(doc(db, "vip_users", id)); fetchVips(); v8Toast.success("Korisnik obrisan."); } };
+
+  const handleDeleteAsset = async (appId) => {
+    if(window.confirm("Trajno obrisati ovaj proizvod sa sajta?")) { 
+      await fetch(`${API_URL}/${appId}`, { method: 'DELETE' }); 
+      refreshData(); v8Toast.success("Proizvod uspešno obrisan!"); 
+    }
+  };
+
+  const handleAddVip = async (e) => {
+    e.preventDefault(); 
+    if(!vipEmail) return v8Toast.error("Unesi email kupca!");
+    if(selectedApps.length === 0) return v8Toast.error("Izaberi bar jedan proizvod koji mu otključavaš!");
+    const emailLower = vipEmail.trim().toLowerCase();
+    try { 
+      await setDoc(doc(db, "vip_users", emailLower), { addedAt: Date.now(), unlockedApps: selectedApps }, { merge: true }); 
+      setVipEmail(''); setSelectedApps([]); fetchAllFirebaseData(); v8Toast.success(`Pristup uspešno dodeljen za ${selectedApps.length} alata!`); 
+    } catch(e) { v8Toast.error("Greška pri dodavanju u bazu!"); }
+  };
+  
+  const handleDeleteVip = async (id) => { 
+    if(window.confirm(`Izbrisati ${id} iz VIP baze i oduzeti mu sav pristup?`)) { await deleteDoc(doc(db, "vip_users", id)); fetchAllFirebaseData(); v8Toast.success("Korisnik trajno obrisan."); } 
+  };
+
+  const handleUploadGallery = async (e) => {
+    const file = e.target.files[0]; if (!file) return; setIsUploading(true);
+    const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
+      const resData = await res.json();
+      await addDoc(collection(db, "enhancer_gallery"), { url: resData.secure_url, createdAt: Date.now() }); fetchAllFirebaseData();
+    } catch (err) {} finally { setIsUploading(false); }
+  };
+  const handleDeleteGallery = async (id) => { if(window.confirm("Obrisati sliku iz Enhancer galerije?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); fetchAllFirebaseData(); } };
 
   if (!isAuthenticated) return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 text-center">
@@ -1246,102 +1291,171 @@ function AdminPage({ apps = [], refreshData }) {
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white relative">
       <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto">
          <button type="button" onClick={() => setAdminTab('assets')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'assets' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Award className="w-4 h-4 inline mr-2" /> Assets Manager</button>
-         <button type="button" onClick={() => setAdminTab('analytics')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'analytics' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><BarChart className="w-4 h-4 inline mr-2" /> V8 Analytics</button>
+         <button type="button" onClick={() => setAdminTab('enhancer')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'enhancer' ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Sparkles className="w-4 h-4 inline mr-2" /> Enhancer Gallery</button>
          <button type="button" onClick={() => setAdminTab('vip')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'vip' ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Users className="w-4 h-4 inline mr-2" /> VIP Baza</button>
+         <button type="button" onClick={() => setAdminTab('analytics')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'analytics' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><BarChart className="w-4 h-4 inline mr-2" /> V8 Analytics</button>
       </div>
       
+      {adminTab === 'assets' && (
+        <div className="flex flex-col gap-12">
+          <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+               <div className="flex items-center gap-3 mb-6"><Settings className="w-6 h-6 text-orange-500" /><h2 className="text-xl font-black text-orange-500 uppercase tracking-widest">{editingId ? 'Edit Product' : 'Add New Product'}</h2></div>
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID (Veći broj ide prvi)" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ime Proizvoda" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
+                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Kategorija (Ribbon levo)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Tip (Ribbon desno gore)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standardna Cena (USD npr 14.99)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Cena (USD npr 88.99)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
+               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Podnaslov (Headline)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] w-full" /></div>
+               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="LINK ZA APLIKACIJU (Netlify)" className="bg-black border border-green-500/50 p-3 rounded-xl text-[11px] focus:border-green-500 outline-none" /></div>
+               
+               <div className="bg-black border border-white/10 p-4 rounded-xl">
+                 <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media (Slike i Video klipovi)</label>
+                 <div className="flex flex-wrap gap-4">
+                   {formData.media.map((m, i) => (
+                     <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden group border border-white/10">
+                       {m.type === 'video' ? ( <><video src={`${m.url}#t=0.001`} className="w-full h-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-8 h-8 text-white opacity-80" /></div></>) : (<img src={m.url} className="w-full h-full object-cover" />)}
+                       <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-xl hover:scale-110"><X className="w-3 h-3" /></button>
+                     </div>
+                   ))}
+                   <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 text-zinc-500 bg-white/[0.02]">{isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><UploadCloud className="w-6 h-6 mb-2" /><span className="text-[8px] uppercase font-black">Upload</span></>}<input type="file" multiple accept="image/*,video/*" onChange={handleImageUpload} className="hidden" /></label>
+                 </div>
+               </div>
+               
+               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Glavni Opis Alata" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono leading-relaxed" />
+               <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ (Često postavljana pitanja)</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Pitanje" className="flex-1 bg-black border border-white/5 p-3 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Odgovor" className="flex-[2] bg-black border border-white/5 p-3 rounded-lg text-[10px]" /></div>))}</div></div>
+               
+               <div className="flex gap-4 pt-4 border-t border-white/10">
+                 <button type="submit" disabled={isUploading} className="flex-1 py-5 rounded-2xl font-black uppercase text-[12px] bg-orange-600 hover:bg-orange-500 transition-all flex justify-center items-center gap-2"><Zap className="w-4 h-4"/> {editingId ? "Update Product" : "Save New Product"}</button>
+                 {editingId && <button type="button" onClick={() => {setFormData(initialForm); setEditingId(null);}} className="px-8 py-5 rounded-2xl bg-zinc-800 uppercase font-black text-[12px] hover:bg-zinc-700">Cancel</button>}
+               </div>
+          </form>
+
+          <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
+             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6">Database ({sortedAppsAdmin.length})</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {sortedAppsAdmin.map(app => (
+                   <div key={app.id} className="p-5 bg-black border border-white/10 rounded-[1.5rem] flex flex-col gap-4 shadow-xl group hover:border-orange-500/50 transition-all">
+                     <div className="aspect-video relative overflow-hidden rounded-2xl bg-zinc-900">
+                       {app.media?.[0]?.type === 'video' ? ( <><video src={`${app.media[0].url}#t=0.001`} className="w-full h-full object-cover" muted /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-10 h-10 text-white opacity-80" /></div></>) : (<img src={data.getMediaThumbnail(app.media?.[0]?.url)} className="w-full h-full object-cover" alt="" />)}
+                     </div>
+                     <div className="flex justify-between items-start gap-4">
+                       <div><span className="text-[13px] font-black uppercase text-white line-clamp-2">{app.name}</span><span className="text-[9px] text-zinc-500 block mt-1">ID: {app.id}</span></div>
+                       <div className="flex gap-2">
+                         <button type="button" onClick={() => handleEditClick(app)} className="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
+                         <button type="button" onClick={() => handleDeleteAsset(app.id)} className="p-2.5 bg-red-600/20 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+             </div>
+          </div>
+        </div>
+      )}
+
+      {adminTab === 'enhancer' && (
+        <div className="bg-[#0a0a0a] border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_30px_rgba(147,51,234,0.1)]">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+            <div><h2 className="text-xl md:text-2xl font-black text-purple-500 uppercase tracking-widest flex items-center gap-3"><Sparkles className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2><p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-2 font-bold">Slike dodate ovde će biti dostupne korisnicima na Enhancer stranici.</p></div>
+            <label className="bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white px-6 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest cursor-pointer transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:scale-105">{isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}{isUploading ? "UPLOADING..." : "UPLOAD NEW IMAGE"}<input type="file" accept="image/*" onChange={handleUploadGallery} className="hidden" /></label>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {gallery.map(img => (
+              <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" alt="Enhancer Ref" /><button type="button" onClick={() => handleDeleteGallery(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"><Trash2 className="w-4 h-4" /></button></div>
+            ))}
+            {gallery.length === 0 && !isUploading && <div className="col-span-full py-16 text-center text-zinc-600 text-[12px] font-black uppercase tracking-widest border-2 border-dashed border-white/10 rounded-[2rem] bg-white/[0.02]">NEMA SLIKA U ENHANCER GALERIJI</div>}
+          </div>
+        </div>
+      )}
+
       {adminTab === 'vip' && (
-        <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6 animate-in fade-in">
+        <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
            <h2 className="text-xl font-black text-green-500 uppercase tracking-widest flex items-center gap-3"><Lock className="w-6 h-6" /> Premium VIP Baza</h2>
-           <p className="text-[12px] text-zinc-400 mb-6">Unesi Google email korisnika koji je uplatio pristup za 10X Enhancer. Čim ga dodaš, sistem će mu automatski otključati alat.</p>
-           <form onSubmit={handleAddVip} className="flex flex-col sm:flex-row gap-4 mb-10">
-             <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika (npr. marko@gmail.com)" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500 transition-colors" required />
-             <button type="submit" className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-lg transition-all">Dodaj VIP</button>
+           <p className="text-[12px] text-zinc-400 mb-6">Unesi email kupca, štikliraj koje alate je platio i klikni na OTKLJUČAJ PRISTUP. Sistem će mu automatski obezbediti prolaz.</p>
+           
+           <form onSubmit={handleAddVip} className="space-y-6 mb-10 max-w-4xl">
+             <div className="flex flex-col sm:flex-row gap-4">
+               <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika (npr. marko@gmail.com)" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500 transition-colors" required />
+               <button type="submit" className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-[0_0_15px_rgba(22,163,74,0.4)] transition-all flex items-center justify-center gap-2"><Zap className="w-4 h-4"/> OTKLJUČAJ PRISTUP</button>
+             </div>
+             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+               <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-4 block">Štikliraj šta je kupac platio:</label>
+               <div className="flex flex-wrap gap-3">
+                 {sortedAppsAdmin.map(app => (
+                   <button 
+                     type="button" 
+                     key={app.id} 
+                     onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])}
+                     className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white shadow-[0_0_10px_rgba(234,88,12,0.4)] scale-105' : 'bg-black border-white/10 text-zinc-500 hover:border-white/30'}`}
+                   >
+                     {app.name}
+                   </button>
+                 ))}
+                 <button 
+                   type="button" 
+                   onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} 
+                   className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.4)] scale-105' : 'bg-black border-white/10 text-zinc-500 hover:border-white/30'}`}
+                 >
+                   SVE OTKLJUČANO (V8 FULL)
+                 </button>
+               </div>
+             </div>
            </form>
-           <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-             {vipList.length === 0 && <div className="text-zinc-600 font-bold uppercase text-[11px] text-center py-10">Nema dodatih korisnika.</div>}
+
+           <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar max-w-4xl">
+             <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aktivni Premium Korisnici ({vipList.length})</h3>
+             {vipList.length === 0 && <div className="text-zinc-600 font-bold uppercase text-[11px] py-10">Nema dodatih korisnika u bazi.</div>}
              {vipList.map(vip => (
-               <div key={vip.id} className="flex justify-between items-center bg-black border border-white/5 p-4 rounded-xl hover:border-green-500/30 transition-colors">
-                 <div className="flex flex-col"><span className="text-white font-bold text-[14px]">{vip.id}</span><span className="text-zinc-500 text-[9px] uppercase tracking-widest">Dodat: {new Date(vip.addedAt).toLocaleDateString()}</span></div>
-                 <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/20 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+               <div key={vip.id} className="flex justify-between items-center bg-black border border-white/5 p-5 rounded-xl hover:border-green-500/30 transition-colors group">
+                 <div className="flex flex-col gap-2">
+                   <div className="flex items-center gap-3">
+                     <span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span>
+                     <span className="text-zinc-600 text-[9px] uppercase tracking-widest">Dodat: {new Date(vip.addedAt).toLocaleDateString()}</span>
+                   </div>
+                   <div className="flex flex-wrap gap-2 mt-1">
+                     {vip.unlockedApps && vip.unlockedApps.map(appId => {
+                        if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 border border-red-500/50 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
+                        const foundApp = sortedAppsAdmin.find(a => a.id === appId);
+                        return <span key={appId} className="text-[9px] bg-blue-900/40 border border-blue-500/30 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
+                     })}
+                     {(!vip.unlockedApps || vip.unlockedApps.length === 0) && <span className="text-[9px] text-zinc-600 uppercase font-black">STARI KORISNIK (Samo 10X Enhancer)</span>}
+                   </div>
+                 </div>
+                 <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/10 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                </div>
              ))}
            </div>
         </div>
       )}
 
-      {adminTab === 'assets' && (
-        <div className="flex flex-col gap-12">
-          <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
-               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID (Veći broj ide prvi)" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
-                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
-                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Category" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
-                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Ribbon" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+      {adminTab === 'analytics' && (
+        <div className="space-y-8 animate-in fade-in duration-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-orange-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Visitors</span><span className="text-3xl font-black text-white">{new Set(analyticsData.map(s => s.sessionId)).size}</span></div>
+            <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Button Clicks</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'click').length}</span></div>
+            <div className="bg-[#0a0a0a] border border-amber-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Zap className="w-8 h-8 text-amber-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Enhancer Actions</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'enhancer_action').length}</span></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
+               <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><Eye className="w-4 h-4 text-orange-500" /> Page Views (Traffic)</h3>
+               <div className="space-y-4">
+                 {Object.entries(analyticsData.filter(s => s.type === 'page_view').reduce((acc, curr) => { acc[curr.path] = (acc[curr.path] || 0) + 1; return acc; }, {})).map(([path, count]) => (<div key={path} className="flex justify-between items-center border-b border-white/5 pb-2"><span className="text-[11px] text-zinc-300 font-mono truncate mr-4">{path || '/'}</span><span className="text-[13px] font-black text-orange-500 bg-orange-500/10 px-3 py-1 rounded-lg">{count}</span></div>))}
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standard Price" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Price" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Headline" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-3" /></div>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="Whop Link" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.reactSourceCode} onChange={e => setFormData({...formData, reactSourceCode: e.target.value})} placeholder="React Code (Whop)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.gumroadLink} onChange={e => setFormData({...formData, gumroadLink: e.target.value})} placeholder="Gumroad React Code" className="bg-black border border-purple-500/50 text-purple-100 placeholder-purple-500/50 focus:border-purple-500 outline-none transition-all p-3 rounded-xl text-[11px]" /></div>
-               
-               {/* MEDIA UPLOAD SA PLAY IKONICOM */}
-               <div className="bg-black border border-white/10 p-4 rounded-xl">
-                 <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media</label>
-                 <div className="flex flex-wrap gap-4">
-                   {formData.media.map((m, i) => (
-                     <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden group">
-                       {m.type === 'video' ? (
-                         <>
-                           <video src={m.url} className="w-full h-full object-cover" />
-                           <div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-8 h-8 text-white opacity-80" /></div>
-                         </>
-                       ) : (
-                         <img src={m.url} className="w-full h-full object-cover" />
-                       )}
-                       <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all"><X className="w-3 h-3" /></button>
-                     </div>
-                   ))}
-                   <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 text-zinc-500">{isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><UploadCloud className="w-6 h-6 mb-2" /><span className="text-[8px] uppercase font-black">Upload</span></>}<input type="file" multiple accept="image/*,video/*" onChange={handleImageUpload} className="hidden" /></label>
-                 </div>
+             </div>
+             <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
+               <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><MousePointerClick className="w-4 h-4 text-blue-500" /> User Clicks</h3>
+               <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                 {analyticsData.filter(s => s.type === 'click').slice(0, 50).map((click, i) => (<div key={i} className="flex flex-col border-b border-white/5 pb-3"><div className="flex justify-between items-start mb-1"><span className="text-[11px] text-zinc-100 font-bold capitalize">{click.elementText || 'Icon/Image'}</span><span className="text-[9px] text-zinc-500">{new Date(click.timestamp).toLocaleString()}</span></div><span className="text-[9px] font-mono text-blue-400">Path: {click.path}</span></div>))}
                </div>
-               
-               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono leading-relaxed" />
-               <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Question" className="flex-1 bg-black border border-white/5 p-2 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Answer" className="flex-[2] bg-black border border-white/5 p-2 rounded-lg text-[10px]" /></div>))}</div></div>
-               <div className="flex gap-4"><button type="submit" disabled={isUploading} className="flex-1 py-5 rounded-2xl font-black uppercase text-[12px] bg-orange-600 hover:bg-orange-500 transition-all">Execute Deploy</button>{editingId && <button type="button" onClick={() => {setFormData(initialForm); setEditingId(null);}} className="px-8 py-5 rounded-2xl bg-zinc-800 uppercase font-black text-[12px]">Cancel</button>}</div>
-               
-               {/* LISTA SVIH ALATA SA PLAY IKONICOM */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 border-t border-white/10">
-                 {sortedAppsAdmin.map(app => (
-                   <div key={app.id} className="p-5 bg-black border border-white/10 rounded-[1.5rem] flex flex-col gap-4 shadow-xl">
-                     <div className="aspect-video relative overflow-hidden rounded-2xl bg-zinc-900">
-                       {app.media?.[0]?.type === 'video' ? (
-                         <>
-                           <video src={`${app.media[0].url}#t=0.001`} className="w-full h-full object-cover" muted />
-                           <div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-10 h-10 text-white opacity-80" /></div>
-                         </>
-                       ) : (
-                         <img src={data.getMediaThumbnail(app.media?.[0]?.url)} className="w-full h-full object-cover" alt="" />
-                       )}
-                     </div>
-                     <div className="flex justify-between items-start gap-4">
-                       <div><span className="text-[13px] font-black uppercase text-white line-clamp-2">{app.name}</span><span className="text-[9px] text-zinc-500 block mt-1">ID: {app.id}</span></div>
-                       <div className="flex gap-2">
-                         <button type="button" onClick={() => handleEditClick(app)} className="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 transition-all"><Edit className="w-4 h-4" /></button>
-                         <button type="button" onClick={async () => { if(window.confirm("Delete?")) { await fetch(`${API_URL}/${app.id}`, { method: 'DELETE' }); refreshData(); v8Toast.success("Obrisano!"); } }} className="p-2.5 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600 transition-all"><Trash2 className="w-4 h-4" /></button>
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-          </form>
-          
-          <EnhancerAdminGallery />
+             </div>
+          </div>
         </div>
       )}
-      
-      {adminTab === 'analytics' && <AnalyticsDashboard />}
+
     </div>
   );
-}
+};
 
 function AppContent({ appsData, refreshData }) {
   const [isBooting, setIsBooting] = useState(true); const [showBanner, setShowBanner] = useState(false); const location = useLocation();
@@ -1350,7 +1464,7 @@ function AppContent({ appsData, refreshData }) {
   
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-       if(user && (user.email === "damnjanovicgoran7@gmail.com" || (await getDoc(doc(db, "vip_users", user.email))).exists())) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); }
+       if(user && (user.email === "damnjanovicgoran7@gmail.com" || (await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists())) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); }
     }); return () => unsub();
   }, []);
 
