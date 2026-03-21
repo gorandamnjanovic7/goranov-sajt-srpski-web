@@ -590,7 +590,17 @@ function SingleProductPage({ apps = [] }) {
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={svrhaPlacanja}>{svrhaPlacanja}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-8 text-center leading-relaxed font-bold">Nakon uplate, pošaljite nam dokaz na email i odmah dobijate pristup.</p>
+               <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
+  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
+    Nakon uplate, pošaljite nam dokaz na email:
+  </p>
+  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
+    aitoolsprosmart@gmail.com
+  </a>
+  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
+    Sistem će vam odmah otključati pristup! 🚀
+  </span>
+</div>
               </div>
             </motion.div>
           </div>
@@ -955,7 +965,17 @@ function EnhancerPage() {
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-8 text-center leading-relaxed font-bold">Nakon uplate, pošaljite nam dokaz na email i odmah dobijate pristup.</p>
+                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
+  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
+    Nakon uplate, pošaljite nam dokaz na email:
+  </p>
+  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
+    aitoolsprosmart@gmail.com
+  </a>
+  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
+    Sistem će vam odmah otključati pristup! 🚀
+  </span>
+</div>
               </div>
             </motion.div>
           </div>
@@ -964,6 +984,9 @@ function EnhancerPage() {
     </div>
   );
 }
+// ==========================================
+// POČETNA STRANICA (HOME PAGE SA PAMETNIM DUGMETOM)
+// ==========================================
 function HomePage({ apps = [] }) {
   const [activeSlide, setActiveSlide] = useState(0); 
   const [liveVideos, setLiveVideos] = useState([]); 
@@ -971,8 +994,28 @@ function HomePage({ apps = [] }) {
   const location = useLocation();
   const sortedApps = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
   
-  // LOGIKA ZA IPS PLACANJE
+  // LOGIKA ZA IPS I PRISTUP
   const [ipsModalData, setIpsModalData] = useState(null);
+  const [hasEnhancerAccess, setHasEnhancerAccess] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        if (user.email === "damnjanovicgoran7@gmail.com") {
+          setHasEnhancerAccess(true); // GORAN IMA SVE
+        } else {
+          try {
+            const docRef = doc(db, "vip_users", user.email.toLowerCase());
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) {
+              setHasEnhancerAccess(true);
+            } else { setHasEnhancerAccess(false); }
+          } catch(e) { setHasEnhancerAccess(false); }
+        }
+      } else { setHasEnhancerAccess(false); }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handlePaymentV8 = async (tip, cena) => {
     if (auth.currentUser) {
@@ -1037,12 +1080,20 @@ function HomePage({ apps = [] }) {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
-            <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">
-              KUPI SAD
-            </button>
-            <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">
-              POGLEDAJ DEMO
-            </a>
+            {hasEnhancerAccess ? (
+              <Link to="/enxance" className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-12 py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-colors flex items-center justify-center hover:scale-105 cursor-pointer">
+                🚀 UĐI U APLIKACIJU
+              </Link>
+            ) : (
+              <>
+                <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">
+                  KUPI SAD
+                </button>
+                <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">
+                  POGLEDAJ DEMO
+                </a>
+              </>
+            )}
           </div>
         </div>
 
@@ -1084,6 +1135,7 @@ function HomePage({ apps = [] }) {
                 <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Dobijate potpunu kontrolu. Menjajte cene, slike i tekstove sami, bez potrebe za plaćanjem programera.</p>
               </div>
             </div>
+
 
             <div className="mt-16 flex justify-center">
               <MagneticButton href="mailto:damnjanovicgoran7@gmail.com" className="bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all">
@@ -1153,7 +1205,17 @@ function HomePage({ apps = [] }) {
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-8 text-center leading-relaxed font-bold">Nakon uplate, pošaljite nam dokaz na email i odmah dobijate pristup.</p>
+                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
+  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
+    Nakon uplate, pošaljite nam dokaz na email:
+  </p>
+  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
+    aitoolsprosmart@gmail.com
+  </a>
+  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
+    Sistem će vam odmah otključati pristup! 🚀
+  </span>
+</div>
               </div>
             </motion.div>
           </div>
@@ -1162,7 +1224,7 @@ function HomePage({ apps = [] }) {
     </>
   );
 }
-//DEO 3
+
 // ==========================================
 // 🚀 V8 MASTER ADMIN PANEL
 // ==========================================
@@ -1457,14 +1519,133 @@ const AdminPage = ({ apps = [], refreshData }) => {
   );
 };
 
+// ==========================================
+// NOVO: STRANICA "MOJ TREZOR" ZA KUPCE (POPRAVLJENI MEDIJI I LINKOVI)
+// ==========================================
+function TrezorPage({ apps = [] }) {
+  const [unlockedApps, setUnlockedApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        if (user.email === "damnjanovicgoran7@gmail.com") {
+          setUnlockedApps(['FULL_ACCESS']);
+        } else {
+          try {
+            const docRef = doc(db, "vip_users", user.email.toLowerCase());
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().unlockedApps) {
+              setUnlockedApps(docSnap.data().unlockedApps);
+            } else {
+              setUnlockedApps([]);
+            }
+          } catch(e) { setUnlockedApps([]); }
+        }
+      } else {
+        navigate('/'); // Ako nije ulogovan, vrati ga na početnu
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
+  if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-orange-500"><Loader2 className="w-10 h-10 animate-spin" /></div>;
+
+  const hasFullAccess = unlockedApps.includes('FULL_ACCESS');
+  // Izdvajamo samo alate koje kupac poseduje
+  const myApps = hasFullAccess ? apps : apps.filter(app => unlockedApps.includes(app.id));
+
+  return (
+    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white min-h-screen">
+      <Helmet><title>MOJ TREZOR | AI TOOLS PRO SMART</title></Helmet>
+      
+      <div className="flex items-center gap-4 mb-10 border-b border-orange-500/20 pb-6">
+        <Lock className="w-8 h-8 text-orange-500" />
+        <h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-white">VIP TREZOR</h1>
+      </div>
+      
+      {myApps.length === 0 ? (
+         <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-10 text-center shadow-xl">
+            <p className="text-zinc-500 uppercase tracking-widest font-bold text-[12px]">Trenutno nemate otključanih alata u vašem trezoru.</p>
+            <Link to="/" className="inline-block mt-6 bg-orange-600 px-8 py-3 rounded-xl text-white font-black text-[11px] uppercase tracking-widest hover:bg-orange-500 transition-colors shadow-lg">Idi u Prodavnicu</Link>
+         </div>
+      ) : (
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {myApps.map((app) => {
+               // PROVERA DA LI JE VIDEO ILI SLIKA
+               const isVideo = app.media?.[0]?.type === 'video' || app.media?.[0]?.url?.match(/\.(mp4|webm|ogg|mov)$/i);
+               const displayUrl = app.media?.[0]?.url || data.bannerUrl;
+               // UZIMANJE NETLIFY LINKA
+               const parts = (app.whopLink || "").split("[SPLIT]");
+               const mainLink = parts[0] || "";
+
+               return (
+                 <div key={app.id} className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2rem] p-5 shadow-[0_0_20px_rgba(234,88,12,0.1)] flex flex-col hover:border-orange-500/60 transition-all group">
+                   <Link to={`/app/${app.id}`} className="aspect-video relative rounded-xl overflow-hidden mb-4 bg-black border border-white/5 block">
+                      {isVideo ? (
+                         <video src={`${displayUrl}#t=0.001`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all" muted playsInline />
+                      ) : (
+                         <img src={displayUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all" alt={app.name} />
+                      )}
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                         <PlayCircle className="w-10 h-10 text-white drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
+                      </div>
+                   </Link>
+                   <h3 className="text-[16px] font-black uppercase text-white mb-2 line-clamp-1">{app.name}</h3>
+                   <p className="text-zinc-500 text-[10px] uppercase font-bold mb-6 flex-1 line-clamp-2">{app.headline}</p>
+                   
+                   {mainLink ? (
+                     <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_15px_rgba(34,197,94,0.3)] block">
+                        🚀 OTVORI APLIKACIJU
+                     </a>
+                   ) : (
+                     <Link to={`/app/${app.id}`} className="w-full py-3.5 bg-zinc-800 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-lg block">
+                        POGLEDAJ DETALJE
+                     </Link>
+                   )}
+                 </div>
+               );
+            })}
+         </div>
+      )}
+    </div>
+  );
+}
+
+// ==========================================
+// GLAVNI KONTROLER (MENI I RUTIRANJE)
+// ==========================================
 function AppContent({ appsData, refreshData }) {
-  const [isBooting, setIsBooting] = useState(true); const [showBanner, setShowBanner] = useState(false); const location = useLocation();
-  const prevLocation = useRef(location.pathname); const entryTime = useRef(Date.now());
+  const [isBooting, setIsBooting] = useState(true); 
+  const [showBanner, setShowBanner] = useState(false); 
+  const location = useLocation();
+  const prevLocation = useRef(location.pathname); 
+  const entryTime = useRef(Date.now());
+  
   const [isVIPLoggedIn, setIsVIPLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-       if(user && (user.email === "damnjanovicgoran7@gmail.com" || (await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists())) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); }
+       if(user) {
+          if (user.email === "damnjanovicgoran7@gmail.com") {
+             setIsAdmin(true);
+             setIsVIPLoggedIn(true);
+          } else {
+             setIsAdmin(false);
+             if((await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists()) {
+                setIsVIPLoggedIn(true);
+             } else {
+                setIsVIPLoggedIn(false);
+             }
+          }
+       } else {
+          setIsVIPLoggedIn(false);
+          setIsAdmin(false);
+       }
     }); return () => unsub();
   }, []);
 
@@ -1513,18 +1694,36 @@ function AppContent({ appsData, refreshData }) {
               )}
               
               {isVIPLoggedIn ? (
-                 <div className="flex items-center gap-3 ml-2">
-                    <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)]"><User className="w-3 h-3" /> PREMIUM</span>
+                 <div className="flex items-center gap-2 md:gap-3 ml-2">
+                    {isAdmin && (
+                       <Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]">
+                          <Settings className="w-3.5 h-3.5" /> DASHBOARD
+                       </Link>
+                    )}
+                    <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]">
+                       <Lock className="w-3.5 h-3.5" /> MOJ TREZOR
+                    </Link>
+                    <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex">
+                       <User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}
+                    </span>
                     <button onClick={() => { signOut(auth); v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
                  </div>
               ) : (
-                 <Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin</Link>
+                 <Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>
               )}
             </div>
           </div>
         </nav>
       </div>
-      <div className="flex-1 text-left pt-20"><Routes><Route path="/" element={<HomePage apps={appsData} />} /><Route path="/enxance" element={<EnhancerPage />} /><Route path="/app/:id" element={<SingleProductPage apps={appsData} />} /><Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} /></Routes></div>
+      <div className="flex-1 text-left pt-20">
+        <Routes>
+          <Route path="/" element={<HomePage apps={appsData} />} />
+          <Route path="/enxance" element={<EnhancerPage />} />
+          <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
+          <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
+          <Route path="/trezor" element={<TrezorPage apps={appsData} />} />
+        </Routes>
+      </div>
       <SmartScrollButton />
       <footer className="flex flex-col items-center gap-4 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-6 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
         <div className="flex items-center gap-6">
