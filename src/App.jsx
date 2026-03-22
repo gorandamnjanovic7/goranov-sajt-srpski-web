@@ -584,10 +584,24 @@ function SingleProductPage({ apps = [] }) {
   );
 }
 
+/// POČETAK FUNKCIJE: IzradaSajtovaPage ///
 function IzradaSajtovaPage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [demoProjekti, setDemoProjekti] = useState([]);
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  useEffect(() => { 
+    window.scrollTo(0, 0); 
+    
+    const fetchDemos = async () => {
+      try {
+        const snap = await getDocs(collection(db, "demo_projekti"));
+        if (!snap.empty) {
+          setDemoProjekti(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt - a.createdAt));
+        }
+      } catch(e) {}
+    };
+    fetchDemos();
+  }, []);
   
   const nextSlide = useCallback(() => setActiveSlide(s => (s + 1) % (data.BANNER_DATA?.length || 1)), []);
   const prevSlide = () => setActiveSlide(s => (s - 1 + (data.BANNER_DATA?.length || 1)) % (data.BANNER_DATA?.length || 1));
@@ -644,7 +658,7 @@ function IzradaSajtovaPage() {
             </div>
           </div>
       </section>
-{/* V8 PREMIUM OBAVEŠTENJE / USLUGE */}
+
       <div className="max-w-7xl mx-auto px-6 mt-20">
         <div className="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border border-orange-500/30 rounded-[2rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
@@ -683,31 +697,48 @@ function IzradaSajtovaPage() {
             <h4 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Specijalizovani <span className="text-zinc-500">Demo Projekti</span></h4>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-            {[
-              { name: "V8 AUTO GARAŽA", desc: "Premium servis i tuning", icon: <Settings className="w-5 h-5" />, img: "LINK_DO_TVOJE_AUTO_SLIKE" },
-              { name: "V8 STOMATOLOŠKA ORDINACIJA", desc: "Moderni stomatološki studio", icon: <Sparkles className="w-5 h-5" />, img: "LINK_DO_TVOJE_DENTAL_SLIKE" },
-              { name: "V8 ADVOKATSKA KANCELARIJA", desc: "Advokatura i strategija", icon: <ShieldAlert className="w-5 h-5" />, img: "LINK_DO_TVOJE_LEGAL_SLIKE" },
-              { name: "V8 NEKRETNINE", desc: "Luksuzne nekretnine", icon: <Layers className="w-5 h-5" />, img: "LINK_DO_TVOJE_ESTATE_SLIKE" }
-            ].map((item, i) => (
-              <div key={i} className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_30px_rgba(234,88,12,0.2)]">
-                <div className="aspect-video relative overflow-hidden bg-zinc-900">
-                  <img src={item.img} alt={item.name} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full px-2 md:px-8 mx-auto">
+            {demoProjekti.length === 0 ? (
+               <div className="col-span-full text-center py-10 text-zinc-500 uppercase tracking-widest text-[10px] font-black">
+                 Trenutno nema unetih demo projekata. Dodajte ih iz Admin Panela.
+               </div>
+            ) : (
+              demoProjekti.map((item, i) => (
+                <div key={item.id || i} className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_30px_rgba(234,88,12,0.2)]">
+                  <div className="aspect-video relative overflow-hidden bg-zinc-900">
+                    <img src={item.img} alt={item.name} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <h5 className="text-[13px] md:text-[14px] font-black text-white uppercase tracking-wider mb-1 line-clamp-1">{item.name}</h5>
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6 line-clamp-1">{item.desc}</p>
+                    <a href={item.img} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[9px] font-black text-orange-500 uppercase tracking-widest border border-orange-500/20 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white transition-all">Pogledaj Dizajn <ExternalLink className="w-3 h-3" /></a>
+                  </div>
                 </div>
-                <div className="absolute inset-x-0 bottom-0 p-6">
-                  <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
-                  <h5 className="text-[14px] font-black text-white uppercase tracking-wider mb-1">{item.name}</h5>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-6">{item.desc}</p>
-                  <a href={item.img} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[9px] font-black text-orange-500 uppercase tracking-widest border border-orange-500/20 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white transition-all">Pogledaj Dizajn <ExternalLink className="w-3 h-3" /></a>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
+
+          <div className="max-w-4xl mx-auto mt-16 px-4">
+            <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-3xl p-8 text-center shadow-[0_0_30px_rgba(234,88,12,0.1)] relative overflow-hidden group">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Layers className="w-10 h-10 text-orange-500 mx-auto mb-4 animate-pulse" />
+              <h4 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-widest mb-3 italic">V8 Kolekcija se neprestano širi</h4>
+              <p className="text-[10px] md:text-[12px] text-zinc-400 font-bold uppercase tracking-[0.2em] leading-relaxed">
+                Uskoro otključavamo još ekskluzivnih premium šablona za različite industrije. <br className="hidden md:block mt-1"/> 
+                <span className="text-orange-400">Svaki šablon je moćna osnova koju u potpunosti prilagođavamo <br className="hidden md:block"/> vizuelnom identitetu vašeg brenda.</span>
+              </p>
+            </div>
+          </div>
+
       </div>
     </div>
   );
 }
+/// KRAJ FUNKCIJE: IzradaSajtovaPage ///
 
 function HomePage({ apps = [] }) {
   const [activeSlide, setActiveSlide] = useState(0); 
@@ -1247,6 +1278,76 @@ function EnhancerPage() {
   );
 }
 
+/// POČETAK FUNKCIJE: AdminDemoProjekti ///
+const AdminDemoProjekti = () => {
+  const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [demoList, setDemoList] = useState([]);
+
+  useEffect(() => {
+    const fetchList = async () => {
+      const snap = await getDocs(collection(db, "demo_projekti"));
+      setDemoList(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt - a.createdAt));
+    };
+    fetchList();
+  }, [isUploading]);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return; setIsUploading(true);
+    const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
+      const resData = await res.json();
+      await addDoc(collection(db, "demo_projekti"), { name, desc, img: resData.secure_url, createdAt: Date.now() }); 
+      setName(''); setDesc(''); v8Toast.success("Demo uspešno dodat!");
+    } catch (err) { v8Toast.error("Greška pri uploadu!"); } finally { setIsUploading(false); }
+  };
+
+  const handleDelete = async (id) => {
+    if(window.confirm("Brisanjem uklanjate demo sa sajta. Nastaviti?")) {
+      await deleteDoc(doc(db, "demo_projekti", id));
+      setDemoList(prev => prev.filter(item => item.id !== id));
+      v8Toast.success("Obrisano.");
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2.5rem] p-8 shadow-2xl">
+        <h2 className="text-xl font-black text-orange-500 uppercase tracking-widest mb-6 flex items-center gap-3"><Layers className="w-6 h-6"/> Dodaj Novi Demo Projekt</h2>
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ime (npr. V8 AUTO GARAŽA)" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white flex-1 outline-none focus:border-orange-500" />
+          <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Opis (npr. Premium servis i tuning)" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white flex-1 outline-none focus:border-orange-500" />
+        </div>
+        <label className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest inline-flex items-center transition-all ${(!name || !desc || isUploading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}>
+          {isUploading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <UploadCloud className="w-5 h-5 mr-2" />}
+          {isUploading ? "Zapisivanje u bazu..." : "Izaberi sliku i Snimi"}
+          <input type="file" accept="image/*" onChange={handleUpload} disabled={!name || !desc || isUploading} className="hidden" />
+        </label>
+        <p className="text-[10px] font-black text-zinc-500 uppercase mt-4">Pravilo: Prvo ukucaj ime i opis, pa tek onda izaberi sliku. Sistem sve automatski šalje na sajt.</p>
+      </div>
+
+      <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
+        <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6">Trenutni Demo Projekti ({demoList.length})</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {demoList.map(item => (
+            <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-video bg-[#050505]">
+              <img src={item.img} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all" alt={item.name} />
+              <div className="absolute bottom-0 inset-x-0 bg-black/80 p-2 text-center">
+                <p className="text-[9px] font-black text-orange-500 uppercase truncate">{item.name}</p>
+              </div>
+              <button type="button" onClick={() => handleDelete(item.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 hover:scale-110"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+/// KRAJ FUNKCIJE: AdminDemoProjekti ///
+
+/// POČETAK FUNKCIJE: AdminPage ///
 const AdminPage = ({ apps = [], refreshData }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); 
   const [adminTab, setAdminTab] = useState('assets'); 
@@ -1366,6 +1467,7 @@ const AdminPage = ({ apps = [], refreshData }) => {
       <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto">
          <button type="button" onClick={() => setAdminTab('assets')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'assets' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Award className="w-4 h-4 inline mr-2" /> Assets Manager</button>
          <button type="button" onClick={() => setAdminTab('enhancer')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'enhancer' ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Sparkles className="w-4 h-4 inline mr-2" /> Enhancer Gallery</button>
+         <button type="button" onClick={() => setAdminTab('demo')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'demo' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Layers className="w-4 h-4 inline mr-2" /> Demo Projekti</button>
          <button type="button" onClick={() => setAdminTab('vip')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'vip' ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Users className="w-4 h-4 inline mr-2" /> VIP Baza</button>
          <button type="button" onClick={() => setAdminTab('analytics')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'analytics' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><BarChart className="w-4 h-4 inline mr-2" /> V8 Analytics</button>
       </div>
@@ -1438,6 +1540,8 @@ const AdminPage = ({ apps = [], refreshData }) => {
         </div>
       )}
 
+      {adminTab === 'demo' && <AdminDemoProjekti />}
+
       {adminTab === 'vip' && (
         <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
            <h2 className="text-xl font-black text-green-500 uppercase tracking-widest flex items-center gap-3"><Lock className="w-6 h-6" /> Premium VIP Baza</h2>
@@ -1489,6 +1593,7 @@ const AdminPage = ({ apps = [], refreshData }) => {
     </div>
   );
 };
+/// KRAJ FUNKCIJE: AdminPage ///
 
 function TrezorPage({ apps = [] }) {
   const [unlockedApps, setUnlockedApps] = useState([]);
@@ -1628,6 +1733,7 @@ function AppContent({ appsData, refreshData }) {
         </Routes>
       </div>
       <SmartScrollButton />
+/// POČETAK ZAMENE FOOTERA ///
       <footer className="flex flex-col items-center gap-4 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-6 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
         <div className="flex items-center gap-6">
           <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>
@@ -1635,9 +1741,12 @@ function AppContent({ appsData, refreshData }) {
           <a href="https://www.instagram.com/aitoolsprosmart/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" className="h-4 w-4 object-contain" /></a>
           <a href="https://www.tiktok.com/@smartaitoolspro" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" className="h-4 w-4 object-contain" /></a>
         </div>
-        <div>© 2026 <span className="text-blue-500 font-black">AI TOOLS</span> <span className="text-orange-500 font-black">PRO SMART</span> <span className="mx-1 text-white font-black">|</span> SVA PRAVA ZADRŽANA</div>
+        <div className="flex flex-col items-center gap-1.5">
+           <div>© 2026 <span className="text-blue-500 font-black">AI TOOLS</span> <span className="text-orange-500 font-black">PRO SMART</span> <span className="mx-1 text-white font-black">|</span> SVA PRAVA ZADRŽANA</div>
+           <div className="text-orange-500/60 font-bold normal-case tracking-[0.2em] text-[11px]">Premium Solutions for Premium Clients.</div>
+        </div>
       </footer>
-    </div>
+/// KRAJ ZAMENE FOOTERA ///</div>
   );
 }
 
