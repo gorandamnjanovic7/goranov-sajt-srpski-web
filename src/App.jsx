@@ -644,6 +644,38 @@ function IzradaSajtovaPage() {
             </div>
           </div>
       </section>
+{/* V8 PREMIUM OBAVEŠTENJE / USLUGE */}
+      <div className="max-w-7xl mx-auto px-6 mt-20">
+        <div className="bg-gradient-to-br from-[#0a0a0a] to-[#050505] border border-orange-500/30 rounded-[2rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
+          <div className="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="relative z-10 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-black uppercase tracking-widest mb-6">
+              <Sparkles className="w-3 h-3" /> Premium Web Arhitektura
+            </div>
+            <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tight mb-5 italic">
+              KOMPLETNA DIGITALNA TRANSFORMACIJA
+            </h3>
+            <p className="text-zinc-400 text-[13px] md:text-[15px] leading-relaxed mb-8 max-w-4xl font-medium">
+              Pružamo usluge izrade najsavremenijih web sajtova i aplikacija. Naša rešenja uključuju 
+              <span className="text-white font-black tracking-wide"> direktnu IPS naplatu</span>, kao i 
+              <span className="text-white font-black tracking-wide"> pametne Admin panele</span> putem kojih možete pratiti apsolutno sve: od zakazivanja termina, preko analitike poseta, do upravljanja zalihama proizvoda i bazom klijenata.
+              <br/><br/>
+              Bilo da vam je potrebna robusna <span className="text-orange-400 font-black tracking-wide">e-commerce platforma za online prodaju</span>, sajt za rezervacije ili korporativna prezentacija, tu smo za vas. 
+              Klijenti mogu započeti brzo koristeći naše industrijski-optimizovane šablone (template), ili možemo izgraditi 
+              <span className="text-white font-black tracking-wide"> potpuno unikatno rešenje od nule</span>, skrojeno strogo po meri i vizuelnom identitetu vašeg brenda.
+            </p>
+            
+            <div className="flex flex-wrap gap-3">
+               <span className="text-[10px] text-zinc-300 bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl uppercase font-black tracking-widest flex items-center gap-2 shadow-inner"><Zap className="w-4 h-4 text-orange-500"/> IPS Naplata</span>
+               <span className="text-[10px] text-zinc-300 bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl uppercase font-black tracking-widest flex items-center gap-2 shadow-inner"><Settings className="w-4 h-4 text-blue-500"/> Smart Admin Dashboard</span>
+               <span className="text-[10px] text-zinc-300 bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl uppercase font-black tracking-widest flex items-center gap-2 shadow-inner"><Activity className="w-4 h-4 text-green-500"/> E-Commerce Prodaja</span>
+               <span className="text-[10px] text-zinc-300 bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl uppercase font-black tracking-widest flex items-center gap-2 shadow-inner"><Layers className="w-4 h-4 text-purple-500"/> Custom & Template Rešenja</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-28 mb-20 px-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <div className="text-center mb-12">
