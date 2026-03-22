@@ -5,10 +5,9 @@ import {
   PlayCircle, Sparkles, Youtube, X, ChevronLeft, ChevronRight, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick, Clock, Users, Zap, HelpCircle, ChevronDown,
-  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus
+  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus, ExternalLink
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
-// --- ANIMACIJE ---
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSpring, animated } from '@react-spring/web';
 import gsap from 'gsap';
@@ -28,11 +27,8 @@ if (typeof window !== 'undefined') {
   window.scrollTo(0, 0);
 }
 
-// TVOJ NOVI RAILWAY CLOUD SERVER LINK
 const BASE_BACKEND_URL = "https://goranov-sajt-srpski-backend-production.up.railway.app"; 
 const API_URL = `${BASE_BACKEND_URL}/api/products`;
-
-// --- V8 SYSTEM CONFIG ---
 const MOJA_IP = "213.196.99.10"; 
 const YOUTUBE_API_KEY = "AIzaSyCwy46TsBPW7LxKTjExhQbHhYhq8lyc2YM"; 
 
@@ -52,9 +48,6 @@ export const logAnalyticsEvent = async (type, details) => {
   try { await addDoc(collection(db, "analytics"), { type, ...details, timestamp: Date.now(), sessionId: currentSessionId }); } catch (err) {}
 };
 
-// ==========================================
-// V8 PREMIUM TOAST NOTIFIKACIJE
-// ==========================================
 export const v8Toast = {
   listeners: [],
   success: (msg) => v8Toast.listeners.forEach(l => l({ type: 'success', msg, id: Date.now() })),
@@ -70,7 +63,6 @@ const V8ToastContainer = () => {
       setTimeout(() => setToasts(p => p.filter(x => x.id !== t.id)), 3500);
     });
   }, []);
-
   return (
     <div className="fixed top-24 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
       <AnimatePresence>
@@ -85,9 +77,6 @@ const V8ToastContainer = () => {
   );
 };
 
-// ==========================================
-// FOMO COUNTDOWN TIMER
-// ==========================================
 const CountdownTimer = () => {
   const [timeLeft, setTimeLeft] = useState(2 * 3600 + 15 * 60 + 43);
   useEffect(() => {
@@ -109,9 +98,6 @@ const CountdownTimer = () => {
   );
 };
 
-// ==========================================
-// SCRAMBLE TEXT & DUGMIĆI
-// ==========================================
 const ScrambleText = ({ text }) => {
   const [displayed, setDisplayed] = useState('');
   useEffect(() => {
@@ -203,7 +189,7 @@ const FullScreenBoot = ({ onComplete }) => {
     </div>
   );
 };
-//DEO 2
+
 const getRibbonStyle = (index) => {
   if (index === 0) return "bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.7)]";
   const colors = ["bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)]", "bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.5)]", "bg-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.5)]", "bg-pink-600 shadow-[0_0_15px_rgba(219,39,119,0.5)]", "bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.5)]"];
@@ -384,9 +370,6 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy }) => {
   );
 };
 
-// ==========================================
-// V8 SINGLE PRODUCT STRANICA (PAMETNI EKRAN + RSD)
-// ==========================================
 function SingleProductPage({ apps = [] }) {
   const { id } = useParams(); 
   const app = apps.find(a => a.id === id); 
@@ -437,7 +420,6 @@ function SingleProductPage({ apps = [] }) {
   const currentMedia = app.media?.[activeMedia] || { url: data.bannerUrl, type: 'image' }; 
   const isVideo = currentMedia?.type === 'video' || currentMedia?.url?.match(/\.(mp4|webm|ogg|mov)$/i); 
   
-  // OVDE Hvatamo tvoj Netlify link
   const parts = (app.whopLink || "").split("[SPLIT]");
   const mainLink = parts[0] || ""; 
 
@@ -525,7 +507,6 @@ function SingleProductPage({ apps = [] }) {
               {isCheckingAccess ? (
                  <div className="py-10 flex justify-center"><Loader2 className="w-8 h-8 text-orange-500 animate-spin" /></div>
               ) : hasAccess ? (
-                // === EKRAN ZA VIP KORISNIKA (PRISTUP ODOBREN) ===
                 <div className="bg-[#050505] border border-green-500/50 rounded-2xl p-6 shadow-[0_0_30px_rgba(34,197,94,0.15)] text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 bg-green-600 text-white text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 shadow-lg">PREMIUM NALOG</div>
                   <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4 animate-bounce" />
@@ -543,7 +524,6 @@ function SingleProductPage({ apps = [] }) {
                   </div>
                 </div>
               ) : (
-                // === EKRAN ZA KUPCA (NEMA PRISTUP - SAMO DINARI) ===
                 <div className="bg-[#050505] border border-orange-500/40 p-5 rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] relative overflow-hidden group">
                   <div className="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-10 shadow-lg">Srbija 🇷🇸</div>
                   
@@ -590,17 +570,11 @@ function SingleProductPage({ apps = [] }) {
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={svrhaPlacanja}>{svrhaPlacanja}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-               <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
-    Nakon uplate, pošaljite nam dokaz na email:
-  </p>
-  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
-    aitoolsprosmart@gmail.com
-  </a>
-  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
-    Sistem će vam odmah otključati pristup! 🚀
-  </span>
-</div>
+                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
+                  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">Nakon uplate, pošaljite nam dokaz na email:</p>
+                  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">aitoolsprosmart@gmail.com</a>
+                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -609,9 +583,272 @@ function SingleProductPage({ apps = [] }) {
     </div>
   );
 }
-// ==========================================
-// ZAKLJUČANA 10X ENHANCER STRANICA SA VIP LOGIKOM I ISTORIJOM PROMPTOVA
-// ==========================================
+
+function IzradaSajtovaPage() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+  
+  const nextSlide = useCallback(() => setActiveSlide(s => (s + 1) % (data.BANNER_DATA?.length || 1)), []);
+  const prevSlide = () => setActiveSlide(s => (s - 1 + (data.BANNER_DATA?.length || 1)) % (data.BANNER_DATA?.length || 1));
+  useEffect(() => { const t = setInterval(nextSlide, 7000); return () => clearInterval(t); }, [nextSlide]);
+
+  return (
+    <div className="min-h-screen bg-[#050505] text-white text-left">
+      <Helmet><title>Izrada Web Stranica | V8 Digital Agency</title></Helmet>
+      
+      <div className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white border-b border-orange-500/20">
+        <div className="absolute inset-0 z-0 bg-black">{(data.BANNER_DATA || []).map((item, idx) => (<div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === activeSlide ? 'opacity-100' : 'opacity-0'} z-0`}><img src={item.image} loading={idx === 0 ? "eager" : "lazy"} className="w-full h-full object-cover opacity-80" alt="banner" /></div>))}</div>
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent z-10" />
+        <div className="absolute inset-0 z-20 w-full h-full pointer-events-none opacity-40"><MatrixRain /></div>
+        <button type="button" onClick={prevSlide} className="absolute left-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronLeft className="w-8 h-8" strokeWidth={3} /></button>
+        <button type="button" onClick={nextSlide} className="absolute right-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronRight className="w-8 h-8" strokeWidth={3} /></button>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-40">{(data.BANNER_DATA || []).map((_, i) => <button key={i} type="button" onClick={() => setActiveSlide(i)} className={`h-[1px] transition-all duration-500 rounded-full ${i === activeSlide ? 'w-6 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'w-1.5 bg-white/20 hover:bg-white/40'}`} />)}</div>
+        <div className="relative z-40 max-w-7xl mx-auto px-6 pb-20 w-full text-left">
+          <div className="inline-block px-3 py-1 rounded-full bg-orange-600/90 text-[6px] font-black uppercase mb-4 tracking-widest shadow-lg">{data.BANNER_DATA?.[activeSlide]?.badge}</div>
+          <h1 className="text-xl md:text-4xl font-black uppercase mb-1.5 tracking-tighter drop-shadow-2xl">{data.BANNER_DATA?.[activeSlide]?.title}</h1>
+          <p className="text-zinc-300 text-[12px] md:text-sm max-w-lg font-medium opacity-90">{data.BANNER_DATA?.[activeSlide]?.subtitle}</p>
+        </div>
+      </div>
+
+      <section className="py-20 px-6 relative overflow-hidden bg-[#050505] border-b border-orange-500/50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white uppercase italic">POTREBAN VAM JE <span className="text-orange-500 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">OVAKAV SAJT?</span></h2>
+              <p className="text-zinc-300 font-black tracking-[0.3em] uppercase text-[10px] md:text-[12px]">V8 DIGITAL AGENCY — PREMIUM WEB REŠENJA ZA VAŠ BIZNIS</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all duration-500 group shadow-xl">
+                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform"><Layers className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase italic">V8 Vizuelni Identitet</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed">Sajt koji ostavlja konkurenciju u prašini. Ultra-moderan dizajn optimizovan za maksimalnu prodaju.</p>
+              </div>
+
+              <div className="bg-[#0a0a0a] border border-orange-500/30 p-10 rounded-[2.5rem] relative overflow-hidden group shadow-[0_0_40px_rgba(234,88,12,0.05)]">
+                <div className="absolute top-0 right-0 bg-orange-500 text-black text-[9px] font-black px-4 py-1.5 uppercase rounded-bl-xl font-sans">NAJTRAŽENIJE</div>
+                <div className="w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform"><Zap className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase italic">IPS Instant Naplata</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed">Implementiramo QR kod plaćanje direktno na vaš tekući račun. Bez provizija banaka i čekanja.</p>
+              </div>
+
+              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all group shadow-xl">
+                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform"><Settings className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase italic">Smart Admin Panel</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed">Potpuna autonomija. Menjajte sami cene, slike i tekstove bez potrebe za programerom.</p>
+              </div>
+            </div>
+
+            <div className="mt-16 flex justify-center">
+              <MagneticButton href="mailto:damnjanovicgoran7@gmail.com" className="bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all shadow-2xl">ZAKAŽI BESPLATNE KONSULTACIJE</MagneticButton>
+            </div>
+          </div>
+      </section>
+
+      <div className="mt-28 mb-20 px-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+          <div className="text-center mb-12">
+            <h3 className="text-orange-500 font-black uppercase text-[11px] tracking-[0.5em] mb-3">Industrijski Standardi</h3>
+            <h4 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Specijalizovani <span className="text-zinc-500">Demo Projekti</span></h4>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
+            {[
+              { name: "V8 AUTO GARAŽA", desc: "Premium servis i tuning", icon: <Settings className="w-5 h-5" />, img: "LINK_DO_TVOJE_AUTO_SLIKE" },
+              { name: "V8 STOMATOLOŠKA ORDINACIJA", desc: "Moderni stomatološki studio", icon: <Sparkles className="w-5 h-5" />, img: "LINK_DO_TVOJE_DENTAL_SLIKE" },
+              { name: "V8 ADVOKATSKA KANCELARIJA", desc: "Advokatura i strategija", icon: <ShieldAlert className="w-5 h-5" />, img: "LINK_DO_TVOJE_LEGAL_SLIKE" },
+              { name: "V8 NEKRETNINE", desc: "Luksuzne nekretnine", icon: <Layers className="w-5 h-5" />, img: "LINK_DO_TVOJE_ESTATE_SLIKE" }
+            ].map((item, i) => (
+              <div key={i} className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_30px_rgba(234,88,12,0.2)]">
+                <div className="aspect-video relative overflow-hidden bg-zinc-900">
+                  <img src={item.img} alt={item.name} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-6">
+                  <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
+                  <h5 className="text-[14px] font-black text-white uppercase tracking-wider mb-1">{item.name}</h5>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-6">{item.desc}</p>
+                  <a href={item.img} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[9px] font-black text-orange-500 uppercase tracking-widest border border-orange-500/20 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white transition-all">Pogledaj Dizajn <ExternalLink className="w-3 h-3" /></a>
+                </div>
+              </div>
+            ))}
+          </div>
+      </div>
+    </div>
+  );
+}
+
+function HomePage({ apps = [] }) {
+  const [activeSlide, setActiveSlide] = useState(0); 
+  const [liveVideos, setLiveVideos] = useState([]); 
+  const [isLoadingVideos, setIsLoadingVideos] = useState(true); 
+  const location = useLocation();
+  const sortedApps = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
+  
+  const [ipsModalData, setIpsModalData] = useState(null);
+  const [hasEnhancerAccess, setHasEnhancerAccess] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        if (user.email === "damnjanovicgoran7@gmail.com") {
+          setHasEnhancerAccess(true);
+        } else {
+          try {
+            const docRef = doc(db, "vip_users", user.email.toLowerCase());
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) {
+              setHasEnhancerAccess(true);
+            } else { setHasEnhancerAccess(false); }
+          } catch(e) { setHasEnhancerAccess(false); }
+        }
+      } else { setHasEnhancerAccess(false); }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handlePaymentV8 = async (tip, cena) => {
+    if (auth.currentUser) {
+      try { await setDoc(doc(db, "posetioci", auth.currentUser.uid), { poslednjiKlik: serverTimestamp(), zainteresovanZa: tip }, { merge: true }); } catch (err) {}
+    }
+    setIpsModalData({ tip, cena });
+  };
+
+  useEffect(() => { 
+    let isMounted = true; 
+    const fetchVideos = async () => {
+      setIsLoadingVideos(true); 
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=UC6ilBUks_oFMSD8CE9qD6lQ&part=snippet,id&order=date&maxResults=8&type=video`);
+        const result = await res.json();
+        if (isMounted && result?.items?.length > 0) { setLiveVideos(result.items.map(item => ({ title: item.snippet.title, url: `https://www.youtube.com/watch?v=${item.id.videoId}` }))); setIsLoadingVideos(false); }
+      } catch (err) { if (isMounted) setIsLoadingVideos(false); }
+    }; fetchVideos(); return () => { isMounted = false; };
+  }, []);
+  
+  useEffect(() => { if (location.hash === '#marketplace') { const el = document.getElementById('marketplace'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, [location]);
+  const nextSlide = useCallback(() => setActiveSlide(s => (s + 1) % (data.BANNER_DATA?.length || 1)), []);
+  const prevSlide = () => setActiveSlide(s => (s - 1 + (data.BANNER_DATA?.length || 1)) % (data.BANNER_DATA?.length || 1));
+  useEffect(() => { const t = setInterval(nextSlide, 7000); return () => clearInterval(t); }, [nextSlide]);
+  
+  return (
+    <>
+      <Helmet><title>AI TOOLS PRO SMART | PROMPT GENERATOR</title></Helmet>
+      
+      <div id="home-banner" className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white border-b border-orange-500/20">
+        <div className="absolute inset-0 z-0 bg-black">{(data.BANNER_DATA || []).map((item, idx) => (<div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === activeSlide ? 'opacity-100' : 'opacity-0'} z-0`}><img src={item.image} loading={idx === 0 ? "eager" : "lazy"} className="w-full h-full object-cover opacity-80" alt="banner" /></div>))}</div>
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent z-10" />
+        <div className="absolute inset-0 z-20 w-full h-full pointer-events-none opacity-40"><MatrixRain /></div>
+        <button type="button" onClick={prevSlide} className="absolute left-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronLeft className="w-8 h-8" strokeWidth={3} /></button>
+        <button type="button" onClick={nextSlide} className="absolute right-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronRight className="w-8 h-8" strokeWidth={3} /></button>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-40">{(data.BANNER_DATA || []).map((_, i) => <button key={i} type="button" onClick={() => setActiveSlide(i)} className={`h-[1px] transition-all duration-500 rounded-full ${i === activeSlide ? 'w-6 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'w-1.5 bg-white/20 hover:bg-white/40'}`} />)}</div>
+        <div className="relative z-40 max-w-7xl mx-auto px-6 pb-20 w-full text-left">
+          <div className="inline-block px-3 py-1 rounded-full bg-orange-600/90 text-[6px] font-black uppercase mb-4 tracking-widest shadow-lg">{data.BANNER_DATA?.[activeSlide]?.badge}</div>
+          <h1 className="text-xl md:text-4xl font-black uppercase mb-1.5 tracking-tighter drop-shadow-2xl">{data.BANNER_DATA?.[activeSlide]?.title}</h1>
+          <p className="text-zinc-300 text-[12px] md:text-sm max-w-lg font-medium opacity-90">{data.BANNER_DATA?.[activeSlide]?.subtitle}</p>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-6 py-12 text-left">
+        <div id="protocols" className="flex items-center gap-4 mb-10"><div className="flex items-center gap-2.5 shrink-0"><Youtube className="text-red-600 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic">Najnoviji Intel Protokoli</h3></div><div className="h-[1px] w-32 bg-gradient-to-r from-red-600/80 to-transparent"></div></div>
+        {isLoadingVideos ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{[...Array(4)].map((_, i) => <div className="animate-pulse bg-[#0a0a0a] rounded-[2.4rem] p-6 h-48" key={i} />)}</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{liveVideos.map((vid, i) => <TutorialCard key={i} vid={vid} />)}</div>}
+        
+        <div id="enhancer" className="mb-24 flex flex-col items-center justify-center text-center py-20 border-y border-orange-500/30 scroll-mt-32">
+          <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
+          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
+          <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-4">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 15.000 RSD DOŽIVOTNO.</div>
+          <CountdownTimer />
+          <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mt-10 mb-10 mx-auto">
+            <span className="font-black text-white">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</span><br /><br />
+            <span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span>
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
+            {hasEnhancerAccess ? (
+              <Link to="/enxance" className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-12 py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-colors flex items-center justify-center hover:scale-105 cursor-pointer">🚀 UĐI U APLIKACIJU</Link>
+            ) : (
+              <>
+                <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
+                <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">POGLEDAJ DEMO</a>
+              </>
+            )}
+          </div>
+        </div>
+
+        <section id="izrada-sajtova" className="mb-24 py-20 px-6 relative overflow-hidden bg-[#050505] border-b border-white/5 scroll-mt-32">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white uppercase italic">POTREBAN VAM JE <span className="text-orange-500 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">OVAKAV SAJT?</span></h2>
+              <p className="text-zinc-300 font-black tracking-[0.3em] uppercase text-[10px] md:text-[12px] drop-shadow-md">V8 DIGITAL AGENCY — PREMIUM WEB REŠENJA ZA VAŠ BIZNIS</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all duration-500 group">
+                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500"><Layers className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">V8 Vizuelni Identitet</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Sajt koji ostavlja konkurenciju u prašini. Ultra-moderan dizajn optimizovan da svaki posetilac postane kupac.</p>
+              </div>
+              <div className="bg-[#0a0a0a] border border-orange-500/30 p-10 rounded-[2.5rem] relative overflow-hidden group shadow-[0_0_40px_rgba(234,88,12,0.05)]">
+                <div className="absolute top-0 right-0 bg-orange-500 text-black text-[9px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-xl font-sans">NAJTRAŽENIJE</div>
+                <div className="w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500"><Zap className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">IPS Instant Naplata</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Zaboravite na bankarske provizije. Implementiramo QR kod plaćanje direktno na vaš račun. Brzo i sigurno.</p>
+              </div>
+              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all duration-500 group">
+                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500"><Settings className="text-orange-500 w-7 h-7" /></div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">Smart Admin Panel</h3>
+                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Dobijate potpunu kontrolu. Menjajte cene, slike i tekstove sami, bez potrebe za plaćanjem programera.</p>
+              </div>
+            </div>
+            <div className="mt-16 flex flex-col sm:flex-row justify-center items-center gap-4">
+              <MagneticButton href="mailto:damnjanovicgoran7@gmail.com" className="bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all w-full sm:w-auto text-center">ZAKAŽI BESPLATNE KONSULTACIJE</MagneticButton>
+              <Link to="/izrada-sajtova" className="bg-orange-600 text-white px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(234,88,12,0.4)] w-full sm:w-auto justify-center">VIŠE DETALJA <ArrowRight className="w-4 h-4" /></Link>
+            </div>
+          </div>
+        </section>
+
+        <div id="marketplace" className="flex items-center gap-4 mb-6 text-left">
+          <div className="flex items-center gap-2.5 shrink-0"><Sparkles className="text-blue-500 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic text-left">Premium Prodavnica AI Sredstava</h3></div>
+          <div className="h-[1px] w-32 bg-gradient-to-r from-blue-500/80 to-transparent"></div>
+        </div>
+        <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-blue-900/10 border border-blue-500/30 rounded-2xl p-5 mb-10 shadow-[0_0_15px_rgba(37,99,235,0.1)] flex items-start gap-4">
+          <HelpCircle className="w-6 h-6 text-blue-500 shrink-0 mt-1 animate-pulse" />
+          <p className="text-[11px] md:text-[13px] text-zinc-300 font-medium uppercase tracking-[0.1em] leading-relaxed text-left"><span className="text-blue-400 font-black">VAŽNA NAPOMENA:</span> Svi proizvodi iz sekcije Premium Prodavnica AI Sredstava su sajtovi koji koriste <span className="text-white font-bold">isključivo engleski jezik</span> za generisanje promptova radi boljeg postizanja rezultata.</p>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">
+          {sortedApps.map((app, index) => <MarketplaceCard key={app.id} app={app} index={index} />)}
+        </div>
+      </div>
+      
+      <AnimatePresence>
+        {ipsModalData && (
+          <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden">
+              <button onClick={() => setIpsModalData(null)} className="absolute top-5 right-5 bg-white/5 p-2.5 rounded-full text-zinc-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all z-10"><X size={20} strokeWidth={3} /></button>
+              <div className="p-10 flex flex-col items-center">
+                <h3 className="text-[18px] font-black uppercase tracking-widest mb-2 text-orange-500 flex items-center gap-3"><Zap className="w-5 h-5" /> Instrukcije za uplatu</h3>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6">Paket: {ipsModalData.tip}</p>
+                <div className="w-52 h-52 bg-white p-3 rounded-3xl mb-5 flex items-center justify-center border-4 border-dashed border-orange-500/30 shadow-inner overflow-hidden relative">
+                  <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${ipsModalData.cena},00|SF:289|S:${ipsModalData.tip}|RO:V8-ENHANCER`} size={180} bgColor={"#ffffff"} fgColor={"#000000"} level={"M"} includeMargin={false} />
+                </div>
+                <div className="text-[10px] font-black bg-orange-500/10 border border-orange-500/20 text-orange-400 px-5 py-2.5 rounded-full uppercase tracking-widest mb-10 shadow-lg">Skeniraj m-banking aplikacijom</div>
+                <div className="w-full bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-4 text-[13px] font-mono shadow-inner">
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Primalac:</span><span className="font-bold text-white text-right">Goran Damnjanović</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Račun:</span><span className="font-bold text-white text-[11px] md:text-[13px]">265-0000006535770-83</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
+                  <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
+                </div>
+                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
+                  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">Nakon uplate, pošaljite nam dokaz na email:</p>
+                  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">aitoolsprosmart@gmail.com</a>
+                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 function EnhancerPage() {
   const [demoInput, setDemoInput] = useState(''); 
   const [customerPrompt, setCustomerPrompt] = useState(''); 
@@ -626,12 +863,10 @@ function EnhancerPage() {
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); 
   const [showWarningModal, setShowWarningModal] = useState(false);
-  const [exclusiveWarning, setExclusiveWarning] = useState('');
   const [gallery, setGallery] = useState([]);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const containerRef = useRef();
 
-  // VIP State
   const [isVIP, setIsVIP] = useState(false);
   const [ipsModalData, setIpsModalData] = useState(null);
   const [vipHistory, setVipHistory] = useState([]);
@@ -647,8 +882,7 @@ function EnhancerPage() {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) { 
               setIsVIP(true); v8Toast.success("Premium Pristup Odobren!"); loadHistory(user.email); 
-            } 
-            else { setIsVIP(false); }
+            } else { setIsVIP(false); }
           } catch(e) { setIsVIP(false); }
         }
       } else { setIsVIP(false); setVipHistory([]); }
@@ -702,22 +936,19 @@ function EnhancerPage() {
 
   useEffect(() => { if (gallery.length <= 1) return; const interval = setInterval(() => { setActiveGalleryIndex((prev) => (prev + 1) % gallery.length); }, 15000); return () => clearInterval(interval); }, [gallery.length]);
 
-  const handleClearAll = () => { setCustomerPrompt(''); setDemoInput(''); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); setIsScanning(false); setUploadedImage(null); };
-
   const handleRollDice = (e) => { 
     if (e) e.preventDefault();
-    if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; }
     setIsRolling(true);
     const prompts = data.DICE_PROMPTS || [];
     if (prompts.length > 0) {
       const randomText = prompts[Math.floor(Math.random() * prompts.length)];
-      setDemoInput(''); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); 
-      setTimeout(() => { setDemoInput(randomText); setIsRolling(false); }, 300);
+      setDemoInput(randomText); 
+      setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); 
+      setTimeout(() => { setIsRolling(false); }, 300);
     }
   };
 
   const handleImageUpload = async (e) => {
-    if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; }
     if (uploadedImage) { setShowWarningModal(true); return; }
     const file = e.target.files[0]; if (!file) return; setIsImageUploading(true);
     const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
@@ -733,19 +964,23 @@ function EnhancerPage() {
         const promptInstruction = "Kao ekspert za inženjering promptova, dubinski i tehnički analiziraj ovu sliku. Opiši glavni subjekat, atmosferu, stil, paletu boja, tip osvetljenja i podešavanja kamere/sočiva (ako izgleda kao fotografija). Napiši izlaz isključivo na engleskom jeziku u formi vrhunskog prompta, bez dodatnih uvoda ili objašnjenja.";
         const res = await fetch(`https://goranov-sajt-srpski-backend-production.up.railway.app/api/read-image`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageUrl: uploadedImage, prompt: promptInstruction }) });
         const apiData = await res.json();
-        if (apiData.result) { setDemoInput(apiData.result); setCustomerPrompt(''); v8Toast.success("Dubinska analiza uspešna!"); } else if (apiData.error) { v8Toast.error("V8 Vision Greška: " + apiData.error); }
+        if (apiData.result) { setDemoInput(apiData.result); v8Toast.success("Dubinska analiza uspešna!"); } else if (apiData.error) { v8Toast.error("V8 Vision Greška: " + apiData.error); }
     } catch (err) { v8Toast.error("Greška pri komunikaciji sa V8 serverom."); } finally { setIsAnalyzingImage(false); }
   };
   
   const handleEnhance = (e, boxType) => {
     if (e) e.preventDefault();
-    const rawInput = (customerPrompt || demoInput || "").trim(); if(!rawInput) return; 
-    if (customerPrompt.trim() !== "" && boxType === 'prompt') setIsScanning(true);
-    setIsEnhancing(true); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' });
+    const rawInput = boxType === 'concept' ? demoInput.trim() : customerPrompt.trim();
+    if(!rawInput) return; 
+    
+    if (boxType === 'prompt') { setIsScanning(true); setGeneratedPrompts(prev => ({ ...prev, single: '' })); } 
+    else { setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); }
+    
+    setIsEnhancing(true); 
     logAnalyticsEvent('enhancer_action', { input: rawInput, actionType: boxType, aspectRatio: selectedAR });
+    
     setTimeout(() => { 
       try { 
-        const std = { single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }; 
         let cleanInput = rawInput; let detectedBadFormat = false;
         if (/\[.*?\]|--\w+/.test(rawInput)) { detectedBadFormat = true; cleanInput = rawInput.replace(/\[.*?\]:?/g, '').replace(/--\w+(?:\s+[^\s]+)?/g, '').replace(/\s{2,}/g, ' ').trim(); }
         const lowerInput = cleanInput.toLowerCase();
@@ -760,30 +995,33 @@ function EnhancerPage() {
         else { selCamera = getRand(data.CAMERA_TOKENS, "ARRI Alexa 65"); selLens = getRand(data.LENS_TOKENS, "Zeiss Master Prime 50mm T1.3"); selLight = getRand(data.LIGHTING_TOKENS, "cinematic lighting"); metaTokens = getRand(["IMAX 70mm film scan"], "IMAX 70mm film scan"); }
         const tokRealism = data.getRandomTokens(data.REALISM_TOKENS, 3); const tokPhysics = data.getRandomTokens(data.PHYSICS_TOKENS, 3); const tokOptics = data.getRandomTokens(data.OPTICS_TOKENS, 2); const tokRender = data.getRandomTokens(data.AI_RENDER_TOKENS, 3); const uniqueMeta = data.getRandomTokens(data.THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 2);
         const noTextInstruction = "Absolutely NO text, NO letters, NO watermarks, NO signatures. Pure visual composition only.";
-        const enhanced10x = `${uploadedImage ? `${uploadedImage} ` : ""}A breathtaking capture of: ${cleanInput}. Shot on ${selCamera} paired with ${selLens}. ${selLight}. Protocols: ${tokRealism}, ${tokPhysics}, ${tokOptics}, ${tokRender}. ${metaTokens}, ${uniqueMeta}. ${noTextInstruction}. [Aspect Ratio: ${selectedAR}]`;
+        const enhanced10x = `${boxType === 'concept' && uploadedImage ? `${uploadedImage} ` : ""}A breathtaking capture of: ${cleanInput}. Shot on ${selCamera} paired with ${selLens}. ${selLight}. Protocols: ${tokRealism}, ${tokPhysics}, ${tokOptics}, ${tokRender}. ${metaTokens}, ${uniqueMeta}. ${noTextInstruction}. [Aspect Ratio: ${selectedAR}]`;
         
-        if (boxType === 'prompt') {
-            let roastMsgs = [];
-            if (detectedBadFormat) roastMsgs.push("- Vaš format je bio neefikasan; izbrisao sam šum.");
-            if (missingLighting) roastMsgs.push("- Ignorisali ste osvetljenje; ubacio sam volumetrijske protokole.");
-            if (missingCamera) roastMsgs.push("- Dodao sam specifična sočiva za realističnu dubinu.");
-            const roastIntro = `/// V8 AI EKSPERTSKA ANALIZA ///\n\n🟢 ŠTA JE DOBRO:\nVizija je solidna.\n\n🔴 ŠTA JE LOŠE:\n${roastMsgs.length > 0 ? roastMsgs.join('\n') : "Nedostaje standardna tehnička dubina."}\n\n🚀 V8 10X FINALNI PROMPT:\n\n`;
-            std.single = roastIntro + enhanced10x;
-            saveToHistory(enhanced10x, "10X Rekonstrukcija");
-        } else { std.single = ''; }
+        setGeneratedPrompts(prev => {
+           const nextState = { ...prev };
+           if (boxType === 'prompt') {
+              let roastMsgs = [];
+              if (detectedBadFormat) roastMsgs.push("- Vaš format je bio neefikasan; izbrisao sam šum.");
+              if (missingLighting) roastMsgs.push("- Ignorisali ste osvetljenje; ubacio sam volumetrijske protokole.");
+              if (missingCamera) roastMsgs.push("- Dodao sam specifična sočiva za realističnu dubinu.");
+              const roastIntro = `/// V8 AI EKSPERTSKA ANALIZA ///\n\n🟢 ŠTA JE DOBRO:\nVizija je solidna.\n\n🔴 ŠTA JE LOŠE:\n${roastMsgs.length > 0 ? roastMsgs.join('\n') : "Nedostaje standardna tehnička dubina."}\n\n🚀 V8 10X FINALNI PROMPT:\n\n`;
+              nextState.single = roastIntro + enhanced10x;
+              saveToHistory(enhanced10x, "10X Rekonstrukcija");
+           } else {
+              const detailedPrompts = data.generateDetailedPrompts ? data.generateDetailedPrompts(cleanInput + ". " + noTextInstruction, selectedAR) : null;
+              if (detailedPrompts) {
+                 nextState.cinematic = detailedPrompts.cinematic + ` [Aspect Ratio: ${selectedAR}]`;
+                 nextState.abstract = detailedPrompts.abstract + ` [Aspect Ratio: ${selectedAR}]`;
+                 nextState.photoreal = detailedPrompts.photoreal + ` [Aspect Ratio: ${selectedAR}]`;
+                 nextState.uniquePhoto = enhanced10x;
+                 saveToHistory(nextState.cinematic, "Kinematografski Koncept");
+              }
+           }
+           return nextState;
+        });
         
-        const detailedPrompts = data.generateDetailedPrompts ? data.generateDetailedPrompts(cleanInput + ". " + noTextInstruction, selectedAR) : null;
-        if (detailedPrompts) {
-          std.cinematic = detailedPrompts.cinematic + ` [Aspect Ratio: ${selectedAR}]`;
-          std.abstract = detailedPrompts.abstract + ` [Aspect Ratio: ${selectedAR}]`;
-          std.photoreal = detailedPrompts.photoreal + ` [Aspect Ratio: ${selectedAR}]`;
-          std.uniquePhoto = detailedPrompts.uniquePhoto + ` [Aspect Ratio: ${selectedAR}]`;
-          if (boxType === 'concept') saveToHistory(std.cinematic, "Kinematografski Koncept");
-        }
-        if (boxType === 'concept') std.uniquePhoto = enhanced10x;
-        setGeneratedPrompts(std); 
         v8Toast.success("Generisanje uspešno završeno!");
-      } catch (err) { v8Toast.error("Greška prilikom generisananja!"); } finally { setIsEnhancing(false); setIsScanning(false); } 
+      } catch (err) { v8Toast.error("Greška prilikom generisanja!"); } finally { setIsEnhancing(false); setIsScanning(false); } 
     }, 2500); 
   };
   
@@ -806,7 +1044,6 @@ function EnhancerPage() {
       `}</style>
       <Helmet><title>10X ENHANCER | AI TOOLS PRO SMART</title></Helmet>
 
-      {/* BOČNI PANEL SA ISTORIJOM (SAMO ZA VIP) */}
       {isVIP && (
         <div className="hidden xl:flex w-72 flex-col bg-[#0a0a0a]/50 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-6 h-[calc(100vh-160px)] sticky top-32 overflow-hidden shadow-2xl shrink-0 z-20">
            <h3 className="text-orange-500 font-black uppercase text-[12px] tracking-widest flex items-center gap-2 mb-6 border-b border-orange-500/20 pb-4"><History className="w-4 h-4" /> VIP Istorija</h3>
@@ -858,10 +1095,10 @@ function EnhancerPage() {
                  <div className="w-full lg:w-2/3 relative flex flex-col">
                    <div className={`relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 ${isVIP ? 'focus-within:border-blue-500/50' : ''}`}>
                      {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" disabled={!isVIP} onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
-                     <textarea disabled={!isVIP} value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (customerPrompt.trim() !== "") { setExclusiveWarning("Moraš prvo očistiti polje 'Nalepi Korisnički Prompt'."); return; } setDemoInput(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder={isVIP ? "npr. 'zlatni sat' ili Otpremi Sliku" : "ZAKLJUČANO: Kupi pristup za unos teksta"} className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'} ${!isVIP ? 'cursor-not-allowed' : ''}`} />
-                     {!demoInput && customerPrompt.length === 0 && <label title={isVIP ? "DODAJTE SLIKU" : "ZAKLJUČANO"} className={`absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" disabled={!isVIP} onChange={handleImageUpload} className="hidden" /></label>}
-                     {!demoInput && customerPrompt.length === 0 && <button type="button" title={isVIP ? "BACITE KOCKICE" : "ZAKLJUČANO"} disabled={!isVIP || isRolling} onClick={handleRollDice} className={`absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
-                     {demoInput && <button type="button" disabled={!isVIP} onClick={handleClearAll} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
+                     <textarea disabled={!isVIP} value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { setDemoInput(e.target.value); setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); }} placeholder={isVIP ? "npr. 'zlatni sat' ili Otpremi Sliku" : "ZAKLJUČANO: Kupi pristup za unos teksta"} className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'} ${!isVIP ? 'cursor-not-allowed' : ''}`} />
+                     {!demoInput && <label title={isVIP ? "DODAJTE SLIKU" : "ZAKLJUČANO"} className={`absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" disabled={!isVIP} onChange={handleImageUpload} className="hidden" /></label>}
+                     {!demoInput && <button type="button" title={isVIP ? "BACITE KOCKICE" : "ZAKLJUČANO"} disabled={!isVIP || isRolling} onClick={handleRollDice} className={`absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
+                     {demoInput && <button type="button" disabled={!isVIP} onClick={() => { setDemoInput(''); setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); setUploadedImage(null); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
                    </div>
                    {uploadedImage && (
                      <button type="button" onClick={handleAnalyzeImage} disabled={!isVIP || isAnalyzingImage} className={`mt-4 w-full bg-gradient-to-r from-purple-800 to-indigo-600 text-white py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 transition-all border border-purple-500/50 ${isVIP ? 'hover:from-purple-700 hover:to-indigo-500 shadow-[0_0_20px_rgba(147,51,234,0.4)] cursor-pointer hover:scale-[1.01]' : 'opacity-50 cursor-not-allowed'}`}>
@@ -882,11 +1119,12 @@ function EnhancerPage() {
                     <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">ODNOS STRANICA</span><div className="flex flex-wrap gap-2">{['1:1', '9:16', '16:9', '21:9'].map(ar => <OptionButton key={`ar-${ar}`} label={ar} selected={selectedAR === ar} onClick={() => setSelectedAR(ar)} type="ar" disabled={!isVIP} />)}</div></div>
                     <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" disabled={!isVIP} />)}</div></div>
                  </div>
-                 <RippleButton onClick={(e) => handleEnhance(e, 'concept')} disabled={!isVIP || isEnhancing || (!demoInput && !customerPrompt)} className={`w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] ${isVIP ? 'shadow-lg cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+                 <RippleButton onClick={(e) => handleEnhance(e, 'concept')} disabled={!isVIP || isEnhancing || !demoInput.trim()} className={`w-full lg:w-[30%] bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 rounded-2xl font-black uppercase text-[14px] ${isVIP ? 'shadow-lg cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
                    {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Kinematografski Koncept"}
                  </RippleButton>
               </div>
            </div>
+
            <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-amber-400/60 group'}`}>
               <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[12px] md:text-[15px] font-black uppercase text-amber-400 tracking-wider">POBOLJŠAĆEMO VAŠ PROMT 10X BOLJIM</h2></div>
               <div className="w-full flex flex-col lg:flex-row gap-8">
@@ -896,8 +1134,8 @@ function EnhancerPage() {
                  </div>
                  <div className={`w-full lg:w-2/3 relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#050505]/50 ${isVIP ? 'focus-within:border-amber-400/50' : ''}`}>
                    {isScanning && customerPrompt.trim() !== "" && <div className="animate-scan-amber" />}
-                   <textarea disabled={!isVIP} value={customerPrompt} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { if (demoInput.trim() !== "" || uploadedImage) { setExclusiveWarning("Moraš prvo očistiti polje 'Koncept / Subjekat'."); return; } setCustomerPrompt(e.target.value); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); }} placeholder={isVIP ? "NALEPI SVOJ SIROVI PROMPT OVDE" : "ZAKLJUČANO"} className={`w-full flex-1 bg-transparent p-6 text-white text-[12px] md:text-[14px] outline-none resize-none min-h-[160px] ${!isVIP ? 'cursor-not-allowed' : ''}`} />
-                   {customerPrompt && <button type="button" disabled={!isVIP} onClick={() => { setCustomerPrompt(''); setGeneratedPrompts({ single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' }); setIsScanning(false); }} className="absolute right-4 top-4 bg-red-600/10 p-2.5 rounded-xl hover:bg-red-600 cursor-pointer"><Trash2 className="w-4 h-4 text-red-500 animate-pulse" /></button>}
+                   <textarea disabled={!isVIP} value={customerPrompt} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { setCustomerPrompt(e.target.value); setGeneratedPrompts(prev => ({ ...prev, single: '' })); }} placeholder={isVIP ? "NALEPI SVOJ SIROVI PROMPT OVDE" : "ZAKLJUČANO"} className={`w-full flex-1 bg-transparent p-6 text-white text-[12px] md:text-[14px] outline-none resize-none min-h-[160px] ${!isVIP ? 'cursor-not-allowed' : ''}`} />
+                   {customerPrompt && <button type="button" disabled={!isVIP} onClick={() => { setCustomerPrompt(''); setGeneratedPrompts(prev => ({ ...prev, single: '' })); setIsScanning(false); }} className="absolute right-4 top-4 bg-red-600/10 p-2.5 rounded-xl hover:bg-red-600 cursor-pointer"><Trash2 className="w-4 h-4 text-red-500 animate-pulse" /></button>}
                  </div>
               </div>
               <div className="w-full flex flex-col border-t border-amber-400/20 pt-8">
@@ -913,13 +1151,12 @@ function EnhancerPage() {
               </div>
               <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-amber-400/20 pt-8">
                  <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left"><div className="flex flex-col gap-4"><span className="text-[12px] font-black text-amber-100 uppercase">KVALITET</span><div className="flex flex-wrap gap-2">{['1x', '2x', '4x'].map(q => <OptionButton key={`q2-${q}`} label={q} selected={selectedQuality === q} onClick={() => setSelectedQuality(q)} type="quality" disabled={!isVIP} />)}</div></div></div>
-                 <RippleButton onClick={(e) => handleEnhance(e, 'prompt')} disabled={!isVIP || isEnhancing || (!demoInput && !customerPrompt)} className={`w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] ${isVIP ? 'shadow-lg cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+                 <RippleButton onClick={(e) => handleEnhance(e, 'prompt')} disabled={!isVIP || isEnhancing || !customerPrompt.trim()} className={`w-full lg:w-[30%] bg-gradient-to-r from-amber-600 to-amber-500 text-black py-6 rounded-2xl font-black uppercase text-[14px] ${isVIP ? 'shadow-lg cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
                    {isEnhancing ? <Loader2 className="w-6 h-6 animate-spin mr-4 inline" /> : "Poboljšaj Unikatni Prompt"}
                  </RippleButton>
               </div>
            </div>
 
-           {/* BOKS 3: REFERENCE GALERIJA */}
            {gallery.length > 0 && (
              <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative flex flex-col gap-6 transition-all duration-500 mt-4 text-center items-center ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-orange-500/60'}`}>
                <div className="flex items-center justify-center gap-3 border-b border-orange-500/20 pb-4 mb-4 w-full">
@@ -930,7 +1167,7 @@ function EnhancerPage() {
                   <img src={gallery[activeGalleryIndex]?.url} alt="Main Enhancer Reference" loading="lazy" className="w-full h-full object-cover transition-opacity duration-1000" />
                   <div className="absolute bottom-6 right-12 z-20 flex justify-center items-center group/tooltip">
                       <span className="absolute bottom-full mb-3 px-4 py-2 bg-[#0a0a0a] border border-blue-500/50 rounded-xl text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-all shadow-xl pointer-events-none">DODAJ SLIKU</span>
-                      <button type="button" title={isVIP ? "DODAJ SLIKU" : "ZAKLJUČANO"} disabled={!isVIP} onClick={() => { if (uploadedImage) { setShowWarningModal(true); return; } const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`p-3.5 bg-blue-600 rounded-xl text-white transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] ${isVIP ? 'hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}><UploadCloud className="w-5 h-5" /></button>
+                      <button type="button" title={isVIP ? "DODAJ SLIKU" : "ZAKLJUČANO"} disabled={!isVIP} onClick={() => { const imgUrl = gallery[activeGalleryIndex]?.url; setUploadedImage(imgUrl); setDemoInput(prev => prev ? `${imgUrl} ${prev}` : imgUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`p-3.5 bg-blue-600 rounded-xl text-white transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] ${isVIP ? 'hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:scale-110 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}><UploadCloud className="w-5 h-5" /></button>
                   </div>
                </div>
                <div className="flex flex-wrap justify-center gap-4 pb-4 pt-2 w-full max-w-5xl mx-auto">
@@ -946,7 +1183,6 @@ function EnhancerPage() {
         </div>
       </div>
 
-      {/* OKVIR ZA IPS KOD NA ENHANCER STRANICI */}
       <AnimatePresence>
         {ipsModalData && (
           <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
@@ -966,16 +1202,10 @@ function EnhancerPage() {
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
                 <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
-    Nakon uplate, pošaljite nam dokaz na email:
-  </p>
-  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
-    aitoolsprosmart@gmail.com
-  </a>
-  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
-    Sistem će vam odmah otključati pristup! 🚀
-  </span>
-</div>
+                  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">Nakon uplate, pošaljite nam dokaz na email:</p>
+                  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">aitoolsprosmart@gmail.com</a>
+                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -984,274 +1214,25 @@ function EnhancerPage() {
     </div>
   );
 }
-// ==========================================
-// POČETNA STRANICA (HOME PAGE SA PAMETNIM DUGMETOM)
-// ==========================================
-function HomePage({ apps = [] }) {
-  const [activeSlide, setActiveSlide] = useState(0); 
-  const [liveVideos, setLiveVideos] = useState([]); 
-  const [isLoadingVideos, setIsLoadingVideos] = useState(true); 
-  const location = useLocation();
-  const sortedApps = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
-  
-  // LOGIKA ZA IPS I PRISTUP
-  const [ipsModalData, setIpsModalData] = useState(null);
-  const [hasEnhancerAccess, setHasEnhancerAccess] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        if (user.email === "damnjanovicgoran7@gmail.com") {
-          setHasEnhancerAccess(true); // GORAN IMA SVE
-        } else {
-          try {
-            const docRef = doc(db, "vip_users", user.email.toLowerCase());
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) {
-              setHasEnhancerAccess(true);
-            } else { setHasEnhancerAccess(false); }
-          } catch(e) { setHasEnhancerAccess(false); }
-        }
-      } else { setHasEnhancerAccess(false); }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handlePaymentV8 = async (tip, cena) => {
-    if (auth.currentUser) {
-      try { await setDoc(doc(db, "posetioci", auth.currentUser.uid), { poslednjiKlik: serverTimestamp(), zainteresovanZa: tip }, { merge: true }); } catch (err) {}
-    }
-    setIpsModalData({ tip, cena });
-  };
-
-  useEffect(() => { 
-    let isMounted = true; 
-    const fetchVideos = async () => {
-      setIsLoadingVideos(true); 
-      try {
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=UC6ilBUks_oFMSD8CE9qD6lQ&part=snippet,id&order=date&maxResults=8&type=video`);
-        const result = await res.json();
-        if (isMounted && result?.items?.length > 0) { setLiveVideos(result.items.map(item => ({ title: item.snippet.title, url: `https://www.youtube.com/watch?v=${item.id.videoId}` }))); setIsLoadingVideos(false); }
-      } catch (err) { if (isMounted) setIsLoadingVideos(false); }
-    }; fetchVideos(); return () => { isMounted = false; };
-  }, []);
-  
-  useEffect(() => { if (location.hash === '#marketplace') { const el = document.getElementById('marketplace'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, [location]);
-  const nextSlide = useCallback(() => setActiveSlide(s => (s + 1) % (data.BANNER_DATA?.length || 1)), []);
-  const prevSlide = () => setActiveSlide(s => (s - 1 + (data.BANNER_DATA?.length || 1)) % (data.BANNER_DATA?.length || 1));
-  useEffect(() => { const t = setInterval(nextSlide, 7000); return () => clearInterval(t); }, [nextSlide]);
-  
-  return (
-    <>
-      <Helmet><title>AI TOOLS PRO SMART | PROMPT GENERATOR</title></Helmet>
-      
-      {/* KARUSEL BNER */}
-      <div id="home-banner" className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white border-b border-orange-500/20">
-        <div className="absolute inset-0 z-0 bg-black">{(data.BANNER_DATA || []).map((item, idx) => (<div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === activeSlide ? 'opacity-100' : 'opacity-0'} z-0`}><img src={item.image} loading={idx === 0 ? "eager" : "lazy"} className="w-full h-full object-cover opacity-80" alt="banner" /></div>))}</div>
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent z-10" />
-        <div className="absolute inset-0 z-20 w-full h-full pointer-events-none opacity-40"><MatrixRain /></div>
-        <button type="button" onClick={prevSlide} className="absolute left-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronLeft className="w-8 h-8" strokeWidth={3} /></button>
-        <button type="button" onClick={nextSlide} className="absolute right-6 top-1/2 -translate-y-1/2 z-40 text-white hover:text-orange-500 transition-all"><ChevronRight className="w-8 h-8" strokeWidth={3} /></button>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-40">{(data.BANNER_DATA || []).map((_, i) => <button key={i} type="button" onClick={() => setActiveSlide(i)} className={`h-[1px] transition-all duration-500 rounded-full ${i === activeSlide ? 'w-6 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' : 'w-1.5 bg-white/20 hover:bg-white/40'}`} />)}</div>
-        <div className="relative z-40 max-w-7xl mx-auto px-6 pb-20 w-full text-left">
-          <div className="inline-block px-3 py-1 rounded-full bg-orange-600/90 text-[6px] font-black uppercase mb-4 tracking-widest shadow-lg">{data.BANNER_DATA?.[activeSlide]?.badge}</div>
-          <h1 className="text-xl md:text-4xl font-black uppercase mb-1.5 tracking-tighter drop-shadow-2xl">{data.BANNER_DATA?.[activeSlide]?.title}</h1>
-          <p className="text-zinc-300 text-[12px] md:text-sm max-w-lg font-medium opacity-90">{data.BANNER_DATA?.[activeSlide]?.subtitle}</p>
-        </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto px-6 py-12 text-left">
-        <div id="protocols" className="flex items-center gap-4 mb-10"><div className="flex items-center gap-2.5 shrink-0"><Youtube className="text-red-600 w-6 h-6" /><h3 className="text-white font-black uppercase text-[20px] tracking-widest italic">Najnoviji Intel Protokoli</h3></div><div className="h-[1px] w-32 bg-gradient-to-r from-red-600/80 to-transparent"></div></div>
-        {isLoadingVideos ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{[...Array(4)].map((_, i) => <div className="animate-pulse bg-[#0a0a0a] rounded-[2.4rem] p-6 h-48" key={i} />)}</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">{liveVideos.map((vid, i) => <TutorialCard key={i} vid={vid} />)}</div>}
-        
-        {/* --- 10X ENHANCER SEKCIJA POČETNA --- */}
-        <div id="enhancer" className="mb-24 flex flex-col items-center justify-center text-center py-20 border-y border-orange-500/30 scroll-mt-32">
-          <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
-          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
-          
-          <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-4">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 15.000 RSD DOŽIVOTNO.</div>
-          
-          <CountdownTimer />
-          
-          <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mt-10 mb-10 mx-auto">
-            <span className="font-black text-white">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</span>
-            <br /><br />
-            <span className="text-orange-500 font-black uppercase">UNESI SVOJ PROMPT; MI ĆEMO GA DETALJNO ANALIZIRATI I POBOLJŠATI DA BUDE 10X BOLJI.</span>
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
-            {hasEnhancerAccess ? (
-              <Link to="/enxance" className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-12 py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-colors flex items-center justify-center hover:scale-105 cursor-pointer">
-                🚀 UĐI U APLIKACIJU
-              </Link>
-            ) : (
-              <>
-                <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">
-                  KUPI SAD
-                </button>
-                <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">
-                  POGLEDAJ DEMO
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* --- V8 SALES SEKCIJA (AGENCIJA) --- */}
-        <section id="izrada-sajtova" className="mb-24 py-20 px-6 relative overflow-hidden bg-[#050505] border-b border-white/5 scroll-mt-32">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white uppercase italic">
-                POTREBAN VAM JE <span className="text-orange-500 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">OVAKAV SAJT?</span>
-              </h2>
-              <p className="text-zinc-300 font-black tracking-[0.3em] uppercase text-[10px] md:text-[12px] drop-shadow-md">
-                V8 DIGITAL AGENCY — PREMIUM WEB REŠENJA ZA VAŠ BIZNIS
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all duration-500 group">
-                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                  <Layers className="text-orange-500 w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">V8 Vizuelni Identitet</h3>
-                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Sajt koji ostavlja konkurenciju u prašini. Ultra-moderan dizajn optimizovan da svaki posetilac postane kupac.</p>
-              </div>
-
-              <div className="bg-[#0a0a0a] border border-orange-500/30 p-10 rounded-[2.5rem] relative overflow-hidden group shadow-[0_0_40px_rgba(234,88,12,0.05)]">
-                <div className="absolute top-0 right-0 bg-orange-500 text-black text-[9px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-xl font-sans">NAJTRAŽENIJE</div>
-                <div className="w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                  <Zap className="text-orange-500 w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">IPS Instant Naplata</h3>
-                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Zaboravite na bankarske provizije. Implementiramo QR kod plaćanje direktno na vaš račun. Brzo i sigurno.</p>
-              </div>
-
-              <div className="bg-[#0a0a0a] border border-white/5 p-10 rounded-[2.5rem] hover:border-orange-500/50 transition-all duration-500 group">
-                <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                  <Settings className="text-orange-500 w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight italic text-left">Smart Admin Panel</h3>
-                <p className="text-zinc-500 text-[13px] leading-relaxed font-medium text-left">Dobijate potpunu kontrolu. Menjajte cene, slike i tekstove sami, bez potrebe za plaćanjem programera.</p>
-              </div>
-            </div>
-
-
-            <div className="mt-16 flex justify-center">
-              <MagneticButton href="mailto:damnjanovicgoran7@gmail.com" className="bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all">
-                ZAKAŽI BESPLATNE KONSULTACIJE
-              </MagneticButton>
-            </div>
-          </div>
-        </section>
-
-        {/* --- MARKETPLACE SEKCIJA --- */}
-        <div id="marketplace" className="flex items-center gap-4 mb-6 text-left">
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Sparkles className="text-blue-500 w-6 h-6" />
-            <h3 className="text-white font-black uppercase text-[20px] tracking-widest italic text-left">Premium Prodavnica AI Sredstava</h3>
-          </div>
-          <div className="h-[1px] w-32 bg-gradient-to-r from-blue-500/80 to-transparent"></div>
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-blue-900/10 border border-blue-500/30 rounded-2xl p-5 mb-10 shadow-[0_0_15px_rgba(37,99,235,0.1)] flex items-start gap-4"
-        >
-          <HelpCircle className="w-6 h-6 text-blue-500 shrink-0 mt-1 animate-pulse" />
-          <p className="text-[11px] md:text-[13px] text-zinc-300 font-medium uppercase tracking-[0.1em] leading-relaxed text-left">
-            <span className="text-blue-400 font-black">VAŽNA NAPOMENA:</span> Svi proizvodi iz sekcije Premium Prodavnica AI Sredstava su sajtovi koji koriste <span className="text-white font-bold">isključivo engleski jezik</span> za generisanje promptova radi boljeg postizanja rezultata.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">
-          {sortedApps.map((app, index) => <MarketplaceCard key={app.id} app={app} index={index} />)}
-        </div>
-      </div>
-      
-      {/* OKVIR ZA IPS KOD NA POČETNOJ STRANICI */}
-      <AnimatePresence>
-        {ipsModalData && (
-          <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden"
-            >
-              <button onClick={() => setIpsModalData(null)} className="absolute top-5 right-5 bg-white/5 p-2.5 rounded-full text-zinc-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all z-10"><X size={20} strokeWidth={3} /></button>
-              <div className="p-10 flex flex-col items-center">
-                <h3 className="text-[18px] font-black uppercase tracking-widest mb-2 text-orange-500 flex items-center gap-3"><Zap className="w-5 h-5" /> Instrukcije za uplatu</h3>
-                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6">Paket: {ipsModalData.tip}</p>
-                
-                <div className="w-52 h-52 bg-white p-3 rounded-3xl mb-5 flex items-center justify-center border-4 border-dashed border-orange-500/30 shadow-inner overflow-hidden relative">
-                  <QRCodeCanvas 
-                    value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${ipsModalData.cena},00|SF:289|S:${ipsModalData.tip}|RO:V8-ENHANCER`} 
-                    size={180} 
-                    bgColor={"#ffffff"} 
-                    fgColor={"#000000"} 
-                    level={"M"} 
-                    includeMargin={false}
-                  />
-                </div>
-
-                <div className="text-[10px] font-black bg-orange-500/10 border border-orange-500/20 text-orange-400 px-5 py-2.5 rounded-full uppercase tracking-widest mb-10 shadow-lg">Skeniraj m-banking aplikacijom</div>
-                <div className="w-full bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-4 text-[13px] font-mono shadow-inner">
-                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Primalac:</span><span className="font-bold text-white text-right">Goran Damnjanović</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Račun:</span><span className="font-bold text-white text-[11px] md:text-[13px]">265-0000006535770-83</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
-                  <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
-                </div>
-                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">
-    Nakon uplate, pošaljite nam dokaz na email:
-  </p>
-  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">
-    aitoolsprosmart@gmail.com
-  </a>
-  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">
-    Sistem će vam odmah otključati pristup! 🚀
-  </span>
-</div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
-// ==========================================
-// 🚀 V8 MASTER ADMIN PANEL
-// ==========================================
 const AdminPage = ({ apps = [], refreshData }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); 
   const [adminTab, setAdminTab] = useState('assets'); 
   const [isUploading, setIsUploading] = useState(false); 
   const [loading, setLoading] = useState(false);
 
-  // --- ASSETS MANAGER STATE ---
   const [editingId, setEditingId] = useState(null); 
   const initialForm = { id: '', name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
   const [formData, setFormData] = useState(initialForm); 
   const sortedAppsAdmin = [...apps].sort((a, b) => Number(b.id) - Number(a.id));
 
-  // --- VIP STATE ---
   const [vipEmail, setVipEmail] = useState('');
   const [vipList, setVipList] = useState([]);
   const [selectedApps, setSelectedApps] = useState([]); 
 
-  // --- ENHANCER GALLERY STATE ---
   const [gallery, setGallery] = useState([]);
-
-  // --- ANALYTICS STATE ---
   const [analyticsData, setAnalyticsData] = useState([]);
 
-  // === FIREBASE FETCH FUNKCIJE ===
   const fetchAllFirebaseData = async () => {
     try {
       const vipSnap = await getDocs(collection(db, "vip_users"));
@@ -1319,7 +1300,7 @@ const AdminPage = ({ apps = [], refreshData }) => {
     const emailLower = vipEmail.trim().toLowerCase();
     try { 
       await setDoc(doc(db, "vip_users", emailLower), { addedAt: Date.now(), unlockedApps: selectedApps }, { merge: true }); 
-      setVipEmail(''); setSelectedApps([]); fetchAllFirebaseData(); v8Toast.success(`Pristup uspešno dodeljen za ${selectedApps.length} alata!`); 
+      setVipEmail(''); setSelectedApps([]); fetchAllFirebaseData(); v8Toast.success(`Pristup uspešno dodeljen!`); 
     } catch(e) { v8Toast.error("Greška pri dodavanju u bazu!"); }
   };
   
@@ -1336,14 +1317,13 @@ const AdminPage = ({ apps = [], refreshData }) => {
       await addDoc(collection(db, "enhancer_gallery"), { url: resData.secure_url, createdAt: Date.now() }); fetchAllFirebaseData();
     } catch (err) {} finally { setIsUploading(false); }
   };
+  
   const handleDeleteGallery = async (id) => { if(window.confirm("Obrisati sliku iz Enhancer galerije?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); fetchAllFirebaseData(); } };
 
   if (!isAuthenticated) return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 text-center">
       <div className="bg-[#0a0a0a] p-12 rounded-[2rem] border-2 border-red-900 shadow-[0_0_30px_rgba(185,28,28,0.2)] max-w-md w-full relative group">
-        <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-red-700 rounded-tr-xl"></div><div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-red-700 rounded-tl-xl"></div>
-        <ShieldAlert className="w-16 h-16 text-red-600 mx-auto mb-10 shadow-[0_0_15px_rgba(185,28,28,0.3)] animate-pulse" />
-        <div className="space-y-4 mb-12"><h1 className="text-xl font-black text-red-500 uppercase tracking-[0.3em] font-sans">V8 ADMIN SISTEM</h1></div>
+        <ShieldAlert className="w-16 h-16 text-red-600 mx-auto mb-10 animate-pulse" />
         <button onClick={handleGoogleLogin} className="w-full rounded-2xl bg-gradient-to-r from-red-900 to-red-600 px-6 py-5 font-black uppercase text-[12px] tracking-widest text-white shadow-xl hover:shadow-[0_0_20px_rgba(185,28,28,0.3)] transition-all flex items-center justify-center gap-3"><Zap className="w-5 h-5" /> PRIJAVI SE KAO GORAN</button>
       </div>
     </div>
@@ -1363,37 +1343,33 @@ const AdminPage = ({ apps = [], refreshData }) => {
           <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
                <div className="flex items-center gap-3 mb-6"><Settings className="w-6 h-6 text-orange-500" /><h2 className="text-xl font-black text-orange-500 uppercase tracking-widest">{editingId ? 'Edit Product' : 'Add New Product'}</h2></div>
                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID (Veći broj ide prvi)" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
+                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
                   <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ime Proizvoda" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
-                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Kategorija (Ribbon levo)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
-                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Tip (Ribbon desno gore)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Kategorija" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Tip" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standardna Cena (USD npr 14.99)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Cena (USD npr 88.99)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
-               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Podnaslov (Headline)" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] w-full" /></div>
-               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="LINK ZA APLIKACIJU (Netlify)" className="bg-black border border-green-500/50 p-3 rounded-xl text-[11px] focus:border-green-500 outline-none" /></div>
-               
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standardna Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
+               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Podnaslov" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] w-full" /></div>
+               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="LINK ZA APLIKACIJU" className="bg-black border border-green-500/50 p-3 rounded-xl text-[11px] outline-none" /></div>
                <div className="bg-black border border-white/10 p-4 rounded-xl">
-                 <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media (Slike i Video klipovi)</label>
+                 <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media (Slike i Video)</label>
                  <div className="flex flex-wrap gap-4">
                    {formData.media.map((m, i) => (
                      <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden group border border-white/10">
                        {m.type === 'video' ? ( <><video src={`${m.url}#t=0.001`} className="w-full h-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-8 h-8 text-white opacity-80" /></div></>) : (<img src={m.url} className="w-full h-full object-cover" />)}
-                       <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-xl hover:scale-110"><X className="w-3 h-3" /></button>
+                       <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:scale-110"><X className="w-3 h-3" /></button>
                      </div>
                    ))}
                    <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 text-zinc-500 bg-white/[0.02]">{isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><UploadCloud className="w-6 h-6 mb-2" /><span className="text-[8px] uppercase font-black">Upload</span></>}<input type="file" multiple accept="image/*,video/*" onChange={handleImageUpload} className="hidden" /></label>
                  </div>
                </div>
-               
-               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Glavni Opis Alata" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono leading-relaxed" />
-               <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ (Često postavljana pitanja)</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Pitanje" className="flex-1 bg-black border border-white/5 p-3 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Odgovor" className="flex-[2] bg-black border border-white/5 p-3 rounded-lg text-[10px]" /></div>))}</div></div>
-               
+               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Glavni Opis" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono" />
+               <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Pitanje" className="flex-1 bg-black border border-white/5 p-3 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Odgovor" className="flex-[2] bg-black border border-white/5 p-3 rounded-lg text-[10px]" /></div>))}</div></div>
                <div className="flex gap-4 pt-4 border-t border-white/10">
                  <button type="submit" disabled={isUploading} className="flex-1 py-5 rounded-2xl font-black uppercase text-[12px] bg-orange-600 hover:bg-orange-500 transition-all flex justify-center items-center gap-2"><Zap className="w-4 h-4"/> {editingId ? "Update Product" : "Save New Product"}</button>
                  {editingId && <button type="button" onClick={() => {setFormData(initialForm); setEditingId(null);}} className="px-8 py-5 rounded-2xl bg-zinc-800 uppercase font-black text-[12px] hover:bg-zinc-700">Cancel</button>}
                </div>
           </form>
-
           <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
              <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6">Database ({sortedAppsAdmin.length})</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1419,14 +1395,13 @@ const AdminPage = ({ apps = [], refreshData }) => {
       {adminTab === 'enhancer' && (
         <div className="bg-[#0a0a0a] border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_30px_rgba(147,51,234,0.1)]">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-            <div><h2 className="text-xl md:text-2xl font-black text-purple-500 uppercase tracking-widest flex items-center gap-3"><Sparkles className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2><p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-2 font-bold">Slike dodate ovde će biti dostupne korisnicima na Enhancer stranici.</p></div>
-            <label className="bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white px-6 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest cursor-pointer transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:scale-105">{isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}{isUploading ? "UPLOADING..." : "UPLOAD NEW IMAGE"}<input type="file" accept="image/*" onChange={handleUploadGallery} className="hidden" /></label>
+            <div><h2 className="text-xl md:text-2xl font-black text-purple-500 uppercase tracking-widest flex items-center gap-3"><Sparkles className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2></div>
+            <label className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white px-6 py-4 rounded-xl font-black text-[12px] cursor-pointer hover:scale-105"><UploadCloud className="w-5 h-5 inline mr-2" /> UPLOAD NEW IMAGE <input type="file" accept="image/*" onChange={handleUploadGallery} className="hidden" /></label>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {gallery.map(img => (
-              <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" alt="Enhancer Ref" /><button type="button" onClick={() => handleDeleteGallery(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"><Trash2 className="w-4 h-4" /></button></div>
+              <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all group-hover:scale-105" alt="Ref" /><button type="button" onClick={() => handleDeleteGallery(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 hover:scale-110"><Trash2 className="w-4 h-4" /></button></div>
             ))}
-            {gallery.length === 0 && !isUploading && <div className="col-span-full py-16 text-center text-zinc-600 text-[12px] font-black uppercase tracking-widest border-2 border-dashed border-white/10 rounded-[2rem] bg-white/[0.02]">NEMA SLIKA U ENHANCER GALERIJI</div>}
           </div>
         </div>
       )}
@@ -1434,57 +1409,36 @@ const AdminPage = ({ apps = [], refreshData }) => {
       {adminTab === 'vip' && (
         <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
            <h2 className="text-xl font-black text-green-500 uppercase tracking-widest flex items-center gap-3"><Lock className="w-6 h-6" /> Premium VIP Baza</h2>
-           <p className="text-[12px] text-zinc-400 mb-6">Unesi email kupca, štikliraj koje alate je platio i klikni na OTKLJUČAJ PRISTUP. Sistem će mu automatski obezbediti prolaz.</p>
-           
            <form onSubmit={handleAddVip} className="space-y-6 mb-10 max-w-4xl">
              <div className="flex flex-col sm:flex-row gap-4">
-               <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika (npr. marko@gmail.com)" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500 transition-colors" required />
-               <button type="submit" className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-[0_0_15px_rgba(22,163,74,0.4)] transition-all flex items-center justify-center gap-2"><Zap className="w-4 h-4"/> OTKLJUČAJ PRISTUP</button>
+               <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500" required />
+               <button type="submit" className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[12px]"><Zap className="w-4 h-4 inline"/> OTKLJUČAJ PRISTUP</button>
              </div>
              <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
                <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-4 block">Štikliraj šta je kupac platio:</label>
                <div className="flex flex-wrap gap-3">
                  {sortedAppsAdmin.map(app => (
-                   <button 
-                     type="button" 
-                     key={app.id} 
-                     onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])}
-                     className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white shadow-[0_0_10px_rgba(234,88,12,0.4)] scale-105' : 'bg-black border-white/10 text-zinc-500 hover:border-white/30'}`}
-                   >
-                     {app.name}
-                   </button>
+                   <button type="button" key={app.id} onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>{app.name}</button>
                  ))}
-                 <button 
-                   type="button" 
-                   onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} 
-                   className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.4)] scale-105' : 'bg-black border-white/10 text-zinc-500 hover:border-white/30'}`}
-                 >
-                   SVE OTKLJUČANO (V8 FULL)
-                 </button>
+                 <button type="button" onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>SVE OTKLJUČANO (V8 FULL)</button>
                </div>
              </div>
            </form>
-
            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar max-w-4xl">
              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aktivni Premium Korisnici ({vipList.length})</h3>
-             {vipList.length === 0 && <div className="text-zinc-600 font-bold uppercase text-[11px] py-10">Nema dodatih korisnika u bazi.</div>}
              {vipList.map(vip => (
                <div key={vip.id} className="flex justify-between items-center bg-black border border-white/5 p-5 rounded-xl hover:border-green-500/30 transition-colors group">
                  <div className="flex flex-col gap-2">
-                   <div className="flex items-center gap-3">
-                     <span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span>
-                     <span className="text-zinc-600 text-[9px] uppercase tracking-widest">Dodat: {new Date(vip.addedAt).toLocaleDateString()}</span>
-                   </div>
+                   <div className="flex items-center gap-3"><span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span></div>
                    <div className="flex flex-wrap gap-2 mt-1">
                      {vip.unlockedApps && vip.unlockedApps.map(appId => {
-                        if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 border border-red-500/50 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
+                        if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
                         const foundApp = sortedAppsAdmin.find(a => a.id === appId);
-                        return <span key={appId} className="text-[9px] bg-blue-900/40 border border-blue-500/30 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
+                        return <span key={appId} className="text-[9px] bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
                      })}
-                     {(!vip.unlockedApps || vip.unlockedApps.length === 0) && <span className="text-[9px] text-zinc-600 uppercase font-black">STARI KORISNIK (Samo 10X Enhancer)</span>}
                    </div>
                  </div>
-                 <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/10 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                 <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/10 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
                </div>
              ))}
            </div>
@@ -1495,33 +1449,15 @@ const AdminPage = ({ apps = [], refreshData }) => {
         <div className="space-y-8 animate-in fade-in duration-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-orange-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Visitors</span><span className="text-3xl font-black text-white">{new Set(analyticsData.map(s => s.sessionId)).size}</span></div>
-            <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Button Clicks</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'click').length}</span></div>
+            <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Clicks</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'click').length}</span></div>
             <div className="bg-[#0a0a0a] border border-amber-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Zap className="w-8 h-8 text-amber-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Enhancer Actions</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'enhancer_action').length}</span></div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
-               <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><Eye className="w-4 h-4 text-orange-500" /> Page Views (Traffic)</h3>
-               <div className="space-y-4">
-                 {Object.entries(analyticsData.filter(s => s.type === 'page_view').reduce((acc, curr) => { acc[curr.path] = (acc[curr.path] || 0) + 1; return acc; }, {})).map(([path, count]) => (<div key={path} className="flex justify-between items-center border-b border-white/5 pb-2"><span className="text-[11px] text-zinc-300 font-mono truncate mr-4">{path || '/'}</span><span className="text-[13px] font-black text-orange-500 bg-orange-500/10 px-3 py-1 rounded-lg">{count}</span></div>))}
-               </div>
-             </div>
-             <div className="bg-[#0a0a0a] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-xl">
-               <h3 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest mb-6 flex items-center gap-2"><MousePointerClick className="w-4 h-4 text-blue-500" /> User Clicks</h3>
-               <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                 {analyticsData.filter(s => s.type === 'click').slice(0, 50).map((click, i) => (<div key={i} className="flex flex-col border-b border-white/5 pb-3"><div className="flex justify-between items-start mb-1"><span className="text-[11px] text-zinc-100 font-bold capitalize">{click.elementText || 'Icon/Image'}</span><span className="text-[9px] text-zinc-500">{new Date(click.timestamp).toLocaleString()}</span></div><span className="text-[9px] font-mono text-blue-400">Path: {click.path}</span></div>))}
-               </div>
-             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };
 
-// ==========================================
-// NOVO: STRANICA "MOJ TREZOR" ZA KUPCE (POPRAVLJENI MEDIJI I LINKOVI)
-// ==========================================
 function TrezorPage({ apps = [] }) {
   const [unlockedApps, setUnlockedApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1537,16 +1473,11 @@ function TrezorPage({ apps = [] }) {
           try {
             const docRef = doc(db, "vip_users", user.email.toLowerCase());
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().unlockedApps) {
-              setUnlockedApps(docSnap.data().unlockedApps);
-            } else {
-              setUnlockedApps([]);
-            }
+            if (docSnap.exists() && docSnap.data().unlockedApps) { setUnlockedApps(docSnap.data().unlockedApps); } 
+            else { setUnlockedApps([]); }
           } catch(e) { setUnlockedApps([]); }
         }
-      } else {
-        navigate('/'); // Ako nije ulogovan, vrati ga na početnu
-      }
+      } else { navigate('/'); }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -1555,57 +1486,29 @@ function TrezorPage({ apps = [] }) {
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-orange-500"><Loader2 className="w-10 h-10 animate-spin" /></div>;
 
   const hasFullAccess = unlockedApps.includes('FULL_ACCESS');
-  // Izdvajamo samo alate koje kupac poseduje
   const myApps = hasFullAccess ? apps : apps.filter(app => unlockedApps.includes(app.id));
 
   return (
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white min-h-screen">
       <Helmet><title>MOJ TREZOR | AI TOOLS PRO SMART</title></Helmet>
-      
-      <div className="flex items-center gap-4 mb-10 border-b border-orange-500/20 pb-6">
-        <Lock className="w-8 h-8 text-orange-500" />
-        <h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-white">VIP TREZOR</h1>
-      </div>
-      
+      <div className="flex items-center gap-4 mb-10 border-b border-orange-500/20 pb-6"><Lock className="w-8 h-8 text-orange-500" /><h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-white">VIP TREZOR</h1></div>
       {myApps.length === 0 ? (
-         <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-10 text-center shadow-xl">
-            <p className="text-zinc-500 uppercase tracking-widest font-bold text-[12px]">Trenutno nemate otključanih alata u vašem trezoru.</p>
-            <Link to="/" className="inline-block mt-6 bg-orange-600 px-8 py-3 rounded-xl text-white font-black text-[11px] uppercase tracking-widest hover:bg-orange-500 transition-colors shadow-lg">Idi u Prodavnicu</Link>
-         </div>
+         <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-10 text-center shadow-xl"><p className="text-zinc-500 uppercase tracking-widest font-bold text-[12px]">Trenutno nemate otključanih alata.</p><Link to="/" className="inline-block mt-6 bg-orange-600 px-8 py-3 rounded-xl text-white font-black text-[11px] uppercase tracking-widest hover:bg-orange-500">Idi u Prodavnicu</Link></div>
       ) : (
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {myApps.map((app) => {
-               // PROVERA DA LI JE VIDEO ILI SLIKA
                const isVideo = app.media?.[0]?.type === 'video' || app.media?.[0]?.url?.match(/\.(mp4|webm|ogg|mov)$/i);
                const displayUrl = app.media?.[0]?.url || data.bannerUrl;
-               // UZIMANJE NETLIFY LINKA
                const parts = (app.whopLink || "").split("[SPLIT]");
                const mainLink = parts[0] || "";
-
                return (
-                 <div key={app.id} className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2rem] p-5 shadow-[0_0_20px_rgba(234,88,12,0.1)] flex flex-col hover:border-orange-500/60 transition-all group">
-                   <Link to={`/app/${app.id}`} className="aspect-video relative rounded-xl overflow-hidden mb-4 bg-black border border-white/5 block">
-                      {isVideo ? (
-                         <video src={`${displayUrl}#t=0.001`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all" muted playsInline />
-                      ) : (
-                         <img src={displayUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all" alt={app.name} />
-                      )}
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                         <PlayCircle className="w-10 h-10 text-white drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
-                      </div>
+                 <div key={app.id} className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2rem] p-5 flex flex-col hover:border-orange-500/60 transition-all group">
+                   <Link to={`/app/${app.id}`} className="aspect-video relative rounded-xl overflow-hidden mb-4 bg-black block">
+                      {isVideo ? <video src={`${displayUrl}#t=0.001`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" muted playsInline /> : <img src={displayUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" alt={app.name} />}
                    </Link>
                    <h3 className="text-[16px] font-black uppercase text-white mb-2 line-clamp-1">{app.name}</h3>
                    <p className="text-zinc-500 text-[10px] uppercase font-bold mb-6 flex-1 line-clamp-2">{app.headline}</p>
-                   
-                   {mainLink ? (
-                     <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_15px_rgba(34,197,94,0.3)] block">
-                        🚀 OTVORI APLIKACIJU
-                     </a>
-                   ) : (
-                     <Link to={`/app/${app.id}`} className="w-full py-3.5 bg-zinc-800 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-lg block">
-                        POGLEDAJ DETALJE
-                     </Link>
-                   )}
+                   {mainLink ? <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">🚀 OTVORI APLIKACIJU</a> : <Link to={`/app/${app.id}`} className="w-full py-3.5 bg-zinc-800 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">POGLEDAJ DETALJE</Link>}
                  </div>
                );
             })}
@@ -1615,37 +1518,21 @@ function TrezorPage({ apps = [] }) {
   );
 }
 
-// ==========================================
-// GLAVNI KONTROLER (MENI I RUTIRANJE)
-// ==========================================
 function AppContent({ appsData, refreshData }) {
   const [isBooting, setIsBooting] = useState(true); 
   const [showBanner, setShowBanner] = useState(false); 
   const location = useLocation();
   const prevLocation = useRef(location.pathname); 
   const entryTime = useRef(Date.now());
-  
   const [isVIPLoggedIn, setIsVIPLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
        if(user) {
-          if (user.email === "damnjanovicgoran7@gmail.com") {
-             setIsAdmin(true);
-             setIsVIPLoggedIn(true);
-          } else {
-             setIsAdmin(false);
-             if((await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists()) {
-                setIsVIPLoggedIn(true);
-             } else {
-                setIsVIPLoggedIn(false);
-             }
-          }
-       } else {
-          setIsVIPLoggedIn(false);
-          setIsAdmin(false);
-       }
+          if (user.email === "damnjanovicgoran7@gmail.com") { setIsAdmin(true); setIsVIPLoggedIn(true); } 
+          else { setIsAdmin(false); if((await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists()) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); } }
+       } else { setIsVIPLoggedIn(false); setIsAdmin(false); }
     }); return () => unsub();
   }, []);
 
@@ -1674,7 +1561,6 @@ function AppContent({ appsData, refreshData }) {
         {isBooting && <FullScreenBoot key="boot" onComplete={() => { setIsBooting(false); setShowBanner(true); window.scrollTo(0,0); }} />}
         {!isBooting && showBanner && <WelcomeBanner key="banner" onClose={() => setShowBanner(false)} />}
       </AnimatePresence>
-      
       <div className="fixed top-0 left-0 w-full z-[1000]">
         <nav className="w-full px-4 md:px-8 py-3 md:py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
           <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
@@ -1682,35 +1568,19 @@ function AppContent({ appsData, refreshData }) {
               <img src={data.logoUrl} className="h-8 md:h-10 object-contain animate-pulse" alt="logo" />
               <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] hidden sm:block"><span className="text-blue-500">AI TOOLS</span> <span className="text-orange-500">PRO SMART</span></span>
             </Link>
-            
             <div className="flex items-center gap-3 md:gap-4 font-black uppercase text-[10px] md:text-[11px] tracking-widest">
               <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
+              {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
               <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
-              
-              {location.pathname !== '/enxance' && (
-                <Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5" /> 10X ENHANCER
-                </Link>
-              )}
-              
+              {location.pathname !== '/enxance' && (<Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 10X ENHANCER</Link>)}
               {isVIPLoggedIn ? (
                  <div className="flex items-center gap-2 md:gap-3 ml-2">
-                    {isAdmin && (
-                       <Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]">
-                          <Settings className="w-3.5 h-3.5" /> DASHBOARD
-                       </Link>
-                    )}
-                    <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]">
-                       <Lock className="w-3.5 h-3.5" /> MOJ TREZOR
-                    </Link>
-                    <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex">
-                       <User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}
-                    </span>
+                    {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]"><Settings className="w-3.5 h-3.5" /> DASHBOARD</Link>)}
+                    <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-3.5 h-3.5" /> MOJ TREZOR</Link>
+                    <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex"><User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}</span>
                     <button onClick={() => { signOut(auth); v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
                  </div>
-              ) : (
-                 <Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>
-              )}
+              ) : (<Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>)}
             </div>
           </div>
         </nav>
@@ -1718,6 +1588,7 @@ function AppContent({ appsData, refreshData }) {
       <div className="flex-1 text-left pt-20">
         <Routes>
           <Route path="/" element={<HomePage apps={appsData} />} />
+          <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
           <Route path="/enxance" element={<EnhancerPage />} />
           <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
           <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
@@ -1739,6 +1610,8 @@ function AppContent({ appsData, refreshData }) {
 }
 
 export default function App() { 
-  const [appsData, setAppsData] = useState([]); const refreshData = useCallback(() => { fetch(API_URL).then(res => res.json()).then(db => setAppsData(db)).catch(() => setAppsData([])); }, []); useEffect(() => { refreshData(); }, [refreshData]);
+  const [appsData, setAppsData] = useState([]); 
+  const refreshData = useCallback(() => { fetch(API_URL).then(res => res.json()).then(db => setAppsData(db)).catch(() => setAppsData([])); }, []); 
+  useEffect(() => { refreshData(); }, [refreshData]);
   return (<HelmetProvider><Router><AppContent appsData={appsData} refreshData={refreshData} /><data.LiveSalesNotification apps={appsData} /></Router></HelmetProvider>); 
 }
