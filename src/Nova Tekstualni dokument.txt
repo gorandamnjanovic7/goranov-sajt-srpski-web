@@ -1,0 +1,70 @@
+{/* --- SEKCIJA: INDUSTRIJSKA REŠENJA (PORTFOLIO) --- */}
+<div className="mt-28 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+  <div className="text-center mb-12">
+    <h3 className="text-orange-500 font-black uppercase text-[11px] tracking-[0.5em] mb-3">Industrijski Standardi</h3>
+    <h4 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Specijalizovani <span className="text-zinc-500">Demo Projekti</span></h4>
+  </div>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+    {[
+      { 
+        name: "V8 AUTO GARAŽA", 
+        desc: "Premium servis i tuning", 
+        icon: <Settings className="w-5 h-5" />, 
+        img: "LINK_DO_TVOJE_AUTO_SLIKE" // Ovde ide Cloudinary link
+      },
+      { 
+        name: "V8 SMILE CLINIC", 
+        desc: "Moderni stomatološki studio", 
+        icon: <Sparkles className="w-5 h-5" />, 
+        img: "LINK_DO_TVOJE_DENTAL_SLIKE" 
+      },
+      { 
+        name: "V8 LEGAL OFFICE", 
+        desc: "Advokatura i strategija", 
+        icon: <ShieldAlert className="w-5 h-5" />, 
+        img: "LINK_DO_TVOJE_LEGAL_SLIKE" 
+      },
+      { 
+        name: "V8 REAL ESTATE", 
+        desc: "Luksuzne nekretnine", 
+        icon: <Layers className="w-5 h-5" />, 
+        img: "LINK_DO_TVOJE_ESTATE_SLIKE" 
+      }
+    ].map((item, i) => (
+      <div key={i} className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_30px_rgba(234,88,12,0.1)]">
+        
+        {/* Pozadinska slika sa overlay-om */}
+        <div className="aspect-[4/5] relative overflow-hidden">
+          <img 
+            src={item.img} 
+            alt={item.name} 
+            className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+        </div>
+
+        {/* Sadržaj kartice */}
+        <div className="absolute inset-x-0 bottom-0 p-6">
+          <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">
+            {item.icon}
+          </div>
+          <h5 className="text-[14px] font-black text-white uppercase tracking-wider mb-1">{item.name}</h5>
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-6">{item.desc}</p>
+          
+          <a 
+            href={item.img} 
+            target="_blank" 
+            rel="noreferrer" 
+            className="inline-flex items-center gap-2 text-[9px] font-black text-orange-500 uppercase tracking-[0.2em] border border-orange-500/20 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white transition-all"
+          >
+            Pogledaj Dizajn <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+1920 px × Visina 1080 px ili 1280 px × Visina 720 px
+© 2026 V8 Digital Agency. Sva prava zadržana.
+Premium Solutions for Premium Clients.
