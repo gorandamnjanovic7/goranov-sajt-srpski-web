@@ -1,12 +1,12 @@
 // React Source Code Link: frontend/src/pages/V8PixarSelfie.jsx
 import React, { useState } from 'react';
-import { Camera, Lock, Star, Palette, Flame, Clapperboard, Sparkles, Brain, Diamond, Globe, Zap, ShieldCheck, Image as ImageIcon } from 'lucide-react';
+import { Camera, Lock, Star, Palette, Flame, Clapperboard, Sparkles, Brain, Diamond, Globe, Zap, ShieldCheck, Image as ImageIcon, X, Download } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 
 // POČETAK FUNKCIJE: V8PixarSelfiePage
 const V8PixarSelfiePage = ({ isAdmin }) => {
   const [filmSerija, setFilmSerija] = useState('');
-  const [izabranStil, setIzabranStil] = useState('v8_dark_mode');
+  const [izabranStil, setIzabranStil] = useState('pixar_classic');
   const [isGenerating, setIsGenerating] = useState(false);
   const [rezultat, setRezultat] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
@@ -75,6 +75,7 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
   const handleGenerisi = async (bypass = false) => {
     if (!filmSerija) return;
     setIsGenerating(true);
+    // Ako Admin klikne bypass, slika se odmah tretira kao plaćena i otključana
     if (bypass) setIsPaid(true);
     try {
       const resp = await fetch("http://localhost:5000/api/generisi-pixar", {
@@ -96,6 +97,19 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
   };
   // KRAJ FUNKCIJE: handleGenerisi
 
+  // POČETAK FUNKCIJE: handleDownload
+  const handleDownload = () => {
+    if (!rezultat) return;
+    const link = document.createElement('a');
+    link.href = rezultat;
+    // Postavlja naziv fajla prilikom preuzimanja
+    link.download = `V8_Cinematic_Render_${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  // KRAJ FUNKCIJE: handleDownload
+
   return (
     <div className="min-h-screen bg-[#050505] pt-20 pb-24 px-4 flex flex-col items-center font-sans text-white relative overflow-hidden">
       
@@ -115,7 +129,7 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
       {/* Glavni Layout: Levi tekst - Centar - Desni tekst */}
       <div className="w-full max-w-[1400px] mx-auto flex flex-col xl:flex-row items-stretch justify-center gap-8 xl:gap-12 relative z-10">
         
-        {/* LEVA KOLONA: Vizija i Brending */}
+        {/* LEVA KOLONA */}
         <div className="flex-1 flex flex-col justify-center space-y-8 bg-gradient-to-br from-black/60 to-[#0a0a0a]/80 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl xl:max-w-[380px] order-2 xl:order-1">
           <div className="text-center xl:text-left">
             <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">Vizionarski Pogled <br/><span className="text-orange-500">Za Vaš Brend</span></h2>
@@ -155,25 +169,35 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
           </div>
         </div>
 
-        {/* CENTRALNA KOLONA: Aplikacija */}
+        {/* CENTRALNA KOLONA */}
         <div className="flex-none w-full xl:w-[600px] bg-[#0a0a0a]/90 backdrop-blur-xl border border-orange-500/30 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.7),inset_0_0_20px_rgba(234,88,12,0.05)] order-1 xl:order-2">
           
           {!rezultat && !isGenerating ? (
             <div className="space-y-8">
               
-              {/* Input Polje */}
+              {/* Input Polje sa X dugmetom */}
               <div className="space-y-3">
                 <label className="text-xs font-black uppercase tracking-widest text-zinc-500 ml-2">Bioskopski Univerzum</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <div className="relative group flex items-center">
+                  <div className="absolute left-0 pl-5 flex items-center pointer-events-none z-10">
                     <Clapperboard className="h-5 w-5 text-zinc-500 group-focus-within:text-orange-500 transition-colors" />
                   </div>
                   <input 
-                    className="w-full bg-[#050505] border border-white/10 py-5 pl-14 pr-6 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 text-white text-lg transition-all placeholder:text-zinc-600 shadow-inner"
+                    className="w-full bg-[#050505] border border-white/10 py-5 pl-14 pr-16 rounded-2xl outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 text-white text-lg transition-all placeholder:text-zinc-600 shadow-inner"
                     placeholder="Npr. Gladiator, Peaky Blinders..."
                     value={filmSerija}
                     onChange={(e) => setFilmSerija(e.target.value)}
                   />
+                  {/* Taster X - Pojavljuje se samo kada ima unetog teksta */}
+                  {filmSerija && (
+                    <button 
+                      onClick={() => setFilmSerija('')}
+                      className="absolute right-4 p-2 text-zinc-400 hover:text-orange-500 transition-colors z-20"
+                      title="Obriši unos"
+                    >
+                      <X className="w-5 h-5 animate-pulse" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -239,25 +263,46 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
           ) : (
             <div className="flex flex-col items-center gap-6 animate-in zoom-in-95 duration-500">
               <div className="relative rounded-[2rem] overflow-hidden border-2 border-orange-500/30 aspect-[3/4] w-full shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+                
+                {/* 100% CISTA SLIKA - Bez ikakvih tamnih layera */}
                 <img src={rezultat} className="w-full h-full object-cover" alt="V8 Rezultat" />
                 
+                {/* AKO NIJE PLAĆENO: Prikazuje se QR Kod box na čistoj slici */}
                 {!isPaid && !isAdmin && (
-                  <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
-                    <div className="bg-[#050505] border border-orange-500/40 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_40px_rgba(234,88,12,0.3)] w-full max-w-[280px]">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"> 
+                    {/* Boks blokira samo sredinu */}
+                    <div className="pointer-events-auto bg-[#050505]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 border border-orange-500/50 shadow-[0_20px_60px_rgba(0,0,0,0.9)] rounded-3xl w-full max-w-[300px]">
                       <Lock className="w-10 h-10 text-orange-500 mb-4 drop-shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
-                      <p className="text-xs font-black uppercase tracking-widest mb-6 text-white leading-relaxed">
-                        IPS Skeniranje <br/><span className="text-orange-500 text-lg">({cena})</span>
+                      <p className="text-[11px] font-black uppercase tracking-widest mb-4 text-white leading-relaxed text-center">
+                        IPS Skeniranje <br/><span className="text-orange-500 text-base">({cena})</span>
                       </p>
                       <div className="bg-white p-3 rounded-2xl mb-2 hover:scale-105 transition-transform duration-300">
-                        <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:V8Studijo|I:RSD350,00|S:V8CinematicRender`} size={160} />
+                        <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:V8Studijo|I:RSD350,00|S:V8CinematicRender`} size={140} />
                       </div>
-                      <p className="text-[10px] text-zinc-500 mt-4 uppercase font-bold tracking-widest">Sigurna V8 Transakcija</p>
+                      <p className="text-[9px] text-zinc-500 mt-4 uppercase font-bold tracking-widest text-center">Sigurna V8 Transakcija</p>
                     </div>
                   </div>
                 )}
+
+                {/* AKO JE PLAĆENO ILI JE ADMIN: Prikazuje se dugme za Download na dnu */}
+                {(isPaid || isAdmin) && (
+                  <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20">
+                    <button 
+                      onClick={handleDownload}
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest text-sm py-4 px-8 rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.6)] flex items-center gap-3 transition-transform hover:scale-105"
+                    >
+                      <Download className="w-5 h-5" />
+                      Preuzmi 4K Vizual
+                    </button>
+                  </div>
+                )}
+                
               </div>
               <button 
-                onClick={() => setRezultat(null)} 
+                onClick={() => {
+                  setRezultat(null);
+                  setIsPaid(false); // Reset statusa plaćanja za novu sliku
+                }} 
                 className="text-zinc-500 uppercase tracking-widest text-[11px] font-black underline underline-offset-8 hover:text-orange-500 transition-colors"
               >
                 ← Generiši novi vizual
@@ -266,7 +311,7 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
           )}
         </div>
 
-        {/* DESNA KOLONA: Transformacija i Sigurnost */}
+        {/* DESNA KOLONA */}
         <div className="flex-1 flex flex-col justify-center space-y-8 bg-gradient-to-bl from-black/60 to-[#0a0a0a]/80 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl xl:max-w-[380px] order-3">
           <div className="text-center xl:text-left">
             <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-2">Transformacija: <br/><span className="text-orange-500">Ideja u Stvarnost</span></h2>
@@ -274,6 +319,16 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
           </div>
           
           <div className="space-y-6">
+            <div className="flex gap-4 items-start">
+              <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 shrink-0">
+                <ImageIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-1">Poverenje pre Kupovine</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">Prozirnost i poverenje su V8 standard. Vidite punu kreativnost vizuala u visokoj rezoluciji pre nego što uložite novac, uz samo centralno IPS preklapanje.</p>
+              </div>
+            </div>
+
             <div className="flex gap-4 items-start">
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 shrink-0">
                 <Zap className="w-6 h-6" />
@@ -291,16 +346,6 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-1">Maksimalna Sigurnost</h3>
                 <p className="text-xs text-zinc-500 leading-relaxed">Plaćanje se vrši isključivo putem zvaničnog i sigurnog IPS QR sistema. Vaši podaci i transakcije ostaju potpuno zaštićeni.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start">
-              <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 shrink-0">
-                <ImageIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-1">Profesionalna Završnica</h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">Svaki izlazni dokument je u bioskopskoj rezoluciji bez vodenih žigova, savršeno optimizovan za digitalne kampanje visoke rezolucije.</p>
               </div>
             </div>
           </div>
