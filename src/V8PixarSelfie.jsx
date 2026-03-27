@@ -15,21 +15,14 @@ const V8PixarSelfiePage = ({ isAdmin }) => {
 
   // POČETAK FUNKCIJE: bazniPrompt
   const bazniPrompt = (unos, stilTokens) => {
-    return `Ultra-detailed stylized 3D animation render in a Disney/Pixar-inspired CGI look, vertical 3:4 frame. Scene shows the main iconic characters from ${unos} taking a fun, messy bathroom mirror selfie. The most recognizable character holds a large retro camera toward the mirror while the rest crowd tightly around, filling the frame with energetic, playful expressions matching their signature personalities.
-All characters wear their classic outfits accurate to ${unos}. Faces are slightly cartoon-stylized with expressive eyes but preserve original hairstyles, colors, and defining features with consistent identity-lock precision.
-Mirror includes light smudges and toothpaste marks, with bold black animated lettering reading "${unos}" visible in reflection. Bathroom environment matches the theme of ${unos} with fitting props and small easter eggs placed naturally.
-CAMERA SYSTEM: captured as if shot on Sony A7R V, 35mm f/1.4 GM lens, shallow depth of field, cinematic focus falloff, subtle wide-angle distortion for group compression, handheld micro jitter realism, mirror reflection optical accuracy.
-LIGHTING & STYLE: soft bathroom practical lighting mixed with strong frontal flash burst, specular highlights on skin, subtle bloom, warm cinematic color temperature (3200K–4500K mix), realistic reflection scattering. ${stilTokens}
-META TOKEN STACK: ACEScg_color_pipeline, HDR_vision_fusion_v5, Pixar_shading_engine, global_illumination_bounce, subsurface_scattering_skin, optical_bokeh_precision, volumetric_soft_light, micro_detail_enhancement, physically_based_rendering, reflection_accuracy_boost, photonic_surface_response, anti_plastic_texture, filmic_shadow_rolloff, dynamic_range_expansion
-REALISM BOOST TOKENS: IMG_2985.HEIC, production_stills_archive, disney_animation_pipeline, unreal_engine_path_tracing, raytraced_reflections, cinematic_color_science_v3
-FINAL OUTPUT: sharp 4K quality, ultra-clean render, no watermark, high-end Pixar-style shading, perfectly balanced exposure, cinematic composition, social-media-ready framing`;
+    return `Ultra-detailed stylized 3D animation render in a Disney/Pixar-inspired CGI look, vertical 3:4 frame. Scene shows the main iconic characters from ${unos} taking a fun, messy bathroom mirror selfie. The most recognizable character holds a large retro camera toward the mirror while the rest crowd tightly around, filling the frame with energetic, playful expressions matching their signature personalities. All characters wear their classic outfits accurate to ${unos}. Faces are slightly cartoon-stylized with expressive eyes but keep original hairstyles, colors, and defining features. Mirror includes light smudges and toothpaste marks, with bold black animated lettering reading "${unos}" visible in reflection. Bathroom environment matches the theme of ${unos} with fitting props and small easter eggs placed naturally. Use soft bathroom lighting mixed with bright flash reflection, warm cinematic color grading, smooth highlights, high-end Pixar-style shading, sharp 4K quality, no watermark. ${stilTokens}`;
   };
   // KRAJ FUNKCIJE: bazniPrompt
 
   const stilovi = {
     pixar_classic: { ime: "Klasik Pixar 3D", tokens: "Disney Pixar CGI look, warm lighting.", ikonica: Star },
     cinema_arri: { ime: "Arri Look", tokens: "ALTERNATIVE CINEMA MODE: ARRI Alexa 35, Panavision anamorphic 40mm T2.0, soft edge falloff, cinematic lens breathing, anamorphic bokeh stretch.", ikonica: Palette },
-    v8_dark_mode: { ime: "V8 Dark Mode", tokens: "SPECIAL V8 DARK MODE: Black matte surfaces, glowing orange neon accents, dramatic shadows.", ikonica: Flame }
+    v8_dark_mode: { ime: "V8 Dark Mode", tokens: "SPECIAL V8 DARK MODE: Black matte surfaces, glowing orange neon accents, dramatic cinematic shadows.", ikonica: Flame }
   };
 
   // POČETAK FUNKCIJE: handleGenerisi
@@ -69,7 +62,7 @@ FINAL OUTPUT: sharp 4K quality, ultra-clean render, no watermark, high-end Pixar
           <Camera className="w-10 h-10 text-orange-500" /> PIXAR SELFIE MEJKER
         </h1>
         <div className="flex items-center justify-center gap-2 text-orange-500/80 text-xs font-bold tracking-[0.3em] uppercase">
-          <Sparkles className="w-3 h-3" /> Powered by V8 Nano Banana Pro
+          <Sparkles className="w-3 h-3" /> Powered by V8 Studijo
         </div>
       </div>
 
@@ -151,7 +144,7 @@ FINAL OUTPUT: sharp 4K quality, ultra-clean render, no watermark, high-end Pixar
               <Flame className="absolute text-orange-500 animate-pulse" />
             </div>
             <p className="text-orange-500 font-black tracking-[0.3em] uppercase text-sm animate-pulse drop-shadow-[0_0_10px_rgba(234,88,12,0.5)]">
-              Nano Banana Pro Generiše...
+              V8 Sistem Generiše...
             </p>
           </div>
           
@@ -168,7 +161,7 @@ FINAL OUTPUT: sharp 4K quality, ultra-clean render, no watermark, high-end Pixar
                       Skeniraj za otključavanje <br/><span className="text-orange-500">({cena})</span>
                     </p>
                     <div className="bg-white p-3 rounded-2xl mb-2">
-                      <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran|I:RSD350,00|S:PixarSelfie`} size={150} />
+                      <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran|I:RSD350,00|S:CinematicSelfie`} size={150} />
                     </div>
                   </div>
                 </div>
