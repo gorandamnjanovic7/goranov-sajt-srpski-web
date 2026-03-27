@@ -6,7 +6,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 // POČETAK FUNKCIJE: V8PixarSelfiePage
 const V8PixarSelfiePage = ({ isAdmin }) => {
   const [filmSerija, setFilmSerija] = useState('');
-  const [izabranStil, setIzabranStil] = useState('pixar_classic');
+  const [izabranStil, setIzabranStil] = useState('v8_dark_mode');
   const [isGenerating, setIsGenerating] = useState(false);
   const [rezultat, setRezultat] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
@@ -15,7 +15,53 @@ const V8PixarSelfiePage = ({ isAdmin }) => {
 
   // POČETAK FUNKCIJE: bazniPrompt
   const bazniPrompt = (unos, stilTokens) => {
-    return `Ultra-detailed stylized 3D animation render in a Disney/Pixar-inspired CGI look, vertical 3:4 frame. Scene shows the main iconic characters from ${unos} taking a fun, messy bathroom mirror selfie. The most recognizable character holds a large retro camera toward the mirror while the rest crowd tightly around, filling the frame with energetic, playful expressions matching their signature personalities. All characters wear their classic outfits accurate to ${unos}. Faces are slightly cartoon-stylized with expressive eyes but keep original hairstyles, colors, and defining features. Mirror includes light smudges and toothpaste marks, with bold black animated lettering reading "${unos}" visible in reflection. Bathroom environment matches the theme of ${unos} with fitting props and small easter eggs placed naturally. Use soft bathroom lighting mixed with bright flash reflection, warm cinematic color grading, smooth highlights, high-end Pixar-style shading, sharp 4K quality, no watermark. ${stilTokens}`;
+    const template = `Ultra-detailed stylized 3D animation render with strong real-actor likeness preservation, inspired by Disney/Pixar CGI but grounded in semi-realistic human facial reconstruction, vertical 3:4 frame.
+
+Scene shows the primary iconic characters from {SHOW_MOVIE_INPUT}, automatically inferred and generated based on the original film/series cast, with high resemblance to the actors who portrayed them.
+
+The system must identify and reconstruct the most recognizable characters from {SHOW_MOVIE_INPUT} using widely known visual identity, without explicitly naming them.
+
+The central protagonist (most recognizable lead from {SHOW_MOVIE_INPUT}) holds a large retro camera toward a mirror, while supporting characters gather tightly around, forming a dynamic, playful group selfie with expressions consistent with their personalities and relationships from the original story.
+
+All characters wear their screen-accurate outfits from {SHOW_MOVIE_INPUT}, with correct materials, textures, historical or narrative accuracy.
+
+FACES — CRITICAL:
+preserve strong actor likeness, accurate facial structure, bone proportions, age accuracy, skin tone, natural asymmetry, recognizable identity traits,
+avoid generic AI faces, avoid over-stylization, avoid face distortion,
+Pixar-style influence must be subtle and applied only to expression, not identity.
+
+Mirror includes realistic smudges, toothpaste marks, and imperfections, with bold black handwritten-style text "{SHOW_MOVIE_INPUT}" visible in reflection.
+
+Bathroom environment is context-aware and adapted to the world of {SHOW_MOVIE_INPUT}, including appropriate props, materials, and subtle easter eggs.
+
+---
+
+CAMERA:
+cinematic capture, 50mm lens equivalent, natural perspective, shallow depth of field, focus on mirror reflection, realistic optical behavior
+
+LIGHTING:
+soft bathroom lighting mixed with strong flash reflection, natural skin highlights, realistic light bounce, cinematic contrast
+
+---
+
+ACTOR LIKENESS ENFORCEMENT:
+based on original cast of {SHOW_MOVIE_INPUT},
+high resemblance priority,
+identity lock,
+facial structure fidelity,
+no random face generation,
+no reinterpretation
+
+---
+
+RENDER QUALITY:
+4K, high detail, clean CGI shading, realistic skin texture, no watermark
+
+---
+FINAL V8 STYLE BOOST: ${stilTokens}`;
+
+    const prompt = template.replaceAll("{SHOW_MOVIE_INPUT}", unos);
+    return prompt;
   };
   // KRAJ FUNKCIJE: bazniPrompt
 
@@ -59,7 +105,7 @@ const V8PixarSelfiePage = ({ isAdmin }) => {
       {/* Header Sekcija */}
       <div className="text-center mb-10 relative z-10">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-3 flex items-center justify-center gap-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">
-          <Camera className="w-10 h-10 text-orange-500" /> PIXAR SELFIE MEJKER
+          <Camera className="w-10 h-10 text-orange-500" /> CINEMATIC SELFIE MEJKER
         </h1>
         <div className="flex items-center justify-center gap-2 text-orange-500/80 text-xs font-bold tracking-[0.3em] uppercase">
           <Sparkles className="w-3 h-3" /> Powered by V8 Studijo
