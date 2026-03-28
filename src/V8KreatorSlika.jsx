@@ -24,7 +24,7 @@ const V8KreatorSlikaPage = ({ isAdmin }) => {
     if (adminBypass) setIsPaid(true); 
 
     try {
-      // SADA KORISTI PAMETNI URL
+      // SADA KORISTI PAMETNI URL ZAVISNO OD TOGA GDE SE NALAZIŠ
       const backendUrl = `${BASE_URL}/api/generisi-sliku`; 
 
       const response = await fetch(backendUrl, {
