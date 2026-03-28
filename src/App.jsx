@@ -571,7 +571,7 @@ function SingleProductPage({ apps = [] }) {
         </div>
       </div>
 
-      <AnimatePresence>
+     <AnimatePresence>
         {ipsModalData && (
           <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden">
@@ -580,20 +580,35 @@ function SingleProductPage({ apps = [] }) {
                 <h3 className="text-[18px] font-black uppercase tracking-widest mb-2 text-orange-500 flex items-center gap-3"><Zap className="w-5 h-5" /> Instrukcije za uplatu</h3>
                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6">Paket: {ipsModalData.tip}</p>
                 <div className="w-52 h-52 bg-white p-3 rounded-3xl mb-5 flex items-center justify-center border-4 border-dashed border-orange-500/30 shadow-inner overflow-hidden relative">
-                  <QRCodeCanvas value={ipsString} size={180} bgColor={"#ffffff"} fgColor={"#000000"} level={"M"} includeMargin={false} />
+                  <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${ipsModalData.cena},00|SF:289|S:${ipsModalData.tip}|RO:V8-ENHANCER`} size={180} bgColor={"#ffffff"} fgColor={"#000000"} level={"M"} includeMargin={false} />
                 </div>
                 <div className="text-[10px] font-black bg-orange-500/10 border border-orange-500/20 text-orange-400 px-5 py-2.5 rounded-full uppercase tracking-widest mb-10 shadow-lg">Skeniraj m-banking aplikacijom</div>
                 <div className="w-full bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-4 text-[13px] font-mono shadow-inner">
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Primalac:</span><span className="font-bold text-white text-right">Goran Damnjanović</span></div>
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Račun:</span><span className="font-bold text-white text-[11px] md:text-[13px]">265-0000006535770-83</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={svrhaPlacanja}>{svrhaPlacanja}</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-                  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">Nakon uplate, pošaljite nam dokaz na email:</p>
-                  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">aitoolsprosmart@gmail.com</a>
-                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+                
+                {/* NOVI KONTAKT BLOK SA VIBEROM I WHATSAPPOM */}
+                <div className="mt-8 w-full bg-[#050505] border border-orange-500/30 rounded-2xl p-5 text-center shadow-[0_0_20px_rgba(234,88,12,0.15)]">
+                  <p className="text-[11px] md:text-[12px] text-zinc-400 font-black uppercase tracking-widest mb-4">Nakon uplate, pošaljite nam dokaz na:</p>
+                  <div className="flex flex-col gap-3">
+                    <a href="mailto:aitoolsprosmart@gmail.com" onClick={(e) => { navigator.clipboard.writeText('aitoolsprosmart@gmail.com'); if (typeof v8Toast !== 'undefined') v8Toast.success('Email adresa je kopirana!'); }} className="flex items-center justify-center gap-2 w-full bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-orange-400 py-3 rounded-xl font-black text-[12px] md:text-[14px] tracking-widest transition-all cursor-pointer shadow-inner">
+                      📧 aitoolsprosmart@gmail.com
+                    </a>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      <a href="viber://chat?number=%2B381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#7360f2]/10 border border-[#7360f2]/30 hover:bg-[#7360f2]/20 hover:border-[#7360f2] text-[#7360f2] py-3 rounded-xl font-black text-[11px] md:text-[12px] tracking-widest transition-all cursor-pointer">
+                        🟣 VIBER
+                      </a>
+                      <a href="https://wa.me/381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 hover:border-[#25D366] text-[#25D366] py-3 rounded-xl font-black text-[11px] md:text-[12px] tracking-widest transition-all cursor-pointer">
+                        🟢 WHATSAPP
+                      </a>
+                    </div>
+                  </div>
+                  <span className="block mt-5 text-[10px] text-zinc-500 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
                 </div>
+
               </div>
             </motion.div>
           </div>
@@ -910,7 +925,7 @@ function HomePage({ apps = [] }) {
         <div id="enhancer" className="mb-24 flex flex-col items-center justify-center text-center py-20 border-y border-orange-500/30 scroll-mt-32">
           <div className="bg-orange-600/10 p-4 rounded-full mb-6"><Zap className="w-12 h-12 text-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" strokeWidth={1.5} /></div>
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-orange-600 mb-4 drop-shadow-[0_0_15px_rgba(234,88,12,0.4)]">10X PROMPT ENHANCER</h2>
-          <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-4">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 15.000 RSD DOŽIVOTNO.</div>
+         <div className="text-[13px] md:text-[15px] font-black text-green-500 uppercase tracking-[0.2em] mb-4">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 20.000 RSD DOŽIVOTNO.</div>
           <CountdownTimer />
           <p className="text-zinc-400 text-[10px] md:text-[12px] max-w-2xl font-medium uppercase tracking-[0.2em] leading-relaxed mt-10 mb-10 mx-auto">
             <span className="font-black text-white">PRISTUPI PREMIUM AI SISTEMU ZA INŽENJERING PROMPTOVA. PRETVORI JEDNOSTAVNE IDEJE ILI SLIKU U REMEK-DELA.</span><br /><br />
@@ -921,7 +936,7 @@ function HomePage({ apps = [] }) {
               <Link to="/enxance" className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-12 py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-colors flex items-center justify-center hover:scale-105 cursor-pointer">🚀 UĐI U APLIKACIJU</Link>
             ) : (
               <>
-                <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
+              <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 20000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
                 <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">POGLEDAJ DEMO</a>
               </>
             )}
@@ -972,7 +987,7 @@ function HomePage({ apps = [] }) {
         </div>
       </div>
       
-      <AnimatePresence>
+     <AnimatePresence>
         {ipsModalData && (
           <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden">
@@ -990,11 +1005,26 @@ function HomePage({ apps = [] }) {
                   <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-zinc-500 uppercase">Svrha:</span><span className="font-bold text-white text-right truncate pl-4" title={ipsModalData.tip}>{ipsModalData.tip}</span></div>
                   <div className="flex justify-between pt-2"><span className="text-zinc-500 uppercase">Iznos:</span><span className="font-black text-orange-500 text-[18px] drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">{ipsModalData.cena.toLocaleString('sr-RS')} RSD</span></div>
                 </div>
-                <div className="mt-8 w-full bg-gradient-to-r from-orange-900/40 to-red-900/40 border border-orange-500/50 rounded-xl p-4 text-center shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-                  <p className="text-[12px] md:text-[13px] text-zinc-200 font-bold leading-relaxed mb-1">Nakon uplate, pošaljite nam dokaz na email:</p>
-                  <a href="mailto:aitoolsprosmart@gmail.com" className="block text-[14px] md:text-[16px] text-orange-400 font-black tracking-widest hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)] my-2">aitoolsprosmart@gmail.com</a>
-                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+                
+                {/* NOVI KONTAKT BLOK SA VIBEROM I WHATSAPPOM */}
+                <div className="mt-8 w-full bg-[#050505] border border-orange-500/30 rounded-2xl p-5 text-center shadow-[0_0_20px_rgba(234,88,12,0.15)]">
+                  <p className="text-[11px] md:text-[12px] text-zinc-400 font-black uppercase tracking-widest mb-4">Nakon uplate, pošaljite nam dokaz na:</p>
+                  <div className="flex flex-col gap-3">
+                    <a href="mailto:aitoolsprosmart@gmail.com" onClick={(e) => { navigator.clipboard.writeText('aitoolsprosmart@gmail.com'); if (typeof v8Toast !== 'undefined') v8Toast.success('Email adresa je kopirana!'); }} className="flex items-center justify-center gap-2 w-full bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-orange-400 py-3 rounded-xl font-black text-[12px] md:text-[14px] tracking-widest transition-all cursor-pointer shadow-inner">
+                      📧 aitoolsprosmart@gmail.com
+                    </a>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      <a href="viber://chat?number=%2B381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#7360f2]/10 border border-[#7360f2]/30 hover:bg-[#7360f2]/20 hover:border-[#7360f2] text-[#7360f2] py-3 rounded-xl font-black text-[11px] md:text-[12px] tracking-widest transition-all cursor-pointer">
+                        🟣 VIBER
+                      </a>
+                      <a href="https://wa.me/381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 hover:border-[#25D366] text-[#25D366] py-3 rounded-xl font-black text-[11px] md:text-[12px] tracking-widest transition-all cursor-pointer">
+                        🟢 WHATSAPP
+                      </a>
+                    </div>
+                  </div>
+                  <span className="block mt-5 text-[10px] text-zinc-500 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
                 </div>
+
               </div>
             </motion.div>
           </div>
@@ -1004,6 +1034,7 @@ function HomePage({ apps = [] }) {
   );
 }
 /// KRAJ FUNKCIJE: HomePage ///
+// POČETAK FUNKCIJE: EnhancerPage
 function EnhancerPage() {
   const [demoInput, setDemoInput] = useState(''); 
   const [customerPrompt, setCustomerPrompt] = useState(''); 
@@ -1094,7 +1125,7 @@ function EnhancerPage() {
   const handleRollDice = (e) => { 
     if (e) e.preventDefault();
     setIsRolling(true);
-    const prompts = data.DICE_PROMPTS || [];
+    const prompts = data.DICE_PROMPTS || ["zlatni sat iznad Beograda", "apstraktna geometrija u neon bojama", "filmska jurnjava kroz Tokio"];
     if (prompts.length > 0) {
       const randomText = prompts[Math.floor(Math.random() * prompts.length)];
       setDemoInput(randomText); 
@@ -1117,10 +1148,52 @@ function EnhancerPage() {
     if (e) e.preventDefault(); if (!uploadedImage) return; setIsAnalyzingImage(true);
     try {
         const promptInstruction = "Kao ekspert za inženjering promptova, dubinski i tehnički analiziraj ovu sliku. Opiši glavni subjekat, atmosferu, stil, paletu boja, tip osvetljenja i podešavanja kamere/sočiva (ako izgleda kao fotografija). Napiši izlaz isključivo na engleskom jeziku u formi vrhunskog prompta, bez dodatnih uvoda ili objašnjenja.";
-        const res = await fetch(`https://goranov-sajt-srpski-backend-production.up.railway.app/api/read-image`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageUrl: uploadedImage, prompt: promptInstruction }) });
+        const res = await fetch(`${BASE_BACKEND_URL}/api/read-image`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageUrl: uploadedImage, prompt: promptInstruction }) });
         const apiData = await res.json();
         if (apiData.result) { setDemoInput(apiData.result); v8Toast.success("Dubinska analiza uspešna!"); } else if (apiData.error) { v8Toast.error("V8 Vision Greška: " + apiData.error); }
-    } catch (err) { v8Toast.error("Greška pri komunikaciji sa V8 serverom."); } finally { setIsAnalyzingImage(false); }
+    } catch (err) { v8Toast.error("Greška pri komunikaciji sa V8 serverom."); console.error(err); } finally { setIsAnalyzingImage(false); }
+  };
+
+  // --- V8 PRIVATNA BAZA TOKENA (GORANOV INŽENJERING) ---
+  const V8_PRESETS = {
+    abstract: [
+      { cameraLens: "IMAX 65mm MSM Film × Panavision Ultra Vista 50mm Anamorphic", meta: "film_grain_35mm, halation_glow, ACEScg_grade, volumetric_depth, spectral_diffusion, microcontrast_boost, optical_bloom, RAW_dynamic_range", keywords: "liquid geometry flow, fractal energy ribbons, hyperfluid motion fields, layered dimensional waves", lighting: "volumetric golden-hour beams with soft shadow rolloff and light scattering" },
+      { cameraLens: "ARRI ALEXA 35 × Zeiss Master Prime 100mm", meta: "ultra_dynamic_color, cinematic_shadow_rolloff, subsurface_scattering_light, HDRx_fusion, depth_precision_render, texture_fidelity_max", keywords: "dark matter gradients, energy filament veins, abstract gravity distortion, smooth entropy transitions", lighting: "low-key studio lighting with rim highlights and deep contrast separation" },
+      { cameraLens: "RED RAPTOR V 8K × Sigma Cine 35mm T1.5", meta: "hyperreal_reflection_engine, raytrace_precision, light_bounce_simulation, ultra_clean_render, spectral_highlight_control", keywords: "glass-like wave interference, reflective liquid surfaces, kinetic ripple distortions, chromatic displacement fields", lighting: "high contrast reflective lighting with sharp specular highlights and controlled glare" },
+      { cameraLens: "Sony VENICE 2 × Leica Summilux-C 75mm", meta: "color_science_mastery, tone_mapping_pro, soft_gradient_blending, cinematic_depth_layers, diffusion_haze_control", keywords: "minimalist flowing shapes, soft energy folds, abstract silk-like motion, atmospheric density gradients", lighting: "soft diffused studio lighting with subtle glow and ambient wrap illumination" },
+      { cameraLens: "Fujifilm GFX100 II × GF 110mm f/2", meta: "ultra_texture_precision, medium_format_depth, microdetail_enhancement, natural_color_volume, optical_realism_engine", keywords: "organic abstract formations, fluid ink diffusion, macro texture waves, evolving surface patterns", lighting: "natural soft daylight with smooth highlight transitions and realistic shadow gradients" }
+    ],
+    cinematic: [
+      { cameraLens: "ARRI ALEXA 65 × Panavision T-Series Anamorphic 50mm", meta: "film_grain_35mm, halation_glow, ACEScg_grade, cinematic_shadow_rolloff, volumetric_depth, highlight_rolloff_pro, analog_color_response, lens_breathing", keywords: "epic cinematic composition, layered depth staging, foreground-midground-background separation, hero framing, dramatic scale", lighting: "golden hour cinematic backlight with volumetric rays and atmospheric haze" },
+      { cameraLens: "IMAX MSM 65mm Film × IMAX 80mm Prime", meta: "ultra_dynamic_range, filmic_color_science, optical_compression, microcontrast_precision, HDRx_fusion, ultra_depth_field", keywords: "monumental scale visuals, ultra-wide cinematic scope, environmental storytelling, grand perspective distortion, immersive realism", lighting: "high-intensity natural daylight with strong contrast and realistic shadow falloff" },
+      { cameraLens: "RED V-RAPTOR XL 8K × Cooke Anamorphic/i 75mm", meta: "cooke_look_warmth, skin_tone_accuracy, cinematic_soft_contrast, highlight_bloom_control, subtle_halation, depth_layering_engine", keywords: "character-driven framing, emotional close-up intensity, narrative focus, expressive facial micro-details, cinematic intimacy", lighting: "soft diffused key light with practical highlights and warm ambient fill" },
+      { cameraLens: "Sony VENICE 2 × Zeiss Supreme Prime 35mm", meta: "color_science_mastery, tonal_range_expansion, shadow_detail_recovery, cinematic_motion_blur, optical_realism_engine, texture_fidelity_max", keywords: "modern cinematic realism, urban storytelling, handheld immersion, grounded atmosphere, natural scene dynamics", lighting: "mixed practical lighting (neon + tungsten) with realistic color contrast and ambient spill" },
+      { cameraLens: "ARRI ALEXA Mini LF × Leica Summilux-C 90mm", meta: "ultra_skin_texture, micro_expression_engine, shallow_depth_precision, cinematic_focus_falloff, organic_color_response, fine_grain_structure", keywords: "luxury cinematic portrait, intimate storytelling, subtle emotion capture, shallow depth isolation, premium film still quality", lighting: "soft window light with gentle bounce fill and natural highlight transitions" }
+    ],
+    photoreal: [
+      { cameraLens: "Fujifilm GFX100 II × GF 110mm f/2", meta: "ultra_texture_precision, medium_format_depth, subsurface_scattering_skin, natural_color_volume, optical_realism_engine, microdetail_enhancement, RAW_dynamic_range", keywords: "true skin pores, natural asymmetry, real-world imperfections, micro hair detail, tactile surface realism", lighting: "soft natural window light with realistic shadow gradients and gentle highlight rolloff" },
+      { cameraLens: "Canon EOS R5 × RF 85mm f/1.2L", meta: "skin_tone_accuracy, shallow_depth_precision, highlight_rolloff_pro, color_science_real, lens_aberration_subtle, natural_bokeh_render", keywords: "portrait realism, candid moment capture, human imperfection detail, authentic expression, DSLR snapshot feel", lighting: "golden hour natural light with soft backlight and warm tonal balance" },
+      { cameraLens: "Sony A1 × FE 35mm f/1.4 GM", meta: "real_world_texture_fidelity, motion_microblur, optical_distortion_natural, ambient_light_balance, ultra_clean_sensor_output", keywords: "street photography realism, unposed moment, environmental storytelling, natural movement capture, documentary style", lighting: "mixed natural daylight with real ambient spill and uncontrolled light variations" },
+      { cameraLens: "Nikon Z9 × NIKKOR 50mm f/1.2 S", meta: "dynamic_range_expansion, shadow_detail_recovery, highlight_compression, RAW_noise_structure, sensor_grain_natural", keywords: "editorial realism, magazine-grade photography, clean composition, real-life color accuracy, high-end DSLR output", lighting: "studio softbox lighting with subtle falloff and realistic contrast shaping" },
+      { cameraLens: "Phase One XF IQ4 × Schneider Kreuznach 80mm LS", meta: "ultra_high_resolution_capture, microcontrast_precision, medium_format_color_depth, extreme_detail_retention, optical_perfection_engine", keywords: "luxury product realism, hyper-detailed textures, premium material rendering, crystal clarity surfaces, commercial photography quality", lighting: "controlled studio lighting with precision highlights and perfect reflection shaping" }
+    ],
+    uniquePhoto: [
+      { cameraLens: "ARRI ALEXA 65 × Panavision T-Series Anamorphic 40mm", meta: "film_grain_35mm, halation_glow, ACEScg_grade, dimensional_warp_engine, reality_distortion_field, volumetric_depth, optical_bloom, highlight_rolloff_pro", keywords: "folded reality layers, impossible geometry landscapes, multi-plane existence, perspective-breaking composition, cinematic paradox space", lighting: "volumetric god rays slicing through layered dimensions with deep atmospheric haze and cinematic shadow rolloff" },
+      { cameraLens: "IMAX 65mm Film × IMAX 100mm Prime", meta: "ultra_dynamic_range, macro_scale_fusion, infinity_focus_engine, hyperreal_depth_stack, environmental_density_render, HDRx_fusion", keywords: "cosmic-scale environments blended with micro-detail worlds, infinite recursion landscapes, scale ambiguity illusion, universe within particles", lighting: "extreme high-contrast cosmic lighting with radiant highlights and deep space shadows" },
+      { cameraLens: "RED V-RAPTOR XL 8K × Laowa Probe 24mm", meta: "micro_world_engine, extreme_perspective_distortion, texture_fidelity_max, macro_depth_layering, hyper_detail_precision, optical_realism_engine", keywords: "inside-liquid-world perspective, microscopic cinematic environments, organic structures as landscapes, alien fluid ecosystems", lighting: "bioluminescent glow mixed with directional macro lighting and reflective highlights" },
+      { cameraLens: "Sony VENICE 2 × Zeiss Supreme Prime 29mm", meta: "color_science_mastery, temporal_motion_blur, dimensional_transition_engine, spectral_light_split, cinematic_depth_layers, tone_mapping_pro", keywords: "time-freeze transitions, multiple motion states in one frame, fragmented reality slices, layered time exposure, visual echo trails", lighting: "mixed lighting (cool vs warm contrast) with dynamic exposure blending and light streak transitions" },
+      { cameraLens: "Phase One XF IQ4 × Schneider Kreuznach 55mm LS", meta: "ultra_high_resolution_capture, microcontrast_precision, reality_lock_engine, extreme_detail_retention, hyperreal_surface_render, optical_perfection_engine", keywords: "ultra-real surreal fusion, indistinguishable from reality but impossible scene, paradox realism, hyper-detailed dream logic, real-world physics breaking", lighting: "perfectly controlled studio lighting fused with natural daylight realism for impossible clarity" }
+    ]
+  };
+
+  // V8 FUNKCIJA ZA SPAJANJE PROMPTA
+  const buildV8Prompt = (category, baseInput, aspectRatio, imageUrl) => {
+    const presets = V8_PRESETS[category];
+    const preset = presets[Math.floor(Math.random() * presets.length)];
+    const noTextInstruction = "Absolutely NO text, NO letters, NO watermarks, NO signatures. Pure visual composition only.";
+    const imgPrefix = imageUrl ? `${imageUrl} ` : "";
+    
+    return `${imgPrefix}A breathtaking capture of: ${baseInput}. Built upon: ${preset.cameraLens}. Illumination: ${preset.lighting}. Protocols: ${preset.meta}. Visual structure defined by: ${preset.keywords}. ${noTextInstruction} [Aspect Ratio: ${aspectRatio}]`;
   };
   
   const handleEnhance = (e, boxType) => {
@@ -1132,45 +1205,28 @@ function EnhancerPage() {
     else { setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); }
     
     setIsEnhancing(true); 
-    logAnalyticsEvent('enhancer_action', { input: rawInput, actionType: boxType, aspectRatio: selectedAR });
     
     setTimeout(() => { 
       try { 
         let cleanInput = rawInput; let detectedBadFormat = false;
         if (/\[.*?\]|--\w+/.test(rawInput)) { detectedBadFormat = true; cleanInput = rawInput.replace(/\[.*?\]:?/g, '').replace(/--\w+(?:\s+[^\s]+)?/g, '').replace(/\s{2,}/g, ' ').trim(); }
-        const lowerInput = cleanInput.toLowerCase();
-        let missingLighting = !/(light|sun|glow|shadow|dark|illuminat|bright|ray|hour|overcast|moody)/i.test(lowerInput);
-        let missingCamera = !/(shot on|camera|lens|mm|f\/\d|canon|nikon|sony|arri|red|fujifilm|hasselblad|leica|optics)/i.test(lowerInput);
-        const isPortrait = /(man|woman|face|portrait|person|girl|boy|people|human)/i.test(lowerInput);
-        const isLandscape = /(landscape|mountain|nature|forest|ocean|cityscape|valley|cliff|sky)/i.test(lowerInput);
-        const getRand = (arr, fallback) => (arr && arr.length > 0) ? arr[Math.floor(Math.random() * arr.length)] : fallback;
-        let selCamera, selLens, selLight, metaTokens;
-        if (isPortrait) { selCamera = getRand(["Canon EOS R5", "Sony A7R IV", "Leica M11", "Hasselblad X2D 100C"], "Canon EOS R5"); selLens = getRand(["85mm f/1.4", "50mm f/1.2"], "85mm f/1.4"); selLight = getRand(["rembrandt lighting", "soft softbox lighting"], "soft softbox lighting"); metaTokens = getRand(["fashion editorial, Vogue cover", "ultra-sharp eye focus"], "fashion editorial"); } 
-        else if (isLandscape) { selCamera = getRand(["Phase One XF IQ4 150MP", "Fujifilm GFX 100"], "Phase One XF IQ4 150MP"); selLens = getRand(["14mm f/2.8", "24mm f/1.4"], "14mm f/2.8"); selLight = getRand(["golden hour volumetric lighting", "blue hour ambient"], "golden hour volumetric lighting"); metaTokens = getRand(["National Geographic award winner"], "National Geographic award winner"); } 
-        else { selCamera = getRand(data.CAMERA_TOKENS, "ARRI Alexa 65"); selLens = getRand(data.LENS_TOKENS, "Zeiss Master Prime 50mm T1.3"); selLight = getRand(data.LIGHTING_TOKENS, "cinematic lighting"); metaTokens = getRand(["IMAX 70mm film scan"], "IMAX 70mm film scan"); }
-        const tokRealism = data.getRandomTokens(data.REALISM_TOKENS, 3); const tokPhysics = data.getRandomTokens(data.PHYSICS_TOKENS, 3); const tokOptics = data.getRandomTokens(data.OPTICS_TOKENS, 2); const tokRender = data.getRandomTokens(data.AI_RENDER_TOKENS, 3); const uniqueMeta = data.getRandomTokens(data.THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 2);
-        const noTextInstruction = "Absolutely NO text, NO letters, NO watermarks, NO signatures. Pure visual composition only.";
-        const enhanced10x = `${boxType === 'concept' && uploadedImage ? `${uploadedImage} ` : ""}A breathtaking capture of: ${cleanInput}. Shot on ${selCamera} paired with ${selLens}. ${selLight}. Protocols: ${tokRealism}, ${tokPhysics}, ${tokOptics}, ${tokRender}. ${metaTokens}, ${uniqueMeta}. ${noTextInstruction}. [Aspect Ratio: ${selectedAR}]`;
         
         setGeneratedPrompts(prev => {
            const nextState = { ...prev };
            if (boxType === 'prompt') {
               let roastMsgs = [];
               if (detectedBadFormat) roastMsgs.push("- Vaš format je bio neefikasan; izbrisao sam šum.");
-              if (missingLighting) roastMsgs.push("- Ignorisali ste osvetljenje; ubacio sam volumetrijske protokole.");
-              if (missingCamera) roastMsgs.push("- Dodao sam specifična sočiva za realističnu dubinu.");
-              const roastIntro = `/// V8 AI EKSPERTSKA ANALIZA ///\n\n🟢 ŠTA JE DOBRO:\nVizija je solidna.\n\n🔴 ŠTA JE LOŠE:\n${roastMsgs.length > 0 ? roastMsgs.join('\n') : "Nedostaje standardna tehnička dubina."}\n\n🚀 V8 10X FINALNI PROMPT:\n\n`;
-              nextState.single = roastIntro + enhanced10x;
-              saveToHistory(enhanced10x, "10X Rekonstrukcija");
+              const roastIntro = `/// V8 AI EKSPERTSKA ANALIZA ///\n\n🟢 ŠTA JE DOBRO:\nVizija je solidna.\n\n🔴 ŠTA JE LOŠE:\n${roastMsgs.length > 0 ? roastMsgs.join('\n') : "Nedostaje profesionalna tehnička dubina."}\n\n🚀 V8 10X FINALNI PROMPT:\n\n`;
+              
+              const enhancedSingle = buildV8Prompt('uniquePhoto', cleanInput, selectedAR, uploadedImage);
+              nextState.single = roastIntro + enhancedSingle;
+              saveToHistory(enhancedSingle, "10X Rekonstrukcija");
            } else {
-              const detailedPrompts = data.generateDetailedPrompts ? data.generateDetailedPrompts(cleanInput + ". " + noTextInstruction, selectedAR) : null;
-              if (detailedPrompts) {
-                 nextState.cinematic = detailedPrompts.cinematic + ` [Aspect Ratio: ${selectedAR}]`;
-                 nextState.abstract = detailedPrompts.abstract + ` [Aspect Ratio: ${selectedAR}]`;
-                 nextState.photoreal = detailedPrompts.photoreal + ` [Aspect Ratio: ${selectedAR}]`;
-                 nextState.uniquePhoto = enhanced10x;
-                 saveToHistory(nextState.cinematic, "Kinematografski Koncept");
-              }
+              nextState.abstract = buildV8Prompt('abstract', cleanInput, selectedAR, uploadedImage);
+              nextState.cinematic = buildV8Prompt('cinematic', cleanInput, selectedAR, uploadedImage);
+              nextState.photoreal = buildV8Prompt('photoreal', cleanInput, selectedAR, uploadedImage);
+              nextState.uniquePhoto = buildV8Prompt('uniquePhoto', cleanInput, selectedAR, uploadedImage);
+              saveToHistory(nextState.cinematic, "Kinematografski Koncept");
            }
            return nextState;
         });
@@ -1184,7 +1240,14 @@ function EnhancerPage() {
     let copyText = text; if (text.includes("🚀 V8 10X FINALNI PROMPT:\n\n")) copyText = text.split("🚀 V8 10X FINALNI PROMPT:\n\n")[1];
     navigator.clipboard.writeText(copyText); setCopiedBox(boxName); v8Toast.success("10X Prompt uspešno kopiran!"); setTimeout(() => setCopiedBox(''), 2000); 
   };
-  
+
+  const v8Stilovi = [
+    { id: 'abstract', naslov: 'APSTRAKTNI', bojaClass: 'border-purple-500/30', hoverBojaClass: 'hover:border-purple-500/80', textClass: 'text-purple-400', bgHover: 'hover:bg-purple-600', shadowClass: 'shadow-[0_0_15px_rgba(168,85,247,0.15)]', hoverShadowClass: 'hover:shadow-[0_0_30px_rgba(168,85,247,0.4)]' },
+    { id: 'cinematic', naslov: 'KINEMATOGRAFSKI', bojaClass: 'border-blue-500/30', hoverBojaClass: 'hover:border-blue-500/80', textClass: 'text-blue-400', bgHover: 'hover:bg-blue-600', shadowClass: 'shadow-[0_0_15px_rgba(59,130,246,0.15)]', hoverShadowClass: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]' },
+    { id: 'photoreal', naslov: 'FOTOREALISTIČNI', bojaClass: 'border-emerald-500/30', hoverBojaClass: 'hover:border-emerald-500/80', textClass: 'text-emerald-400', bgHover: 'hover:bg-emerald-600', shadowClass: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', hoverShadowClass: 'hover:shadow-[0_0_30px_rgba(16,185,129,0.4)]' },
+    { id: 'uniquePhoto', naslov: 'UNIKATNI', bojaClass: 'border-amber-500/30', hoverBojaClass: 'hover:border-amber-500/80', textClass: 'text-amber-400', bgHover: 'hover:bg-amber-600', shadowClass: 'shadow-[0_0_15px_rgba(245,158,11,0.15)]', hoverShadowClass: 'hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]' }
+  ];
+
   return (
     <div ref={containerRef} className="pt-32 pb-24 px-6 max-w-[1600px] mx-auto font-sans text-left text-white min-h-screen relative flex flex-col xl:flex-row gap-8">
       <style>{`
@@ -1217,6 +1280,7 @@ function EnhancerPage() {
 
      <div className="flex-1 flex flex-col w-full">
         <div className="mb-8 relative z-10"><Link to="/" className="text-zinc-400 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-all w-fit"><ChevronLeft className="w-4 h-4" /> Sistemski Registar</Link></div>
+        
         <div className="mb-12 text-left lg:text-center w-full relative z-10 flex flex-col items-start lg:items-center">
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 text-gradient-animate drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">10X PROMPT ENHANCER</h1>
           <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center flex-wrap gap-3 justify-center text-center">
@@ -1237,22 +1301,44 @@ function EnhancerPage() {
                 <button onClick={handlePremiumLogin} className="text-[10px] uppercase font-black tracking-widest text-zinc-500 hover:text-white border-b border-zinc-700 hover:border-white transition-all pb-1">VEĆ IMAM PRISTUP - PRIJAVI SE KAO PREMIUM KORISNIK</button>
              </div>
           )}
+        </div>
+
         <div className="flex flex-col gap-12 w-full items-stretch relative z-10">
-           <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 transition-all duration-500 ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-blue-500/60 group'}`}>
+           
+           {/* --- GORNJA SEKCIJA: PLAVI KINEMATOGRAFSKI MOTOR --- */}
+           <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-blue-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-10 transition-all duration-500 shadow-[0_0_30px_rgba(59,130,246,0.1)] hover:shadow-[0_0_40px_rgba(59,130,246,0.2)] ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-blue-500/60 group'}`}>
               <div className="w-full text-center border-b border-blue-500/20 pb-6 mb-2"><h2 className="text-[8px] sm:text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-wider">PRETVORITE VAŠE IDEJE U UMETNIČKA DELA, BACI KOCKICE, ILI OTPREMITE VAŠU ILI NAŠU SLIKU</h2></div>
               <div className="w-full flex flex-col lg:flex-row gap-8">
                  <div className="w-full lg:w-1/3 flex flex-col justify-start text-left">
                    <label className="text-[14px] md:text-[16px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2 mb-3"><PlayCircle className="w-5 h-5" /> Koncept / Subjekat</label>
                    <p className="text-[10px] md:text-[11px] text-white font-black uppercase tracking-widest mb-6">Unesi svoju osnovnu ideju ili baci V8 Kockice.</p>
                  </div>
+                 
+                 {/* POLJE ZA UNOS */}
                  <div className="w-full lg:w-2/3 relative flex flex-col">
                    <div className={`relative flex flex-col rounded-2xl border border-white/10 bg-[#050505]/50 ${isVIP ? 'focus-within:border-blue-500/50' : ''}`}>
                      {uploadedImage && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-lg overflow-hidden border border-blue-500/50 z-20 group/img"><img src={uploadedImage} alt="Ref" className="w-full h-full object-cover" /><button type="button" disabled={!isVIP} onClick={() => { setUploadedImage(null); setDemoInput(prev => prev.replace(uploadedImage, '').trim()); }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><X className="w-4 h-4 text-white" /></button></div>}
                      <textarea disabled={!isVIP} value={demoInput} spellCheck="false" data-gramm="false" data-lt-active="false" onChange={e => { setDemoInput(e.target.value); setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); }} placeholder={isVIP ? "npr. 'zlatni sat' ili Otpremi Sliku" : "ZAKLJUČANO: Kupi pristup za unos teksta"} className={`w-full flex-1 bg-transparent pr-28 py-4 text-white text-[16px] font-medium outline-none resize-none min-h-[100px] ${uploadedImage ? 'pl-20' : 'pl-6'} ${!isVIP ? 'cursor-not-allowed' : ''}`} />
-                     {!demoInput && <label title={isVIP ? "DODAJTE SLIKU" : "ZAKLJUČANO"} className={`absolute right-16 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>{isImageUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-blue-500" />}<input type="file" accept="image/*" disabled={!isVIP} onChange={handleImageUpload} className="hidden" /></label>}
-                     {!demoInput && <button type="button" title={isVIP ? "BACITE KOCKICE" : "ZAKLJUČANO"} disabled={!isVIP || isRolling} onClick={handleRollDice} className={`absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600/10 p-3 rounded-xl z-10 ${isVIP ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}><Dices className={`w-5 h-5 text-blue-500 ${isRolling ? 'animate-spin' : ''}`} /></button>}
-                     {demoInput && <button type="button" disabled={!isVIP} onClick={() => { setDemoInput(''); setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); setUploadedImage(null); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-600/10 p-3 rounded-xl hover:bg-red-600 cursor-pointer z-10"><X className="w-5 h-5 text-red-500" /></button>}
+                     
+                     {!demoInput && (
+                        <label title="DODAJTE SLIKU" className={`absolute right-16 top-1/2 -translate-y-1/2 p-2 z-10 transition-transform hover:scale-110 ${isVIP ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+                          {isImageUploading ? <Loader2 className="w-6 h-6 animate-spin text-blue-400" /> : <UploadCloud className="w-6 h-6 text-zinc-400 hover:text-white drop-shadow-md transition-colors" />}
+                          <input type="file" accept="image/*" disabled={!isVIP} onChange={handleImageUpload} className="hidden" />
+                        </label>
+                     )}
+                     {!demoInput && (
+                        <button type="button" title="BACITE KOCKICE" disabled={!isVIP || isRolling} onClick={handleRollDice} className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 z-10 transition-transform hover:scale-110 ${isVIP ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+                           <Dices className={`w-6 h-6 text-zinc-400 hover:text-white drop-shadow-md transition-colors ${isRolling ? 'animate-spin text-orange-500' : ''}`} />
+                        </button>
+                     )}
+                     {demoInput && (
+                        <button type="button" title="OBRIŠI UNOS" disabled={!isVIP} onClick={() => { setDemoInput(''); setGeneratedPrompts(prev => ({ ...prev, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' })); setUploadedImage(null); }} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 transition-transform hover:scale-110 cursor-pointer z-10">
+                          <X className="w-6 h-6 text-red-500 drop-shadow-md hover:text-red-400" />
+                        </button>
+                     )}
                    </div>
+                   
+                   {/* DUGME ZA ANALIZU SLIKE (V8 VISION) */}
                    {uploadedImage && (
                      <button type="button" onClick={handleAnalyzeImage} disabled={!isVIP || isAnalyzingImage} className={`mt-4 w-full bg-gradient-to-r from-purple-800 to-indigo-600 text-white py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 transition-all border border-purple-500/50 ${isVIP ? 'hover:from-purple-700 hover:to-indigo-500 shadow-[0_0_20px_rgba(147,51,234,0.4)] cursor-pointer hover:scale-[1.01]' : 'opacity-50 cursor-not-allowed'}`}>
                        {isAnalyzingImage ? <Loader2 className="w-4 h-4 animate-spin text-purple-300" /> : <Eye className="w-4 h-4 text-purple-300" />}
@@ -1263,10 +1349,26 @@ function EnhancerPage() {
               </div>
               <div className="w-full flex flex-col border-t border-blue-500/20 pt-8">
                  <label className="text-[10px] md:text-[12px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2 mb-6 border-b border-blue-500/20 pb-4"><Sparkles className="w-4 h-4 mr-1" /> Izlaz V8 Kinematografskog Sistema</label>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full text-left">
-                     {['abstract', 'cinematic', 'photoreal', 'uniquePhoto'].map((type) => (<PromptResultBox key={type} type={type} text={generatedPrompts[type]} copiedBox={copiedBox} onCopy={handleCopy} />))}
+                 
+                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full text-left mt-4">
+                    {v8Stilovi.map((stil) => (
+                      <div key={stil.id} className={`border rounded-xl p-6 bg-[#0a0a0a] min-h-[280px] flex flex-col group overflow-hidden transition-all duration-500 transform hover:-translate-y-3 hover:scale-[1.03] relative gsap-result-box ${stil.bojaClass} ${stil.hoverBojaClass} ${stil.shadowClass} ${stil.hoverShadowClass}`}>
+                        <label className={`text-[11px] font-black uppercase tracking-widest mb-4 border-b border-white/30 pb-3 flex items-center ${stil.textClass}`}>{stil.naslov} V8 PROMPT</label>
+                        <div className="relative w-full flex-grow flex flex-col mb-10">
+                          <div className="font-mono text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap">
+                            {generatedPrompts[stil.id] ? <ScrambleText text={generatedPrompts[stil.id]} /> : <span className="text-zinc-600 italic text-[10px]">Čekam V8 paljenje...</span>}
+                          </div>
+                        </div>
+                        {generatedPrompts[stil.id] && (
+                          <button onClick={() => handleCopy(generatedPrompts[stil.id], stil.id)} className={`absolute bottom-6 right-6 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white/5 text-white ${stil.bgHover} transition-colors border border-white/10 z-10`}>
+                            {copiedBox === stil.id ? "KOPIRANO! ✓" : "KOPIRAJ PROMPT"}
+                          </button>
+                        )}
+                      </div>
+                    ))}
                  </div>
               </div>
+
               <div className="w-full flex flex-col lg:flex-row justify-between items-center gap-8 mt-4 border-t border-blue-500/20 pt-8">
                  <div className="flex flex-col sm:flex-row gap-8 w-full lg:w-auto text-left">
                     <div className="flex flex-col gap-4"><span className="text-[12px] font-black uppercase text-zinc-300">ODNOS STRANICA</span><div className="flex flex-wrap gap-2">{['1:1', '9:16', '16:9', '21:9'].map(ar => <OptionButton key={`ar-${ar}`} label={ar} selected={selectedAR === ar} onClick={() => setSelectedAR(ar)} type="ar" disabled={!isVIP} />)}</div></div>
@@ -1278,7 +1380,8 @@ function EnhancerPage() {
               </div>
            </div>
 
-           <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-amber-400/60 group'}`}>
+           {/* --- DONJA SEKCIJA: NARANDŽASTA MATRICA --- */}
+           <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-amber-400/30 rounded-[2.5rem] p-8 md:p-12 transition-all duration-500 shadow-[0_0_30px_rgba(251,191,36,0.1)] hover:shadow-[0_0_40px_rgba(251,191,36,0.2)] ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-amber-400/60 group'}`}>
               <div className="w-full text-center border-b border-amber-400/20 pb-6 mb-2"><h2 className="text-[12px] md:text-[15px] font-black uppercase text-amber-400 tracking-wider">POBOLJŠAĆEMO VAŠ PROMT 10X BOLJIM</h2></div>
               <div className="w-full flex flex-col lg:flex-row gap-8">
                  <div className="w-full lg:w-1/3 text-left">
@@ -1310,8 +1413,9 @@ function EnhancerPage() {
               </div>
            </div>
 
+           {/* --- V8 REFERENTNA GALERIJA --- */}
            {gallery.length > 0 && (
-             <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative flex flex-col gap-6 transition-all duration-500 mt-4 text-center items-center ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-orange-500/60'}`}>
+             <div className={`bg-[#0a0a0a]/50 backdrop-blur-md border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-6 transition-all duration-500 mt-4 text-center items-center shadow-[0_0_30px_rgba(234,88,12,0.15)] hover:shadow-[0_0_40px_rgba(234,88,12,0.25)] ${!isVIP ? 'opacity-50 grayscale-[50%] pointer-events-none select-none' : 'hover:border-orange-500/60'}`}>
                <div className="flex items-center justify-center gap-3 border-b border-orange-500/20 pb-4 mb-4 w-full">
                  <Zap className="w-6 h-6 text-orange-500 animate-pulse" />
                  <h2 className="text-xl md:text-2xl font-black text-orange-500 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(234,88,12,0.4)]">Premium V8 Galerija</h2>
@@ -1336,6 +1440,7 @@ function EnhancerPage() {
         </div>
       </div>
 
+      {/* --- V8 IPS MODAL ZA PLAĆANJE --- */}
       <AnimatePresence>
         {ipsModalData && (
           <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
@@ -1365,35 +1470,10 @@ function EnhancerPage() {
         )}
       </AnimatePresence>
     </div>
-</div>
   );
 }
-
-
-
-
-  // --- POČETAK FUNKCIJE: handleDownload ---
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `V8-Remek-Delo-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("[V8 MOTOR GREŠKA] Skidanje nije uspelo:", error);
-      // Ako pregledač blokira direktno skidanje, otvaramo sliku da može da uradi desni klik -> Save
-      window.open(imageUrl, '_blank'); 
-    }
-  };
-  // --- KRAJ FUNKCIJE: handleDownload ---
-
-
+// KRAJ FUNKCIJE: EnhancerPage
+ 
 /// POČETAK FUNKCIJE: V8PametniAlatiPage ///
 const V8PametniAlatiPage = ({ isAdmin }) => {
   const [alati, setAlati] = useState([]);
@@ -1404,8 +1484,7 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
   const [isPaid, setIsPaid] = useState(false);
   const [proveraUplate, setProveraUplate] = useState('idle');
 
-  // Hardcoded fallback dok ne uneseš alate kroz Admin
- // Hardcoded fallback dok ne uneseš alate kroz Admin
+  // V8 PREMIUM BAZA ALATA (Detaljno ispisani sa dugačkim rezultatima za maksimalan FOMO efekat)
   const fallbackAlati = [
     {
       id: 'kopirajter',
@@ -1414,7 +1493,7 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
       opis: 'Unesite prostu ideju, a naša veštačka inteligencija generiše 3 agresivne, prodajne verzije teksta za vaše društvene mreže.',
       cena: '150 RSD',
       placeholder: 'Npr: Prodajem crne kožne jakne, danas popust 20%...',
-      mockText: '🔥 VERZIJA 1 (Agresivna prodaja - Konverzija 10X):\nZaboravite apsolutno sve što ste do sada videli na tržištu! 🛑 Naša nova kolekcija menja pravila igre. Znamo da tražite premium kvalitet i zato smo doneli proizvod koji ostavlja konkurenciju u prašini. Ograničena serija je upravo puštena u prodaju. Kliknite na link u opisu profila pre nego što zalihe nestanu brzinom svetlosti! ⚡\n\n🚀 VERZIJA 2 (Emocija, Status i Prestiž):\nNeki komadi se ne kupuju. Oni se zaslužuju. Kada obučete naš novi model, ne nosite samo materijal – nosite samopouzdanje. Osetite razliku koju pruža ručna izrada i pažljivo biran dizajn. Vaš novi omiljeni komad vas čeka. Naručite ga već danas i podignite svoj stil na potpuno novi nivo. 💎\n\n🎯 VERZIJA 3 (Kratko, Jasno, Udarno):\nNajbolji odnos cene i kvaliteta. Bez kompromisa. 💯 Popust od 20% važi SAMO DANAS do ponoći. Pošaljite nam poruku u DM da rezervišete svoj primerak odmah!'
+      mockText: '🔥 VERZIJA 1 (Agresivna prodaja - Konverzija 10X):\nZaboravite apsolutno sve što ste do sada videli na tržištu! 🛑 Naša nova kolekcija menja pravila igre. Znamo da tražite premium kvalitet i zato smo doneli proizvod koji ostavlja konkurenciju u prašini. Ono što smo danas spremili nije za svakoga. Ograničena serija je upravo puštena u prodaju i garantujemo da će zalihe nestati u narednih 48 sati. Zašto? Zato što nismo pravili kompromise. Od najsitnijeg šava do glavnog materijala, sve vrišti LUKSUZ. Kliknite na link u opisu profila pre nego što zalihe nestanu brzinom svetlosti! ⚡\n\n🚀 VERZIJA 2 (Emocija, Status i Prestiž):\nNeki komadi se ne kupuju. Oni se zaslužuju. Kada obučete naš novi model, ne nosite samo materijal – nosite samopouzdanje. Osetite razliku koju pruža ručna izrada i pažljivo biran dizajn. Zamislite kako ulazite u prostoriju i svi pogledi su uprti u vas. To nije slučajnost, to je namera. Vaš novi omiljeni komad vas čeka. Naručite ga već danas i podignite svoj stil na potpuno novi nivo. 💎 Neka vaša pojava govori umesto vas.\n\n🎯 VERZIJA 3 (Kratko, Jasno, Udarno):\nNajbolji odnos cene i kvaliteta na Balkanu. Bez kompromisa. 💯 Znamo šta želite i upravo smo vam to doneli. Popust od 20% važi SAMO DANAS do ponoći. Pošaljite nam poruku u DM da rezervišete svoj primerak odmah! Vreme curi. ⏰'
     },
     {
       id: 'diplomata',
@@ -1423,70 +1502,44 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
       opis: 'Pretvara vaš besan, neformalan tekst u savršeno odmeren, hladan i visoko-profesionalan korporativni imejl.',
       cena: '100 RSD',
       placeholder: 'Npr: Ne pada mi na pamet da ti ovo radim besplatno...',
-      mockText: 'Poštovani,\n\nNajpre želim da Vam se iskreno zahvalim na izdvojenom vremenu, poslatoj poruci i ukazanom poverenju za potencijalnu saradnju sa našom kompanijom.\n\nNakon detaljnog uvida u Vaš zahtev, kao i u našu dosadašnju korespondenciju i definisane uslove poslovanja, želim da Vas obavestim da nismo u mogućnosti da navedeni obim dodatnih usluga pružimo bez odgovarajuće finansijske kompenzacije.\n\nNaš standardni cenovnik jasno definiše ovakve zahteve, te smo prinuđeni da ostanemo dosledni našoj poslovnoj politici kako bismo održali vrhunski kvalitet usluge za sve naše klijente.\n\nUkoliko ste saglasni, vrlo rado ću Vam proslediti zvaničnu i detaljnu ponudu sa specifikacijom troškova za pomenute dodatne radove.\n\nStojim Vam na punom raspolaganju za sve dodatne konsultacije ili eventualni sastanak na kojem bismo razjasnili sve detalje.\n\nSrdačan pozdrav i svako dobro.'
+      mockText: 'Poštovani,\n\nNajpre želim da Vam se iskreno zahvalim na izdvojenom vremenu, poslatoj poruci i ukazanom poverenju za potencijalnu saradnju sa našom kompanijom.\n\nNakon detaljnog uvida u Vaš zahtev, kao i u našu dosadašnju korespondenciju i definisane uslove poslovanja, želim da Vas obavestim da nismo u mogućnosti da navedeni obim dodatnih usluga pružimo bez odgovarajuće finansijske kompenzacije.\n\nNaš standardni cenovnik jasno definiše ovakve zahteve, te smo prinuđeni da ostanemo dosledni našoj poslovnoj politici kako bismo održali vrhunski kvalitet usluge za sve naše klijente. Kao što znate, naša agencija se vodi principom beskompromisnog kvaliteta, a to iziskuje adekvatne resurse i vreme naših stručnjaka.\n\nUkoliko ste saglasni sa ovakvim pristupom, vrlo rado ću Vam proslediti zvaničnu i detaljnu ponudu sa specifikacijom troškova za pomenute dodatne radove u najkraćem mogućem roku.\n\nStojim Vam na punom raspolaganju za sve dodatne konsultacije ili eventualni sastanak na kojem bismo razjasnili sve tehničke i finansijske detalje.\n\nSrdačan pozdrav i svako dobro,\nVaš V8 Tim'
     },
-   {
-  id: 'kopirajter',
-  ikona: 'Zap',
-  naziv: 'V8 KOPIRAJTER PRO MAX',
-  opis: 'Napredni AI inženjering za prodajne tekstove. Generiše tri nivoa duboke psihološke prodaje prilagođene za Instagram, Facebook i LinkedIn.',
-  cena: '150 RSD',
-  placeholder: 'Npr: Prodajem premium kožne jakne, ručni rad, popust 20%...',
-  mockText: `🚀 V8 ANALIZA TRŽIŠTA ZAVRŠENA - GENERISANJE EKSTREMNOG PRODAJNOG TEKSTA...
-
-🔥 OPCIJA 1: "BRUTALNA DOMINACIJA" (Fokus na status i prestiž)
-------------------------------------------------------------
-NASLOV: NEKI KOMADI SE NE KUPUJU. ONI SE ZASLUŽUJU. 👑
-
-TEKST:
-Dosta vam je jeftinih kopija koje traju jednu sezonu? Dok drugi prate trendove, vi postavljate pravila igre. Naš [NAZIV PROIZVODA] nije samo stvar koju posedujete – to je izjava ko ste zapravo. 
-
-✅ RUČNA IZRADA: Svaki šav je priča za sebe.
-✅ PREMIUM MATERIJALI: Osetite razliku koju pruža beskompromisni kvalitet.
-✅ LIMITIRANA SERIJA: Samo 10 komada dostupno za ceo region.
-
-Kada uđete u prostoriju, želite da se svi okrenu. Naš proizvod je tajni začin vašeg samopouzdanja.
-
-🛒 NARUČI ODMAH: [LINK]
-(V8 Napomena: Preostalo je samo još 3 komada u ovoj seriji!)
-
----
-
-📈 OPCIJA 2: "MATEMATIKA USPEHA" (Fokus na ROI i uštedu)
-------------------------------------------------------
-NASLOV: INVESTICIJA KOJA SE ISPLAĆUJE SVAKOG DANA. 💎
-
-TEKST:
-Prestanite da bacate novac na rešenja koja ne rade. Naš [NAZIV PROIZVODA] je dizajniran da vam uštedi vreme, novac i energiju. 
-
-Zašto klijenti biraju V8 standard?
-1. Trajnost: Testirano u najtežim uslovima.
-2. Efikasnost: Postignite 3x bolje rezultate za pola vremena.
-3. Podrška: Naš tim je tu za vas 24/7.
-
-Statistika ne laže – 98% naših korisnika je prijavilo drastično poboljšanje već u prvoj nedelji korišćenja. Da li ste spremni da budete deo te statistike?
-
-🎯 KLIKNI ZA SPECIJALNU PONUDU: [LINK]
-
----
-
-⚡ OPCIJA 3: "HITNA INTERVENCIJA" (Fokus na FOMO - strah od propuštanja)
----------------------------------------------------------------------
-NASLOV: SAT OTKUCAVA. DA LI ĆETE PONOVO OKLEVATI? ⏱️
-
-TEKST:
-Ovo nije još jedna reklama. Ovo je vaša poslednja šansa da dobijete [NAZIV PROIZVODA] uz 20% popusta pre nego što cene odu u nebo. 
-
-Zaboravite na "uradiću to sutra". Sutra je za one koji ostaju na dnu. Pobednici reaguju odmah. 
-
-🛑 STOP ODREĐENIM PROBLEMIMA: Rešite [PROBLEM KLIJENTA] jednom zauvek.
-🔥 EKSKLUZIVNO: Samo za prvih 50 kupaca poklanjamo V8 Bonus paket.
-
-Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje zauvek.
-
-🚀 REZERVIŠI SVOJE MESTO: [LINK]
-#V8Power #PremiumBusiness #AiToolsProSmart`
-}
+    {
+      id: 'pro-max',
+      ikona: 'Zap',
+      naziv: 'V8 KOPIRAJTER PRO MAX',
+      opis: 'Napredni AI inženjering za prodajne tekstove. Generiše tri nivoa duboke psihološke prodaje (Strah, Logika, Status).',
+      cena: '150 RSD',
+      placeholder: 'Npr: Prodajem premium kožne jakne, ručni rad, popust 20%...',
+      mockText: '🚀 V8 ANALIZA TRŽIŠTA ZAVRŠENA - GENERISANJE EKSTREMNOG PRODAJNOG TEKSTA...\n\n🔥 OPCIJA 1: "BRUTALNA DOMINACIJA" (Fokus na status i prestiž)\n------------------------------------------------------------\nNASLOV: NEKI KOMADI SE NE KUPUJU. ONI SE ZASLUŽUJU. 👑\n\nTEKST:\nDosta vam je jeftinih kopija koje traju jednu sezonu? Dok drugi prate trendove, vi postavljate pravila igre. Naš [NAZIV PROIZVODA] nije samo stvar koju posedujete – to je izjava ko ste zapravo. \n\n✅ RUČNA IZRADA: Svaki šav je priča za sebe.\n✅ PREMIUM MATERIJALI: Osetite razliku koju pruža beskompromisni kvalitet.\n✅ LIMITIRANA SERIJA: Samo 10 komada dostupno za ceo region.\n\nKada uđete u prostoriju, želite da se svi okrenu. Naš proizvod je tajni začin vašeg samopouzdanja. \n🛒 NARUČI ODMAH: [LINK]\n(V8 Napomena: Preostalo je samo još 3 komada u ovoj seriji!)\n\n---\n\n📈 OPCIJA 2: "MATEMATIKA USPEHA" (Fokus na ROI i uštedu)\n------------------------------------------------------\nNASLOV: INVESTICIJA KOJA SE ISPLAĆUJE SVAKOG DANA. 💎\n\nTEKST:\nPrestanite da bacate novac na rešenja koja ne rade. Naš proizvod je dizajniran da vam uštedi vreme, novac i energiju. Zašto klijenti biraju V8 standard?\n1. Trajnost: Testirano u najtežim uslovima.\n2. Efikasnost: Postignite 3x bolje rezultate za pola vremena.\n3. Podrška: Naš tim je tu za vas 24/7.\nStatistika ne laže – 98% naših korisnika je prijavilo drastično poboljšanje već u prvoj nedelji korišćenja.\n\n🎯 KLIKNI ZA SPECIJALNU PONUDU: [LINK]\n\n---\n\n⚡ OPCIJA 3: "HITNA INTERVENCIJA" (Fokus na FOMO)\n---------------------------------------------------------------------\nNASLOV: SAT OTKUCAVA. DA LI ĆETE PONOVO OKLEVATI? ⏱️\n\nTEKST:\nOvo nije još jedna reklama. Ovo je vaša poslednja šansa da dobijete vrhunski kvalitet uz 20% popusta pre nego što cene odu u nebo. Zaboravite na "uradiću to sutra". Pobednici reaguju odmah. \n🛑 STOP ODREĐENIM PROBLEMIMA: Rešite svoje probleme jednom zauvek.\n🔥 EKSKLUZIVNO: Samo za prvih 50 kupaca poklanjamo V8 Bonus paket.\nKada se link ugasi, ponuda nestaje zauvek.\n\n🚀 REZERVIŠI SVOJE MESTO: [LINK]'
+    },
+    {
+      id: 'v8-closer',
+      ikona: 'Briefcase',
+      naziv: 'V8 ZATVARAČ PRODAJE',
+      opis: 'Klijent kaže "Skupo je"? Naša AI matrica generiše 3 psihološka odgovora koja slamaju prigovore i zatvaraju prodaju.',
+      cena: '150 RSD',
+      placeholder: 'Npr: Klijent kaže: "Sve je super, ali mi je to trenutno preskupo, javiću se sledećeg meseca."',
+      mockText: '/// V8 SALES MATRICA AKTIVIRANA ///\n\n🔥 ODGOVOR 1 (Fokus na ROI - Povrat investicije):\n"Razumem vas u potpunosti. I mnogi naši najuspešniji klijenti su mislili isto na samom početku. Ali hajde da pogledamo matematiku: da li je zaista skupo ako vam ovaj sistem donese 3 nova klijenta već u prvih 15 dana? Ono što je zaista skupo je propušten profit dok čekate sledeći mesec. Da li želite da prepustite tu zaradu konkurenciji ili da počnemo već danas?"\n\n🚀 ODGOVOR 2 (Smanjenje rizika - "Pacing"):\n"Potpuno vas shvatam, budžet je uvek izuzetno bitna stavka za svaki ozbiljan biznis. Da li vam je problem ukupna cifra ili trenutni "cash flow"? Ako je u pitanju trenutna likvidnost, imamo opciju podeljenog plaćanja. Cilj je da odmah počnete da zarađujete od ovoga, kako bi sistem u narednim nedeljama praktično isplatio sam sebe. Šta mislite o toj opciji?"\n\n🎯 ODGOVOR 3 (FOMO - Uskraćivanje i Ekskluzivnost):\n"Slažem se, ovo rešenje apsolutno nije za svakoga i zahteva određenu finansijsku posvećenost. Trenutno radimo samo sa klijentima koji su spremni za agresivan rast na tržištu. Ako mislite da sada nije pravi trenutak za vas, nema problema, možemo pauzirati priču. Samo imajte na umu da od sledećeg meseca cene rastu za 30% zbog prevelike potražnje i ograničenih kapaciteta našeg tima. Hoćemo li da sačuvamo staru cenu za vas?"'
+    },
+    {
+      id: 'v8-hook',
+      ikona: 'Zap',
+      naziv: 'V8 VIRALNI HOOK KREATOR',
+      opis: 'Prve 3 sekunde prodaju sve. Generiše 5 agresivnih "udica" (hooks) za TikTok i Reels koje garantuju preglede.',
+      cena: '100 RSD',
+      placeholder: 'Npr: Prodajem plan ishrane za mršavljenje i lične treninge.',
+      mockText: '/// V8 ALGORITAM ZA ZADRŽAVANJE PAŽNJE ///\n\n🎣 V8 UDICA 1 (Šokantna istina - Prekida skrolovanje):\n"Svi fitnes influenseri vam lažu kada kažu da morate da gladujete da biste skinuli taj stomak. Evo 3 bizarne stvari koje radite pogrešno svakog prokletog jutra, a koje blokiraju vaš metabolizam..."\n\n🎣 V8 UDICA 2 (Agresivna bolna tačka - Pogađa emociju):\n"Ako i dalje radite trbušnjake do besvesti svako veče, a donji stomak je i dalje tu, prestanite odmah. Vi bukvalno uništavate svoj kortizol. Evo šta zapravo treba da radite..."\n\n🎣 V8 UDICA 3 (Kontroverza - Izaziva komentare i share):\n"Treneri u vašoj teretani će me apsolutno mrzeti što vam ovo otkrivam potpuno besplatno. Ali evo tačne formule kako da skinete 5 kilograma čistog sala bez ijedne sekunde na onoj dosadnoj traci za trčanje..."\n\n🎣 V8 UDICA 4 (Previše dobro da bi bilo istinito - Dokaz):\n"Svi su mi celog života govorili da je moja genetika loša i da nikada neću imati trbušnjake. A onda sam promenio samo OVU JEDNU JEDINU STVAR u svom doručku i rezultati su eksplodirali..."\n\n🎣 V8 UDICA 5 (Direktna prozivka - Profilisanje publike):\n"Ovaj video je isključivo za one koji su 100 puta počinjali dijetu u ponedeljak i odustajali u sredu, osećajući se krivim. Ako si to ti, stani i gledaj pažljivo, jer ovo menja sve..."'
+    },
+    {
+      id: 'v8-b2b',
+      ikona: 'Mail',
+      naziv: 'V8 B2B SNAJPER',
+      opis: 'Hladni mejlovi koji se otvaraju. Hirurški precizna poruka koja direktno gađa bolne tačke direktora i zakazuje sastanak.',
+      cena: '200 RSD',
+      placeholder: 'Npr: Prodajem izradu web sajta vlasnicima privatnih stomatoloških ordinacija.',
+      mockText: '/// V8 KORPORATIVNI SNAJPER - STATUS: SPREMAN ///\n\nNaslov mejla: Pitanje u vezi neiskorišćenih kapaciteta Vaše ordinacije u [Grad/Deo grada]\n\nPoštovani [Ime],\n\nKao neko ko se bavi analizom digitalnog tržišta, pratim rad Vaše ordinacije već neko vreme i primećujem da imate zaista izvanredne ocene i preporuke pacijenata na Google-u. \n\nMeđutim, gledajući Vaš trenutni web sajt i online prisustvo, primetio sam jedan ozbiljan propust: nemate integrisan sistem za instant zakazivanje i IPS naplatu. Iz našeg iskustva sa drugim premium ordinacijama u regionu, ovaj nedostatak direktno dovodi do gubitka od oko 20-30% potencijalnih pacijenata koji traže usluge kasno uveče, van Vašeg radnog vremena.\n\nMi u V8 Digital Agency smo napravili specifičan zatvoreni sistem za stomatologe koji potpuno eliminiše "prazne termine", filtrira neozbiljne upite i potpuno automatizuje prijem novih, premium pacijenata, dok vi spavate.\n\nNe želim da Vam oduzimam vreme dugačkim mejlovima. Da li ste otvoreni za jedan brz, konkretan poziv od tačno 7 minuta, u utorak ili sredu prepodne, da Vam na delu pokažem kako to izgleda u praksi i kakve rezultate donosi?\n\nSrdačan pozdrav,\n\n[Vaše Ime]\nV8 Digital Agency\nPremium Solutions for Premium Clients'
+    }
   ];
 
   useEffect(() => {
@@ -1495,7 +1548,7 @@ Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje z
       if (!snap.empty) {
         setAlati(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       } else {
-        setAlati(fallbackAlati); // Da sajt ne bude prazan u startu
+        setAlati(fallbackAlati); 
       }
     };
     fetchAlati();
@@ -1610,13 +1663,18 @@ Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje z
                         <span className="text-green-400 font-black uppercase tracking-widest text-[11px]">Sistem uspešno izvršio zadatak</span>
                     </div>
 
-                    <div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[400px]">
+                    <div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[450px] flex flex-col">
                         
-                        <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 ${(!isPaid && !isAdmin) ? 'select-none' : ''}`}>
+                        {/* 
+                            V8 TRIK ZA ZAMUĆENJE: 
+                            Prikazujemo prvih 150 karaktera kristalno jasno, 
+                            a ostatak blago zamućen kako bi klijent video da ga čeka ogroman tekst iza zida! 
+                        */}
+                        <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 flex-1 ${(!isPaid && !isAdmin) ? 'select-none' : ''}`}>
                             {(!isPaid && !isAdmin) ? (
                                 <>
-                                  <span className="text-white drop-shadow-md">{rezultat.substring(0, 100)}</span>
-                                  <span className="blur-[6px] opacity-20">{rezultat.substring(100, 300)}...</span>
+                                  <span className="text-white font-bold drop-shadow-md">{rezultat.substring(0, 150)}</span>
+                                  <span className="blur-[4px] opacity-40">{rezultat.substring(150, 1000)}...</span>
                                 </>
                             ) : (
                                 rezultat
@@ -1624,17 +1682,38 @@ Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje z
                         </div>
 
                         {(!isPaid && !isAdmin) && (
-                           <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-4 z-10">
-                              <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_40px_rgba(234,88,12,0.4)] w-full max-w-[340px] animate-in zoom-in duration-500">
-                                <Lock className="w-8 h-8 text-orange-500 mb-3 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
+                           <div className="absolute inset-0 bg-[#0a0a0a]/50 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-10">
+                              <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px] animate-in zoom-in duration-500">
+                                <Lock className="w-8 h-8 text-orange-500 mb-2 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
                                 <h3 className="text-[14px] font-black text-white uppercase tracking-widest mb-1">OTKLJUČAJ PUN REZULTAT</h3>
-                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-5">Skeniraj IPS kod ({aktivniAlat.cena})</p>
+                                <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Skeniraj IPS kod ({aktivniAlat.cena})</p>
                                 
-                                <div className="bg-white p-2.5 rounded-2xl inline-block mb-5 shadow-inner border border-zinc-200">
+                                <div className="bg-white p-2 rounded-2xl inline-block mb-3 shadow-inner border border-zinc-200">
+                                  {/* Generišemo čist IPS kod */}
                                   <QRCodeCanvas 
-                                    value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${aktivniAlat.cena.replace(' RSD', '')},00|SF:289|S:V8 AI Alat`}
-                                    size={130} bgColor={"#ffffff"} fgColor={"#000000"} level={"H"} includeMargin={false}
+                                    value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${aktivniAlat.cena.replace(/\D/g, '')},00|SF:289|S:${aktivniAlat.naziv.substring(0,20)}`}
+                                    size={120} bgColor={"#ffffff"} fgColor={"#000000"} level={"H"} includeMargin={false}
                                   />
+                                </div>
+
+                                {/* TEKSTUALNI PODACI ZA UPLATU (ISPOD QR KODA) */}
+                                <div className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 mb-4 text-left space-y-1.5 font-mono shadow-inner">
+                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
+                                      <span className="text-[9px] text-zinc-500 uppercase">Primalac:</span>
+                                      <span className="text-[9px] font-bold text-white">Goran Damnjanović</span>
+                                   </div>
+                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
+                                      <span className="text-[9px] text-zinc-500 uppercase">Račun:</span>
+                                      <span className="text-[9px] font-bold text-white">265-0000006535770-83</span>
+                                   </div>
+                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
+                                      <span className="text-[9px] text-zinc-500 uppercase">Svrha:</span>
+                                      <span className="text-[9px] font-bold text-white truncate max-w-[120px]">{aktivniAlat.naziv}</span>
+                                   </div>
+                                   <div className="flex justify-between pt-0.5">
+                                      <span className="text-[9px] text-zinc-500 uppercase">Iznos:</span>
+                                      <span className="text-[11px] font-black text-orange-500">{aktivniAlat.cena}</span>
+                                   </div>
                                 </div>
                                 
                                 {proveraUplate === 'idle' && (
@@ -1654,7 +1733,6 @@ Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje z
                                     <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2 flex justify-center items-center gap-1"><ShieldAlert className="w-3 h-3" /> UPLATA NIJE EVIDENTIRANA</p>
                                     <p className="text-zinc-300 text-[9px] uppercase font-bold leading-relaxed mb-3">Sistem ne vidi uplatu. Pošaljite nam sliku uplatnice da bismo Vam odmah otključali pristup.</p>
                                     <div className="flex flex-col gap-2 w-full">
-                                        {/* UNESI TVOJ BROJ TELEFONA OVDE umesto 3816TvojBroj (bez plusa, npr. 38164123456) */}
                                         <a href="https://wa.me/381648201496?text=Pozdrav,%20šaljem%20dokaz%20o%20uplati%20za%20V8%20Alat" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all flex justify-center items-center shadow-lg gap-2">
                                             Pošalji na WhatsApp
                                         </a>
@@ -1701,7 +1779,6 @@ Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje z
   );
 };
 /// KRAJ FUNKCIJE: V8PametniAlatiPage ///
-
 
 /// POČETAK FUNKCIJE: AdminDemoProjekti ///
 const AdminDemoProjekti = () => {

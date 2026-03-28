@@ -103,32 +103,19 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
   // KRAJ FUNKCIJE: handleGenerisi
 
   // POČETAK FUNKCIJE: handleDownload
-  const handleDownload = async () => {
+  // POČETAK FUNKCIJE: handleDownload (Popravljena verzija)
+  const handleDownload = () => {
     if (!rezultat) return;
     try {
-      const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
-      const response = await fetch(backendDownloadUrl);
-      
-      if (!response.ok) throw new Error("Backend nije uspeo da isporuči fajl");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `V8_Cinematic_Render_${Date.now()}.png`; 
+      link.href = rezultat; // Popravljeno: bilo je 'resultado'
+      link.download = `V8_Cinematic_Render_${Date.now()}.jpg`; 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("V8 Greška pri downloadu:", error);
-      // Fallback
-      const link = document.createElement('a');
-      link.href = rezultat;
-      link.download = `V8_Cinematic_Render_${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      alert("Greška pri čuvanju slike.");
     }
   };
   // KRAJ FUNKCIJE: handleDownload
