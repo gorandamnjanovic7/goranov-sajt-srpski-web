@@ -29,7 +29,11 @@ if (typeof window !== 'undefined') {
   window.scrollTo(0, 0);
 }
 
-const BASE_BACKEND_URL = "https://goranov-sajt-srpski-backend-production.up.railway.app"; 
+// V8 SENZOR: Automatski prebacuje između lokalne garaže (localhost) i interneta (Railway)
+const BASE_BACKEND_URL = window.location.hostname === 'localhost' 
+  ? "http://localhost:5000" 
+  : "https://goranov-sajt-srpski-backend-production.up.railway.app";
+
 const API_URL = `${BASE_BACKEND_URL}/api/products`;
 const MOJA_IP = "213.196.99.10"; 
 const YOUTUBE_API_KEY = "AIzaSyCwy46TsBPW7LxKTjExhQbHhYhq8lyc2YM"; 

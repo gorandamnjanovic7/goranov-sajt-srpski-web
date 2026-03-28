@@ -58,7 +58,8 @@ const V8KreatorSlikaPage = ({ isAdmin }) => {
   const handleDownload = async () => {
     if (!rezultat) return;
     try {
-      const backendDownloadUrl = `http://localhost:5000/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
+      const BASE_URL = window.location.hostname === 'localhost' ? "http://localhost:5000" : "https://goranov-sajt-srpski-backend-production.up.railway.app";
+    const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
       
       const response = await fetch(backendDownloadUrl);
       

@@ -78,7 +78,8 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
     // Ako Admin klikne bypass, slika se odmah tretira kao plaćena i otključana
     if (bypass) setIsPaid(true);
     try {
-      const resp = await fetch("http://localhost:5000/api/generisi-pixar", {
+      const BASE_URL = window.location.hostname === 'localhost' ? "http://localhost:5000" : "https://goranov-sajt-srpski-backend-production.up.railway.app";
+      const resp = await fetch(`${BASE_URL}/api/generisi-pixar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: bazniPrompt(filmSerija, stilovi[izabranStil].tokens) })
