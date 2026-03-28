@@ -13,6 +13,11 @@ const V8PixarSelfiePage = ({ isAdmin }) => {
 
   const cena = "350 RSD"; 
 
+  // --- V8 SENZOR ZA AUTOMATSKU DETEKCIJU SERIVERA ---
+  const BASE_URL = window.location.hostname === 'localhost' 
+    ? "http://localhost:5000" 
+    : "https://goranov-sajt-srpski-backend-production.up.railway.app";
+
   // POČETAK FUNKCIJE: bazniPrompt
   const bazniPrompt = (unos, stilTokens) => {
     const template = `Ultra-detailed stylized 3D animation render with strong real-actor likeness preservation, inspired by Disney/Pixar CGI but grounded in semi-realistic human facial reconstruction, vertical 3:4 frame.
@@ -78,7 +83,6 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
     // Ako Admin klikne bypass, slika se odmah tretira kao plaćena i otključana
     if (bypass) setIsPaid(true);
     try {
-      const BASE_URL = window.location.hostname === 'localhost' ? "http://localhost:5000" : "https://goranov-sajt-srpski-backend-production.up.railway.app";
       const resp = await fetch(`${BASE_URL}/api/generisi-pixar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,15 +103,33 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
   // KRAJ FUNKCIJE: handleGenerisi
 
   // POČETAK FUNKCIJE: handleDownload
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!rezultat) return;
-    const link = document.createElement('a');
-    link.href = rezultat;
-    // Postavlja naziv fajla prilikom preuzimanja
-    link.download = `V8_Cinematic_Render_${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
+      const response = await fetch(backendDownloadUrl);
+      
+      if (!response.ok) throw new Error("Backend nije uspeo da isporuči fajl");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `V8_Cinematic_Render_${Date.now()}.png`; 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("V8 Greška pri downloadu:", error);
+      // Fallback
+      const link = document.createElement('a');
+      link.href = rezultat;
+      link.download = `V8_Cinematic_Render_${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
   // KRAJ FUNKCIJE: handleDownload
 
@@ -270,17 +292,39 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
                 
                 {/* AKO NIJE PLAĆENO: Prikazuje se QR Kod box na čistoj slici */}
                 {!isPaid && !isAdmin && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"> 
-                    {/* Boks blokira samo sredinu */}
-                    <div className="pointer-events-auto bg-[#050505]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 border border-orange-500/50 shadow-[0_20px_60px_rgba(0,0,0,0.9)] rounded-3xl w-full max-w-[300px]">
-                      <Lock className="w-10 h-10 text-orange-500 mb-4 drop-shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
-                      <p className="text-[11px] font-black uppercase tracking-widest mb-4 text-white leading-relaxed text-center">
-                        IPS Skeniranje <br/><span className="text-orange-500 text-base">({cena})</span>
+                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none p-4"> 
+                    {/* Boks blokira samo sredinu, sada malo veći da stane tekst */}
+                    <div className="pointer-events-auto bg-[#050505]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 border border-orange-500/50 shadow-[0_20px_60px_rgba(0,0,0,0.9)] rounded-3xl w-full max-w-[340px]">
+                      <Lock className="w-8 h-8 text-orange-500 mb-3 drop-shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
+                      <p className="text-[11px] font-black uppercase tracking-widest mb-3 text-white leading-relaxed text-center">
+                        OTKLJUČAJ PUN REZULTAT <br/><span className="text-orange-500 text-sm">({cena})</span>
                       </p>
-                      <div className="bg-white p-3 rounded-2xl mb-2 hover:scale-105 transition-transform duration-300">
-                        <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:V8Studijo|I:RSD350,00|S:V8CinematicRender`} size={140} />
+                      
+                      <div className="bg-white p-2.5 rounded-2xl mb-4 hover:scale-105 transition-transform duration-300 shadow-inner">
+                        <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${cena.replace(/\D/g, '')},00|SF:289|S:V8CinematicRender`} size={130} />
                       </div>
-                      <p className="text-[9px] text-zinc-500 mt-4 uppercase font-bold tracking-widest text-center">Sigurna V8 Transakcija</p>
+
+                      {/* TEKSTUALNI PODACI ZA UPLATU */}
+                      <div className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 mb-2 text-left space-y-1.5 font-mono shadow-inner">
+                         <div className="flex justify-between border-b border-white/5 pb-1.5">
+                            <span className="text-[9px] text-zinc-500 uppercase">Primalac:</span>
+                            <span className="text-[9px] font-bold text-white">Goran Damnjanović</span>
+                         </div>
+                         <div className="flex justify-between border-b border-white/5 pb-1.5">
+                            <span className="text-[9px] text-zinc-500 uppercase">Račun:</span>
+                            <span className="text-[9px] font-bold text-white">265-0000006535770-83</span>
+                         </div>
+                         <div className="flex justify-between border-b border-white/5 pb-1.5">
+                            <span className="text-[9px] text-zinc-500 uppercase">Svrha:</span>
+                            <span className="text-[9px] font-bold text-white truncate max-w-[120px]">V8 Cinematic</span>
+                         </div>
+                         <div className="flex justify-between pt-0.5">
+                            <span className="text-[9px] text-zinc-500 uppercase">Iznos:</span>
+                            <span className="text-[11px] font-black text-orange-500">{cena}</span>
+                         </div>
+                      </div>
+
+                      <p className="text-[9px] text-zinc-500 mt-2 uppercase font-bold tracking-widest text-center">Nakon uplate, sliku odmah dobijate na email/viber</p>
                     </div>
                   </div>
                 )}
