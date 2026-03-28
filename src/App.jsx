@@ -1347,15 +1347,68 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
       placeholder: 'Npr: Ne pada mi na pamet da ti ovo radim besplatno...',
       mockText: 'Poštovani,\n\nNajpre želim da Vam se iskreno zahvalim na izdvojenom vremenu, poslatoj poruci i ukazanom poverenju za potencijalnu saradnju sa našom kompanijom.\n\nNakon detaljnog uvida u Vaš zahtev, kao i u našu dosadašnju korespondenciju i definisane uslove poslovanja, želim da Vas obavestim da nismo u mogućnosti da navedeni obim dodatnih usluga pružimo bez odgovarajuće finansijske kompenzacije.\n\nNaš standardni cenovnik jasno definiše ovakve zahteve, te smo prinuđeni da ostanemo dosledni našoj poslovnoj politici kako bismo održali vrhunski kvalitet usluge za sve naše klijente.\n\nUkoliko ste saglasni, vrlo rado ću Vam proslediti zvaničnu i detaljnu ponudu sa specifikacijom troškova za pomenute dodatne radove.\n\nStojim Vam na punom raspolaganju za sve dodatne konsultacije ili eventualni sastanak na kojem bismo razjasnili sve detalje.\n\nSrdačan pozdrav i svako dobro.'
     },
-    {
-      id: 'idejator',
-      ikona: 'Briefcase',
-      naziv: 'V8 KREATOR BRENDA',
-      opis: 'Pokrećete posao? Unesite čime želite da se bavite, a sistem vam generiše 5 moćnih predloga za ime firme i udarne slogane.',
-      cena: '300 RSD',
-      placeholder: 'Npr: Otvaram premium perionicu automobila...',
-      mockText: 'V8 AI ANALIZA TRŽIŠTA ZAVRŠENA.\nEvo 5 vrhunskih premium koncepata za vaš novi biznis:\n\n1. 💎 TITAN DYNAMICS\nSlogan: "Snaga koja pokreće tvoj biznis."\nFokus: Ovaj naziv odiše stabilnošću i industrijskom moći. Idealan je za klijente koji traže sigurnost i autoritet.\n\n2. 🚀 QUANTUM PRO\nSlogan: "Sledeći nivo tvoje vizije."\nFokus: Moderno, futuristički. Targetira mlađu, tech-savvy publiku koja želi najnovije tehnologije i inovacije.\n\n3. 👑 NEXUS PREMIUM\nSlogan: "Beskompromisan kvalitet."\nFokus: Luksuz i visoka klasa. Ovo ime zvuči skupo i privlači klijente koji ne pitaju za cenu već zahtevaju savršenstvo.\n\n4. 🌐 AURA SISTEMI\nSlogan: "Pametna rešenja za moderno doba."\nFokus: Fleksibilnost i integracija. Zvuči kao ogromna korporacija kojoj se može verovati na duge staze.\n\n5. ⚡ V8 APEX\nSlogan: "Dominacija na tržištu."\nFokus: Agresivno, prodajno, liderski. Za brendove koji žele da odmah zauzmu broj 1 poziciju i unište konkurenciju.'
-    }
+   {
+  id: 'kopirajter',
+  ikona: 'Zap',
+  naziv: 'V8 KOPIRAJTER PRO MAX',
+  opis: 'Napredni AI inženjering za prodajne tekstove. Generiše tri nivoa duboke psihološke prodaje prilagođene za Instagram, Facebook i LinkedIn.',
+  cena: '150 RSD',
+  placeholder: 'Npr: Prodajem premium kožne jakne, ručni rad, popust 20%...',
+  mockText: `🚀 V8 ANALIZA TRŽIŠTA ZAVRŠENA - GENERISANJE EKSTREMNOG PRODAJNOG TEKSTA...
+
+🔥 OPCIJA 1: "BRUTALNA DOMINACIJA" (Fokus na status i prestiž)
+------------------------------------------------------------
+NASLOV: NEKI KOMADI SE NE KUPUJU. ONI SE ZASLUŽUJU. 👑
+
+TEKST:
+Dosta vam je jeftinih kopija koje traju jednu sezonu? Dok drugi prate trendove, vi postavljate pravila igre. Naš [NAZIV PROIZVODA] nije samo stvar koju posedujete – to je izjava ko ste zapravo. 
+
+✅ RUČNA IZRADA: Svaki šav je priča za sebe.
+✅ PREMIUM MATERIJALI: Osetite razliku koju pruža beskompromisni kvalitet.
+✅ LIMITIRANA SERIJA: Samo 10 komada dostupno za ceo region.
+
+Kada uđete u prostoriju, želite da se svi okrenu. Naš proizvod je tajni začin vašeg samopouzdanja.
+
+🛒 NARUČI ODMAH: [LINK]
+(V8 Napomena: Preostalo je samo još 3 komada u ovoj seriji!)
+
+---
+
+📈 OPCIJA 2: "MATEMATIKA USPEHA" (Fokus na ROI i uštedu)
+------------------------------------------------------
+NASLOV: INVESTICIJA KOJA SE ISPLAĆUJE SVAKOG DANA. 💎
+
+TEKST:
+Prestanite da bacate novac na rešenja koja ne rade. Naš [NAZIV PROIZVODA] je dizajniran da vam uštedi vreme, novac i energiju. 
+
+Zašto klijenti biraju V8 standard?
+1. Trajnost: Testirano u najtežim uslovima.
+2. Efikasnost: Postignite 3x bolje rezultate za pola vremena.
+3. Podrška: Naš tim je tu za vas 24/7.
+
+Statistika ne laže – 98% naših korisnika je prijavilo drastično poboljšanje već u prvoj nedelji korišćenja. Da li ste spremni da budete deo te statistike?
+
+🎯 KLIKNI ZA SPECIJALNU PONUDU: [LINK]
+
+---
+
+⚡ OPCIJA 3: "HITNA INTERVENCIJA" (Fokus na FOMO - strah od propuštanja)
+---------------------------------------------------------------------
+NASLOV: SAT OTKUCAVA. DA LI ĆETE PONOVO OKLEVATI? ⏱️
+
+TEKST:
+Ovo nije još jedna reklama. Ovo je vaša poslednja šansa da dobijete [NAZIV PROIZVODA] uz 20% popusta pre nego što cene odu u nebo. 
+
+Zaboravite na "uradiću to sutra". Sutra je za one koji ostaju na dnu. Pobednici reaguju odmah. 
+
+🛑 STOP ODREĐENIM PROBLEMIMA: Rešite [PROBLEM KLIJENTA] jednom zauvek.
+🔥 EKSKLUZIVNO: Samo za prvih 50 kupaca poklanjamo V8 Bonus paket.
+
+Nemojte posle reći da vas nismo upozorili. Kada se link ugasi, ponuda nestaje zauvek.
+
+🚀 REZERVIŠI SVOJE MESTO: [LINK]
+#V8Power #PremiumBusiness #AiToolsProSmart`
+}
   ];
 
   useEffect(() => {
