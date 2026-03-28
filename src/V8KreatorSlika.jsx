@@ -60,26 +60,18 @@ const V8KreatorSlikaPage = ({ isAdmin }) => {
     }, 3500);
   };
 
-  // --- BLINDIRANI SISTEM ZA PREUZIMANJE SLIKA ---
-  const handleDownload = async () => {
+ // --- BLINDIRANI SISTEM ZA PREUZIMANJE SLIKA ---
+  const handleDownload = () => {
     if (!rezultat) return;
     try {
-      // KORISTI ISTI PAMETNI URL
-      const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
-      
-      const response = await fetch(backendDownloadUrl);
-      
-      if (!response.ok) throw new Error("Backend nije uspeo da isporuči fajl");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // V8 Taktika: Slika je već učitana u memoriji tvog brauzera, 
+      // skidamo je direktno na hard disk bez ikakvog pingovanja servera!
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `V8_Premium_Remek_Delo_${Date.now()}.png`; 
+      link.href = rezultat; 
+      link.download = `V8_Premium_Remek_Delo_${Date.now()}.jpg`; 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("V8 Greška pri downloadu:", error);
       alert("Došlo je do greške pri preuzimanju slike.");
