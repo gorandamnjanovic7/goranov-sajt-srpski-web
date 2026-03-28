@@ -707,9 +707,9 @@ function IzradaSajtovaPage() {
 
       <div className="mt-28 mb-20 px-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <div className="text-center mb-12">
-            <h3 className="text-orange-500 font-black uppercase text-[11px] tracking-[0.5em] mb-3">Industrijski Standardi</h3>
-            <h4 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Specijalizovani <span className="text-zinc-500">Demo Projekti</span></h4>
-          </div>
+  <h3 className="text-orange-500 font-black uppercase text-[11px] tracking-[0.5em] mb-3">Industrijski Standardi</h3>
+  <h4 className="text-2xl md:text-3xl font-black text-blue-500 uppercase italic tracking-tighter">Specijalizovani <span className="text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">Demo Projekti</span></h4>
+</div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full px-2 md:px-8 mx-auto">
             {demoProjekti.length === 0 ? (
@@ -727,8 +727,8 @@ function IzradaSajtovaPage() {
                     <div className="w-10 h-10 bg-orange-600/20 border border-orange-500/30 rounded-xl flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">
                       <Sparkles className="w-5 h-5" />
                     </div>
-                    <h5 className="text-[13px] md:text-[14px] font-black text-white uppercase tracking-wider mb-1 line-clamp-1">{item.name}</h5>
-                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6 line-clamp-1">{item.desc}</p>
+                    <h5 className="text-[13px] md:text-[14px] font-black text-blue-500 uppercase tracking-wider mb-1 line-clamp-1">{item.name}</h5>
+                   <p className="text-[9px] text-orange-500 font-bold uppercase tracking-widest mb-6 line-clamp-1">{item.desc}</p>
                     <a href={item.img} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[9px] font-black text-orange-500 uppercase tracking-widest border border-orange-500/20 px-4 py-2 rounded-lg hover:bg-orange-500 hover:text-white transition-all">Pogledaj Dizajn <ExternalLink className="w-3 h-3" /></a>
                   </div>
                 </div>
