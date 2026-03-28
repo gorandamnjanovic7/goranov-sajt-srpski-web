@@ -1,3 +1,4 @@
+import './App.css'; // Obavezno uvezi CSS ako već nisi
 import V8KreatorSlikaPage from './V8KreatorSlika';
 import V8PixarSelfiePage from './V8PixarSelfie';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -758,6 +759,7 @@ function IzradaSajtovaPage() {
 }
 /// KRAJ FUNKCIJE: IzradaSajtovaPage ///
 
+/// POČETAK FUNKCIJE: HomePage ///
 function HomePage({ apps = [] }) {
   const [activeSlide, setActiveSlide] = useState(0); 
   const [liveVideos, setLiveVideos] = useState([]); 
@@ -767,6 +769,14 @@ function HomePage({ apps = [] }) {
   
   const [ipsModalData, setIpsModalData] = useState(null);
   const [hasEnhancerAccess, setHasEnhancerAccess] = useState(false);
+
+  /// POČETAK FUNKCIJE: Kontrola Prijateljskog Welcome Box-a ///
+  const [showWelcomeBox, setShowWelcomeBox] = useState(true);
+
+  const closeBox = () => {
+    setShowWelcomeBox(false);
+  };
+  /// KRAJ FUNKCIJE: Kontrola Prijateljskog Welcome Box-a ///
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -814,6 +824,70 @@ function HomePage({ apps = [] }) {
   return (
     <>
       <Helmet><title>AI TOOLS PRO SMART | PROMPT GENERATOR</title></Helmet>
+
+      {/* --- POČETAK V8 PREMIUM BOX-A --- */}
+      <AnimatePresence>
+        {showWelcomeBox && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#0a0a0a] border border-orange-500/50 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(234,88,12,0.25)] text-center overflow-hidden group"
+            >
+              {/* Dekorativni V8 odsjaj u pozadini boxa */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-orange-600/10 blur-[60px] rounded-full pointer-events-none"></div>
+
+              {/* Dugme za zatvaranje */}
+              <div 
+                onClick={closeBox}
+                className="absolute top-6 right-6 flex flex-col items-center justify-center cursor-pointer z-20 group/close"
+              >
+                <X className="w-8 h-8 text-orange-500 group-hover/close:text-white transition-colors duration-300 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)] animate-pulse" strokeWidth={2.5} />
+                <span className="text-[9px] text-zinc-500 group-hover/close:text-white uppercase tracking-[0.2em] mt-1 font-black transition-colors">zatvori me</span>
+              </div>
+
+              {/* Sadržaj */}
+              <div className="relative z-10 flex flex-col items-center">
+                <Sparkles className="w-10 h-10 text-orange-500 mb-4 opacity-80" />
+                
+                <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-widest mb-6 italic">
+                  Dobrodošli u <span className="text-orange-500 drop-shadow-[0_0_15px_rgba(234,88,12,0.5)]">V8 Mrežu</span>
+                </h2>
+                
+                <p className="text-zinc-300 text-[14px] md:text-[15px] leading-relaxed mb-8 font-medium max-w-lg mx-auto">
+                  Dragi naši posetioci i korisnici sajta, obaveštavamo Vas da je sajt tek postavljen. 
+                  Imamo mnogo funkcija i usluga koje već rade, a ubrzo dodajemo nove, specijalno skrojene za Vaše potrebe.
+                </p>
+
+                <div className="w-full bg-white/[0.03] border border-white/10 rounded-3xl p-6 md:p-8 mb-8 hover:border-orange-500/30 transition-colors duration-500">
+                  <p className="text-zinc-300 text-[14px] md:text-[16px] leading-relaxed mb-6 font-bold">
+                    Jedna od stvari koje odmah možemo da počnemo da radimo je izrada <br className="hidden md:block"/>
+                    <span className="text-orange-400 uppercase tracking-widest text-[18px] drop-shadow-md">Premium Web Sajtova</span>
+                  </p>
+                  
+                  <Link 
+                    to="/izrada-sajtova" 
+                    onClick={closeBox}
+                    className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-10 py-4 rounded-xl font-black text-[12px] md:text-[14px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] hover:shadow-[0_0_30px_rgba(234,88,12,0.6)] hover:scale-105 transition-all duration-300"
+                  >
+                    Pogledajte Template <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+
+                <p className="text-zinc-500 text-[11px] uppercase tracking-[0.3em] font-black mb-4">
+                  Uskoro počinjemo punim potencijalom!
+                </p>
+                
+                <p className="text-orange-500 font-black italic tracking-widest text-[13px]">
+                  Vaš ai-alati tim
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* --- KRAJ V8 PREMIUM BOX-A --- */}
       
       <div id="home-banner" className="relative w-full h-[85vh] flex items-end overflow-hidden bg-black text-white border-b border-orange-500/20">
         <div className="absolute inset-0 z-0 bg-black">{(data.BANNER_DATA || []).map((item, idx) => (<div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${idx === activeSlide ? 'opacity-100' : 'opacity-0'} z-0`}><img src={item.image} loading={idx === 0 ? "eager" : "lazy"} className="w-full h-full object-cover opacity-80" alt="banner" /></div>))}</div>
@@ -929,7 +1003,7 @@ function HomePage({ apps = [] }) {
     </>
   );
 }
-
+/// KRAJ FUNKCIJE: HomePage ///
 function EnhancerPage() {
   const [demoInput, setDemoInput] = useState(''); 
   const [customerPrompt, setCustomerPrompt] = useState(''); 
@@ -2207,9 +2281,9 @@ function AppContent({ appsData, refreshData }) {
                     <Link to="/v8-kreator-slika" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3">
                       <Eye className="w-4 h-4 text-orange-500" /> Kreator Slika
                     </Link>
-<Link to="/pixar-selfie" className="block px-4 py-2 text-orange-400 hover:text-orange-500 font-bold flex items-center gap-2">
-  Pixar Selfie Mejker <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase">Novo</span>
-</Link>
+                    <Link to="/pixar-selfie" className="block px-4 py-2 text-orange-400 hover:text-orange-500 font-bold flex items-center gap-2">
+                      Pixar Selfie Mejker <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase">Novo</span>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -2234,7 +2308,7 @@ function AppContent({ appsData, refreshData }) {
           <Route path="/enxance" element={<EnhancerPage />} />
           <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
           <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
-<Route path="/pixar-selfie" element={<V8PixarSelfiePage isAdmin={isAdmin} />} />
+          <Route path="/pixar-selfie" element={<V8PixarSelfiePage isAdmin={isAdmin} />} />
           <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
           <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
           <Route path="/trezor" element={<TrezorPage apps={appsData} />} />
@@ -2271,8 +2345,7 @@ function AppContent({ appsData, refreshData }) {
     </div>
   );
 }
-/// KRAJ FUNKCIJE: AppContent ///
-
+/// KRAJ FUNKCIJE: AppContent ///celu
 export default function App() { 
   const [appsData, setAppsData] = useState([]); 
   const refreshData = useCallback(() => { fetch(API_URL).then(res => res.json()).then(db => setAppsData(db)).catch(() => setAppsData([])); }, []); 
