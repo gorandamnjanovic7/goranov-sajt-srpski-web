@@ -13,13 +13,19 @@ const V8KreatorSlikaPage = ({ isAdmin }) => {
 
   const cena = "300 RSD";
 
+  // --- V8 SENZOR ZA AUTOMATSKU DETEKCIJU SERVERA ---
+  const BASE_URL = window.location.hostname === 'localhost' 
+    ? "http://localhost:5000" 
+    : "https://goranov-sajt-srpski-backend-production.up.railway.app";
+
   // --- V8 MOTOR ZA GENERISANJE ---
   const handleGenerisi = async (adminBypass = false) => {
     setIsGenerating(true);
     if (adminBypass) setIsPaid(true); 
 
     try {
-      const backendUrl = "http://localhost:5000/api/generisi-sliku"; 
+      // SADA KORISTI PAMETNI URL
+      const backendUrl = `${BASE_URL}/api/generisi-sliku`; 
 
       const response = await fetch(backendUrl, {
         method: "POST",
@@ -58,8 +64,8 @@ const V8KreatorSlikaPage = ({ isAdmin }) => {
   const handleDownload = async () => {
     if (!rezultat) return;
     try {
-      const BASE_URL = window.location.hostname === 'localhost' ? "http://localhost:5000" : "https://goranov-sajt-srpski-backend-production.up.railway.app";
-    const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
+      // KORISTI ISTI PAMETNI URL
+      const backendDownloadUrl = `${BASE_URL}/api/download-sliku?url=${encodeURIComponent(rezultat)}`;
       
       const response = await fetch(backendDownloadUrl);
       
