@@ -1,5 +1,6 @@
 import './App.css'; // Obavezno uvezi CSS ako već nisi
 import V8Enhancer10x from './V8Enhancer10x';
+import V8PametniAlatiPage from './PametniAlati';
 import V8KreatorSlikaPage from './V8KreatorSlika';
 import V8PixarSelfiePage from './V8PixarSelfie';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -36,6 +37,8 @@ const BASE_BACKEND_URL = window.location.hostname === 'localhost'
   ? "http://localhost:5000" 
   : "https://goranov-sajt-srpski-backend-production.up.railway.app";
 
+// Napomena: API_URL više ne koristimo za proizvode jer sada gađamo direktno Firebase, 
+// ali ga ostavljamo ako ti zatreba za neku drugu rutu.
 const API_URL = `${BASE_BACKEND_URL}/api/products`;
 const MOJA_IP = "213.196.99.10"; 
 const YOUTUBE_API_KEY = "AIzaSyCwy46TsBPW7LxKTjExhQbHhYhq8lyc2YM"; 
@@ -328,45 +331,30 @@ const OptionButton = ({ label, selected, onClick, type, disabled }) => {
 
 /* --- POČETAK: PromptResultBox komponenta sa Cliffhanger efektom --- */
 const PromptResultBox = ({ type, text, copiedBox, onCopy, isVIP }) => {
-  // Ako prop isVIP nije prosleđen, podrazumevamo da klijent NIJE platio
   const userIsPremium = isVIP || false; 
-
-  // CLIFFHANGER LOGIKA: Zaključavamo ako ima teksta, a korisnik nije VIP
   const isLocked = !userIsPremium && text; 
-  
-  // Sečemo tekst na 120 karaktera da damo klijentu samo "udicu"
   const displaySnippet = isLocked ? text.substring(0, 120) + "..." : text;
 
   return (
     <div className="relative p-6 bg-[#0a0a0a] border border-orange-500/30 rounded-2xl w-full min-h-[250px] flex flex-col group overflow-hidden shadow-[0_0_15px_rgba(234,88,12,0.1)] transition-all duration-300 hover:border-orange-500/50">
-      
-      {/* Zaglavlje box-a (možeš prilagoditi ikonicu i naslov po tipu) */}
       <label className="text-[11px] font-black uppercase tracking-widest mb-4 border-b pb-3 flex items-center text-orange-500 border-white/5">
         GENERISANI V8 PROMPT
       </label>
-      
       <div className="relative w-full flex-grow flex flex-col">
-        {/* Tekst rezultata: Ako je zaključan, dodajemo Tailwind 'blur' klasu */}
         <div className={`font-mono text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap transition-all duration-500 ${isLocked ? 'blur-[5px] select-none opacity-50' : ''}`}>
           {displaySnippet}
         </div>
-
-        {/* V8 MASKA KOJA ISKAČE PREKO ZAMUĆENOG TEKSTA */}
         {isLocked && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0a]/60 backdrop-blur-sm rounded-xl p-4 text-center z-10">
-            {/* Katanac ikonica */}
             <div className="w-12 h-12 bg-orange-600/20 rounded-full flex items-center justify-center mb-3">
               <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
               </svg>
             </div>
-            
             <h3 className="text-orange-500 font-black tracking-widest uppercase mb-2">Sistem Zaključan</h3>
             <p className="text-[11px] text-zinc-300 mb-5 max-w-[220px]">
               Ovaj premium rezultat je zaštićen. Puni potencijal je rezervisan za V8 klijente.
             </p>
-            
-            {/* Dugme koje skrola do tvog IPS QR koda na dnu stranice */}
             <button 
               onClick={() => document.getElementById('ips-payment-section')?.scrollIntoView({ behavior: 'smooth' })} 
               className="bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black px-6 py-3 rounded-lg uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(234,88,12,0.4)]"
@@ -376,8 +364,6 @@ const PromptResultBox = ({ type, text, copiedBox, onCopy, isVIP }) => {
           </div>
         )}
       </div>
-
-      {/* Dugme za kopiranje: Prikazuje se samo ako je klijent platio i otključao sistem */}
       {!isLocked && text && (
         <button 
           onClick={() => onCopy(text, type)} 
@@ -785,14 +771,55 @@ function HomePage({ apps = [] }) {
   
   const [ipsModalData, setIpsModalData] = useState(null);
   const [hasEnhancerAccess, setHasEnhancerAccess] = useState(false);
-
-  /// POČETAK FUNKCIJE: Kontrola Prijateljskog Welcome Box-a ///
   const [showWelcomeBox, setShowWelcomeBox] = useState(true);
 
-  const closeBox = () => {
-    setShowWelcomeBox(false);
-  };
-  /// KRAJ FUNKCIJE: Kontrola Prijateljskog Welcome Box-a ///
+  const closeBox = () => setShowWelcomeBox(false);
+
+  // ==========================================
+  // 🚀 V8 YOUTUBE MOTOR (AUTOMATSKO POVLAČENJE)
+  // ==========================================
+  useEffect(() => {
+    const fetchYouTubeVideos = async () => {
+      try {
+        // ⚠️ UNESI SVOJ PRAVI YOUTUBE CHANNEL ID OVDE:
+        const channelId = "UC6ilBUks_oFMSD8CE9qD6lQ"; 
+        
+        // maxResults=8 znači da će povući tvojih poslednjih 8 videa
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=8&order=date&type=video&key=${YOUTUBE_API_KEY}`;
+        
+        const response = await fetch(url);
+        const ytData = await response.json();
+        
+        if (ytData.items && ytData.items.length > 0) {
+          // 🚀 V8 PREVODILAC: Pakujemo YouTube podatke u format koji TutorialCard razume bez pucanja!
+          const praviVidei = ytData.items.map(item => ({
+            id: item.id.videoId,
+            title: item.snippet.title,
+            url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+            thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url
+          }));
+          
+          setLiveVideos(praviVidei);
+        } else {
+          throw new Error("Prazan YouTube odgovor ili loš ID"); 
+        }
+      } catch (error) {
+        console.log("⚠️ V8 Info: YouTube API nije prošao, palim rezervne vizuale...");
+        
+        // 🛡️ V8 REZERVA: Čisti podaci koji 100% rade
+        setLiveVideos([
+          { id: "v8-1", title: "V8 Premium Edukacija 1", url: "https://www.youtube.com/watch?v=M7lc1UVf-VE", thumbnail: "https://img.youtube.com/vi/M7lc1UVf-VE/maxresdefault.jpg" },
+          { id: "v8-2", title: "V8 Intel Protokol 2", url: "https://www.youtube.com/watch?v=M7lc1UVf-VE", thumbnail: "https://img.youtube.com/vi/M7lc1UVf-VE/maxresdefault.jpg" },
+          { id: "v8-3", title: "V8 Tajne Zanata 3", url: "https://www.youtube.com/watch?v=M7lc1UVf-VE", thumbnail: "https://img.youtube.com/vi/M7lc1UVf-VE/maxresdefault.jpg" },
+          { id: "v8-4", title: "V8 Masterclass 4", url: "https://www.youtube.com/watch?v=M7lc1UVf-VE", thumbnail: "https://img.youtube.com/vi/M7lc1UVf-VE/maxresdefault.jpg" }
+        ]);
+      } finally {
+        setIsLoadingVideos(false); // Gasi animaciju učitavanja
+      }
+    };
+
+    fetchYouTubeVideos();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -816,21 +843,34 @@ function HomePage({ apps = [] }) {
   const handlePaymentV8 = async (tip, cena) => {
     if (auth.currentUser) {
       try { await setDoc(doc(db, "posetioci", auth.currentUser.uid), { poslednjiKlik: serverTimestamp(), zainteresovanZa: tip }, { merge: true }); } catch (err) {}
-    }
-    setIpsModalData({ tip, cena });
-  };
-
-  useEffect(() => { 
-    let isMounted = true; 
-    const fetchVideos = async () => {
-      setIsLoadingVideos(true); 
+      setIpsModalData({ tip, cena });
+    } else {
       try {
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=UC6ilBUks_oFMSD8CE9qD6lQ&part=snippet,id&order=date&maxResults=8&type=video`);
-        const result = await res.json();
-        if (isMounted && result?.items?.length > 0) { setLiveVideos(result.items.map(item => ({ title: item.snippet.title, url: `https://www.youtube.com/watch?v=${item.id.videoId}` }))); setIsLoadingVideos(false); }
-      } catch (err) { if (isMounted) setIsLoadingVideos(false); }
-    }; fetchVideos(); return () => { isMounted = false; };
-  }, []);
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        await setDoc(doc(db, "posetioci", user.uid), { 
+          ime: user.displayName, 
+          email: user.email, 
+          vremePrijave: serverTimestamp(), 
+          zainteresovanZa: tip, 
+          identitet: "V8-Klijent" 
+        }, { merge: true });
+        
+        const docRef = doc(db, "vip_users", user.email.toLowerCase());
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('10X_ENHANCER') || docSnap.data().unlockedApps.includes('FULL_ACCESS'))) {
+            setHasEnhancerAccess(true);
+            if(typeof v8Toast !== 'undefined') v8Toast.success("Dobrodošli nazad! Pristup je već otključan.");
+        } else {
+            setIpsModalData({ tip, cena });
+        }
+      } catch (error) { 
+        if(typeof v8Toast !== 'undefined') v8Toast.error("Greška pri prijavi preko Google-a!"); 
+      }
+    }
+  };
   
   useEffect(() => { if (location.hash === '#marketplace') { const el = document.getElementById('marketplace'); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, [location]);
   const nextSlide = useCallback(() => setActiveSlide(s => (s + 1) % (data.BANNER_DATA?.length || 1)), []);
@@ -851,10 +891,8 @@ function HomePage({ apps = [] }) {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-2xl bg-[#0a0a0a] border border-orange-500/50 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_50px_rgba(234,88,12,0.25)] text-center overflow-hidden group"
             >
-              {/* Dekorativni V8 odsjaj u pozadini boxa */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-orange-600/10 blur-[60px] rounded-full pointer-events-none"></div>
 
-              {/* Dugme za zatvaranje */}
               <div 
                 onClick={closeBox}
                 className="absolute top-6 right-6 flex flex-col items-center justify-center cursor-pointer z-20 group/close"
@@ -863,7 +901,6 @@ function HomePage({ apps = [] }) {
                 <span className="text-[9px] text-zinc-500 group-hover/close:text-white uppercase tracking-[0.2em] mt-1 font-black transition-colors">zatvori me</span>
               </div>
 
-              {/* Sadržaj */}
               <div className="relative z-10 flex flex-col items-center">
                 <Sparkles className="w-10 h-10 text-orange-500 mb-4 opacity-80" />
                 
@@ -1035,314 +1072,7 @@ function HomePage({ apps = [] }) {
   );
 }
 /// KRAJ FUNKCIJE: HomePage ///
-
  
-/// POČETAK FUNKCIJE: V8PametniAlatiPage ///
-const V8PametniAlatiPage = ({ isAdmin }) => {
-  const [alati, setAlati] = useState([]);
-  const [aktivniAlat, setAktivniAlat] = useState(null);
-  const [unos, setUnos] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [rezultat, setRezultat] = useState(null);
-  const [isPaid, setIsPaid] = useState(false);
-  const [proveraUplate, setProveraUplate] = useState('idle');
-
-  // V8 PREMIUM BAZA ALATA (Detaljno ispisani sa dugačkim rezultatima za maksimalan FOMO efekat)
-  const fallbackAlati = [
-    {
-      id: 'kopirajter',
-      ikona: 'Zap',
-      naziv: 'V8 KOPIRAJTER ZA MREŽE',
-      opis: 'Unesite prostu ideju, a naša veštačka inteligencija generiše 3 agresivne, prodajne verzije teksta za vaše društvene mreže.',
-      cena: '150 RSD',
-      placeholder: 'Npr: Prodajem crne kožne jakne, danas popust 20%...',
-      mockText: '🔥 VERZIJA 1 (Agresivna prodaja - Konverzija 10X):\nZaboravite apsolutno sve što ste do sada videli na tržištu! 🛑 Naša nova kolekcija menja pravila igre. Znamo da tražite premium kvalitet i zato smo doneli proizvod koji ostavlja konkurenciju u prašini. Ono što smo danas spremili nije za svakoga. Ograničena serija je upravo puštena u prodaju i garantujemo da će zalihe nestati u narednih 48 sati. Zašto? Zato što nismo pravili kompromise. Od najsitnijeg šava do glavnog materijala, sve vrišti LUKSUZ. Kliknite na link u opisu profila pre nego što zalihe nestanu brzinom svetlosti! ⚡\n\n🚀 VERZIJA 2 (Emocija, Status i Prestiž):\nNeki komadi se ne kupuju. Oni se zaslužuju. Kada obučete naš novi model, ne nosite samo materijal – nosite samopouzdanje. Osetite razliku koju pruža ručna izrada i pažljivo biran dizajn. Zamislite kako ulazite u prostoriju i svi pogledi su uprti u vas. To nije slučajnost, to je namera. Vaš novi omiljeni komad vas čeka. Naručite ga već danas i podignite svoj stil na potpuno novi nivo. 💎 Neka vaša pojava govori umesto vas.\n\n🎯 VERZIJA 3 (Kratko, Jasno, Udarno):\nNajbolji odnos cene i kvaliteta na Balkanu. Bez kompromisa. 💯 Znamo šta želite i upravo smo vam to doneli. Popust od 20% važi SAMO DANAS do ponoći. Pošaljite nam poruku u DM da rezervišete svoj primerak odmah! Vreme curi. ⏰'
-    },
-    {
-      id: 'diplomata',
-      ikona: 'Mail',
-      naziv: 'V8 POSLOVNI DIPLOMATA',
-      opis: 'Pretvara vaš besan, neformalan tekst u savršeno odmeren, hladan i visoko-profesionalan korporativni imejl.',
-      cena: '100 RSD',
-      placeholder: 'Npr: Ne pada mi na pamet da ti ovo radim besplatno...',
-      mockText: 'Poštovani,\n\nNajpre želim da Vam se iskreno zahvalim na izdvojenom vremenu, poslatoj poruci i ukazanom poverenju za potencijalnu saradnju sa našom kompanijom.\n\nNakon detaljnog uvida u Vaš zahtev, kao i u našu dosadašnju korespondenciju i definisane uslove poslovanja, želim da Vas obavestim da nismo u mogućnosti da navedeni obim dodatnih usluga pružimo bez odgovarajuće finansijske kompenzacije.\n\nNaš standardni cenovnik jasno definiše ovakve zahteve, te smo prinuđeni da ostanemo dosledni našoj poslovnoj politici kako bismo održali vrhunski kvalitet usluge za sve naše klijente. Kao što znate, naša agencija se vodi principom beskompromisnog kvaliteta, a to iziskuje adekvatne resurse i vreme naših stručnjaka.\n\nUkoliko ste saglasni sa ovakvim pristupom, vrlo rado ću Vam proslediti zvaničnu i detaljnu ponudu sa specifikacijom troškova za pomenute dodatne radove u najkraćem mogućem roku.\n\nStojim Vam na punom raspolaganju za sve dodatne konsultacije ili eventualni sastanak na kojem bismo razjasnili sve tehničke i finansijske detalje.\n\nSrdačan pozdrav i svako dobro,\nVaš V8 Tim'
-    },
-    {
-      id: 'pro-max',
-      ikona: 'Zap',
-      naziv: 'V8 KOPIRAJTER PRO MAX',
-      opis: 'Napredni AI inženjering za prodajne tekstove. Generiše tri nivoa duboke psihološke prodaje (Strah, Logika, Status).',
-      cena: '150 RSD',
-      placeholder: 'Npr: Prodajem premium kožne jakne, ručni rad, popust 20%...',
-      mockText: '🚀 V8 ANALIZA TRŽIŠTA ZAVRŠENA - GENERISANJE EKSTREMNOG PRODAJNOG TEKSTA...\n\n🔥 OPCIJA 1: "BRUTALNA DOMINACIJA" (Fokus na status i prestiž)\n------------------------------------------------------------\nNASLOV: NEKI KOMADI SE NE KUPUJU. ONI SE ZASLUŽUJU. 👑\n\nTEKST:\nDosta vam je jeftinih kopija koje traju jednu sezonu? Dok drugi prate trendove, vi postavljate pravila igre. Naš [NAZIV PROIZVODA] nije samo stvar koju posedujete – to je izjava ko ste zapravo. \n\n✅ RUČNA IZRADA: Svaki šav je priča za sebe.\n✅ PREMIUM MATERIJALI: Osetite razliku koju pruža beskompromisni kvalitet.\n✅ LIMITIRANA SERIJA: Samo 10 komada dostupno za ceo region.\n\nKada uđete u prostoriju, želite da se svi okrenu. Naš proizvod je tajni začin vašeg samopouzdanja. \n🛒 NARUČI ODMAH: [LINK]\n(V8 Napomena: Preostalo je samo još 3 komada u ovoj seriji!)\n\n---\n\n📈 OPCIJA 2: "MATEMATIKA USPEHA" (Fokus na ROI i uštedu)\n------------------------------------------------------\nNASLOV: INVESTICIJA KOJA SE ISPLAĆUJE SVAKOG DANA. 💎\n\nTEKST:\nPrestanite da bacate novac na rešenja koja ne rade. Naš proizvod je dizajniran da vam uštedi vreme, novac i energiju. Zašto klijenti biraju V8 standard?\n1. Trajnost: Testirano u najtežim uslovima.\n2. Efikasnost: Postignite 3x bolje rezultate za pola vremena.\n3. Podrška: Naš tim je tu za vas 24/7.\nStatistika ne laže – 98% naših korisnika je prijavilo drastično poboljšanje već u prvoj nedelji korišćenja.\n\n🎯 KLIKNI ZA SPECIJALNU PONUDU: [LINK]\n\n---\n\n⚡ OPCIJA 3: "HITNA INTERVENCIJA" (Fokus na FOMO)\n---------------------------------------------------------------------\nNASLOV: SAT OTKUCAVA. DA LI ĆETE PONOVO OKLEVATI? ⏱️\n\nTEKST:\nOvo nije još jedna reklama. Ovo je vaša poslednja šansa da dobijete vrhunski kvalitet uz 20% popusta pre nego što cene odu u nebo. Zaboravite na "uradiću to sutra". Pobednici reaguju odmah. \n🛑 STOP ODREĐENIM PROBLEMIMA: Rešite svoje probleme jednom zauvek.\n🔥 EKSKLUZIVNO: Samo za prvih 50 kupaca poklanjamo V8 Bonus paket.\nKada se link ugasi, ponuda nestaje zauvek.\n\n🚀 REZERVIŠI SVOJE MESTO: [LINK]'
-    },
-    {
-      id: 'v8-closer',
-      ikona: 'Briefcase',
-      naziv: 'V8 ZATVARAČ PRODAJE',
-      opis: 'Klijent kaže "Skupo je"? Naša AI matrica generiše 3 psihološka odgovora koja slamaju prigovore i zatvaraju prodaju.',
-      cena: '150 RSD',
-      placeholder: 'Npr: Klijent kaže: "Sve je super, ali mi je to trenutno preskupo, javiću se sledećeg meseca."',
-      mockText: '/// V8 SALES MATRICA AKTIVIRANA ///\n\n🔥 ODGOVOR 1 (Fokus na ROI - Povrat investicije):\n"Razumem vas u potpunosti. I mnogi naši najuspešniji klijenti su mislili isto na samom početku. Ali hajde da pogledamo matematiku: da li je zaista skupo ako vam ovaj sistem donese 3 nova klijenta već u prvih 15 dana? Ono što je zaista skupo je propušten profit dok čekate sledeći mesec. Da li želite da prepustite tu zaradu konkurenciji ili da počnemo već danas?"\n\n🚀 ODGOVOR 2 (Smanjenje rizika - "Pacing"):\n"Potpuno vas shvatam, budžet je uvek izuzetno bitna stavka za svaki ozbiljan biznis. Da li vam je problem ukupna cifra ili trenutni "cash flow"? Ako je u pitanju trenutna likvidnost, imamo opciju podeljenog plaćanja. Cilj je da odmah počnete da zarađujete od ovoga, kako bi sistem u narednim nedeljama praktično isplatio sam sebe. Šta mislite o toj opciji?"\n\n🎯 ODGOVOR 3 (FOMO - Uskraćivanje i Ekskluzivnost):\n"Slažem se, ovo rešenje apsolutno nije za svakoga i zahteva određenu finansijsku posvećenost. Trenutno radimo samo sa klijentima koji su spremni za agresivan rast na tržištu. Ako mislite da sada nije pravi trenutak za vas, nema problema, možemo pauzirati priču. Samo imajte na umu da od sledećeg meseca cene rastu za 30% zbog prevelike potražnje i ograničenih kapaciteta našeg tima. Hoćemo li da sačuvamo staru cenu za vas?"'
-    },
-    {
-      id: 'v8-hook',
-      ikona: 'Zap',
-      naziv: 'V8 VIRALNI HOOK KREATOR',
-      opis: 'Prve 3 sekunde prodaju sve. Generiše 5 agresivnih "udica" (hooks) za TikTok i Reels koje garantuju preglede.',
-      cena: '100 RSD',
-      placeholder: 'Npr: Prodajem plan ishrane za mršavljenje i lične treninge.',
-      mockText: '/// V8 ALGORITAM ZA ZADRŽAVANJE PAŽNJE ///\n\n🎣 V8 UDICA 1 (Šokantna istina - Prekida skrolovanje):\n"Svi fitnes influenseri vam lažu kada kažu da morate da gladujete da biste skinuli taj stomak. Evo 3 bizarne stvari koje radite pogrešno svakog prokletog jutra, a koje blokiraju vaš metabolizam..."\n\n🎣 V8 UDICA 2 (Agresivna bolna tačka - Pogađa emociju):\n"Ako i dalje radite trbušnjake do besvesti svako veče, a donji stomak je i dalje tu, prestanite odmah. Vi bukvalno uništavate svoj kortizol. Evo šta zapravo treba da radite..."\n\n🎣 V8 UDICA 3 (Kontroverza - Izaziva komentare i share):\n"Treneri u vašoj teretani će me apsolutno mrzeti što vam ovo otkrivam potpuno besplatno. Ali evo tačne formule kako da skinete 5 kilograma čistog sala bez ijedne sekunde na onoj dosadnoj traci za trčanje..."\n\n🎣 V8 UDICA 4 (Previše dobro da bi bilo istinito - Dokaz):\n"Svi su mi celog života govorili da je moja genetika loša i da nikada neću imati trbušnjake. A onda sam promenio samo OVU JEDNU JEDINU STVAR u svom doručku i rezultati su eksplodirali..."\n\n🎣 V8 UDICA 5 (Direktna prozivka - Profilisanje publike):\n"Ovaj video je isključivo za one koji su 100 puta počinjali dijetu u ponedeljak i odustajali u sredu, osećajući se krivim. Ako si to ti, stani i gledaj pažljivo, jer ovo menja sve..."'
-    },
-    {
-      id: 'v8-b2b',
-      ikona: 'Mail',
-      naziv: 'V8 B2B SNAJPER',
-      opis: 'Hladni mejlovi koji se otvaraju. Hirurški precizna poruka koja direktno gađa bolne tačke direktora i zakazuje sastanak.',
-      cena: '200 RSD',
-      placeholder: 'Npr: Prodajem izradu web sajta vlasnicima privatnih stomatoloških ordinacija.',
-      mockText: '/// V8 KORPORATIVNI SNAJPER - STATUS: SPREMAN ///\n\nNaslov mejla: Pitanje u vezi neiskorišćenih kapaciteta Vaše ordinacije u [Grad/Deo grada]\n\nPoštovani [Ime],\n\nKao neko ko se bavi analizom digitalnog tržišta, pratim rad Vaše ordinacije već neko vreme i primećujem da imate zaista izvanredne ocene i preporuke pacijenata na Google-u. \n\nMeđutim, gledajući Vaš trenutni web sajt i online prisustvo, primetio sam jedan ozbiljan propust: nemate integrisan sistem za instant zakazivanje i IPS naplatu. Iz našeg iskustva sa drugim premium ordinacijama u regionu, ovaj nedostatak direktno dovodi do gubitka od oko 20-30% potencijalnih pacijenata koji traže usluge kasno uveče, van Vašeg radnog vremena.\n\nMi u V8 Digital Agency smo napravili specifičan zatvoreni sistem za stomatologe koji potpuno eliminiše "prazne termine", filtrira neozbiljne upite i potpuno automatizuje prijem novih, premium pacijenata, dok vi spavate.\n\nNe želim da Vam oduzimam vreme dugačkim mejlovima. Da li ste otvoreni za jedan brz, konkretan poziv od tačno 7 minuta, u utorak ili sredu prepodne, da Vam na delu pokažem kako to izgleda u praksi i kakve rezultate donosi?\n\nSrdačan pozdrav,\n\n[Vaše Ime]\nV8 Digital Agency\nPremium Solutions for Premium Clients'
-    }
-  ];
-
-  useEffect(() => {
-    const fetchAlati = async () => {
-      const snap = await getDocs(collection(db, "v8_mikro_alati"));
-      if (!snap.empty) {
-        setAlati(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      } else {
-        setAlati(fallbackAlati); 
-      }
-    };
-    fetchAlati();
-  }, []);
-
-  const renderIkona = (ikonaStr, isSmall = false) => {
-    const classes = isSmall ? "w-5 h-5" : "w-8 h-8 mb-4";
-    if(ikonaStr === 'Mail') return <Mail className={`${classes} text-blue-500`} />;
-    if(ikonaStr === 'Briefcase') return <Briefcase className={`${classes} text-green-500`} />;
-    return <Zap className={`${classes} text-orange-500`} />;
-  };
-
-  const handleOtvoriAlat = (alat) => {
-    setAktivniAlat(alat);
-    setUnos('');
-    setIsGenerating(false);
-    setRezultat(null);
-    setIsPaid(false);
-    setProveraUplate('idle');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleGenerisiRezultat = (adminBypass = false) => {
-    setIsGenerating(true);
-    if (adminBypass) setIsPaid(true); 
-    
-    setTimeout(() => {
-      setRezultat(aktivniAlat.mockText || "V8 Sistem je uspešno generisao tekst...");
-      setIsGenerating(false);
-    }, 2500);
-  };
-
-  const handleProveraUplate = () => {
-    setProveraUplate('loading');
-    setTimeout(() => {
-      setProveraUplate('failed');
-    }, 3500);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#050505] pt-24 pb-24 px-6 relative flex flex-col items-center">
-      <div className="max-w-7xl w-full mx-auto font-sans text-left text-white relative z-10 flex flex-col items-center">
-        
-        <div className="mb-12 text-center w-full relative z-10 flex flex-col items-center">
-          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 text-gradient-animate drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">
-            V8 PAMETNI ALATI
-          </h1>
-          <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center flex-wrap gap-3 justify-center text-center">
-            <span className="relative flex h-3 w-3 shrink-0"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
-            MIKRO-ALATI ZA MAKSIMALAN PROFIT. DIREKTNA IPS NAPLATA.
-          </div>
-          <p className="text-white text-[12px] md:text-[14px] max-w-2xl font-bold uppercase tracking-[0.2em] leading-relaxed mt-6 mb-8">
-            AUTOMATIZUJTE SVOJ BIZNIS UZ POMOĆ VEŠTAČKE INTELIGENCIJE. IZABERITE ALAT, UNESITE IDEJU I TESTIRAJTE MOĆ V8 SISTEMA.
-          </p>
-        </div>
-
-        {aktivniAlat && (
-          <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_30px_rgba(234,88,12,0.1)] mb-16 w-full max-w-4xl relative">
-            <button onClick={() => setAktivniAlat(null)} className="absolute top-6 right-6 text-zinc-500 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-all"><X className="w-6 h-6" /></button>
-            <div className="flex items-center gap-4 mb-8">
-              {renderIkona(aktivniAlat.ikona)}
-              <div>
-                <h2 className="text-2xl font-black text-white uppercase tracking-widest">{aktivniAlat.naziv}</h2>
-                <p className="text-orange-500 font-bold text-sm">Cena otključavanja: {aktivniAlat.cena}</p>
-              </div>
-            </div>
-            
-            {!rezultat && !isGenerating && (
-                <div className="space-y-6 animate-in fade-in">
-                  <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500">Unesite vaš polazni tekst:</label>
-                  <textarea 
-                    value={unos} 
-                    onChange={(e) => setUnos(e.target.value)} 
-                    placeholder={aktivniAlat.placeholder}
-                    className="w-full bg-black border border-white/10 rounded-2xl p-6 text-white text-sm outline-none focus:border-orange-500 transition-all min-h-[150px] resize-none"
-                  ></textarea>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 w-full">
-                    <button 
-                      onClick={() => handleGenerisiRezultat(false)}
-                      disabled={unos.length < 5}
-                      className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-[13px] flex items-center justify-center gap-3 transition-all ${unos.length < 5 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-xl hover:scale-[1.02]'}`}
-                    >
-                      <Zap className="w-5 h-5" /> Generiši V8 Koncept
-                    </button>
-                    
-                    {isAdmin && (
-                      <button 
-                        onClick={() => handleGenerisiRezultat(true)}
-                        disabled={unos.length < 5}
-                        className={`w-full sm:w-1/3 py-5 rounded-2xl font-black uppercase tracking-widest text-[13px] flex items-center justify-center gap-2 transition-all ${unos.length < 5 ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed' : 'bg-transparent border-2 border-red-600 text-red-500 hover:bg-red-600 hover:text-white shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:scale-[1.02]'}`}
-                      >
-                        <Zap className="w-4 h-4" /> ADMIN BYPASS
-                      </button>
-                    )}
-                  </div>
-                </div>
-            )}
-
-            {isGenerating && (
-                <div className="py-16 flex flex-col items-center justify-center space-y-6 animate-in fade-in">
-                    <Zap className="w-16 h-16 text-orange-500 animate-pulse drop-shadow-[0_0_15px_rgba(234,88,12,0.8)]" />
-                    <h3 className="text-xl font-black text-white uppercase tracking-widest text-center">V8 NEURONSKA MREŽA OBRAĐUJE PODATKE...</h3>
-                    <p className="text-zinc-500 font-bold text-sm uppercase tracking-widest animate-pulse">Generisanje premium rezultata u toku</p>
-                </div>
-            )}
-
-            {rezultat && !isGenerating && (
-                <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-                        <span className="text-green-400 font-black uppercase tracking-widest text-[11px]">Sistem uspešno izvršio zadatak</span>
-                    </div>
-
-                    <div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[450px] flex flex-col">
-                        
-                        {/* 
-                            V8 TRIK ZA ZAMUĆENJE: 
-                            Prikazujemo prvih 150 karaktera kristalno jasno, 
-                            a ostatak blago zamućen kako bi klijent video da ga čeka ogroman tekst iza zida! 
-                        */}
-                        <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 flex-1 ${(!isPaid && !isAdmin) ? 'select-none' : ''}`}>
-                            {(!isPaid && !isAdmin) ? (
-                                <>
-                                  <span className="text-white font-bold drop-shadow-md">{rezultat.substring(0, 150)}</span>
-                                  <span className="blur-[4px] opacity-40">{rezultat.substring(150, 1000)}...</span>
-                                </>
-                            ) : (
-                                rezultat
-                            )}
-                        </div>
-
-                        {(!isPaid && !isAdmin) && (
-                           <div className="absolute inset-0 bg-[#0a0a0a]/50 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-10">
-                              <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px] animate-in zoom-in duration-500">
-                                <Lock className="w-8 h-8 text-orange-500 mb-2 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
-                                <h3 className="text-[14px] font-black text-white uppercase tracking-widest mb-1">OTKLJUČAJ PUN REZULTAT</h3>
-                                <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Skeniraj IPS kod ({aktivniAlat.cena})</p>
-                                
-                                <div className="bg-white p-2 rounded-2xl inline-block mb-3 shadow-inner border border-zinc-200">
-                                  {/* Generišemo čist IPS kod */}
-                                  <QRCodeCanvas 
-                                    value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${aktivniAlat.cena.replace(/\D/g, '')},00|SF:289|S:${aktivniAlat.naziv.substring(0,20)}`}
-                                    size={120} bgColor={"#ffffff"} fgColor={"#000000"} level={"H"} includeMargin={false}
-                                  />
-                                </div>
-
-                                {/* TEKSTUALNI PODACI ZA UPLATU (ISPOD QR KODA) */}
-                                <div className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 mb-4 text-left space-y-1.5 font-mono shadow-inner">
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Primalac:</span>
-                                      <span className="text-[9px] font-bold text-white">Goran Damnjanović</span>
-                                   </div>
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Račun:</span>
-                                      <span className="text-[9px] font-bold text-white">265-0000006535770-83</span>
-                                   </div>
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Svrha:</span>
-                                      <span className="text-[9px] font-bold text-white truncate max-w-[120px]">{aktivniAlat.naziv}</span>
-                                   </div>
-                                   <div className="flex justify-between pt-0.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Iznos:</span>
-                                      <span className="text-[11px] font-black text-orange-500">{aktivniAlat.cena}</span>
-                                   </div>
-                                </div>
-                                
-                                {proveraUplate === 'idle' && (
-                                  <button onClick={handleProveraUplate} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:scale-105 rounded-xl font-black uppercase tracking-widest text-[11px] text-white transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.4)]">
-                                    <Zap className="w-4 h-4" /> POTVRDIO SAM UPLATU
-                                  </button>
-                                )}
-
-                                {proveraUplate === 'loading' && (
-                                  <button disabled className="w-full py-4 bg-zinc-800 border border-zinc-600 rounded-xl font-black uppercase tracking-widest text-[10px] text-zinc-400 flex items-center justify-center gap-2 cursor-wait">
-                                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> PROVERA BANKE U TOKU...
-                                  </button>
-                                )}
-
-                                {proveraUplate === 'failed' && (
-                                  <div className="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-center animate-in zoom-in">
-                                    <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2 flex justify-center items-center gap-1"><ShieldAlert className="w-3 h-3" /> UPLATA NIJE EVIDENTIRANA</p>
-                                    <p className="text-zinc-300 text-[9px] uppercase font-bold leading-relaxed mb-3">Sistem ne vidi uplatu. Pošaljite nam sliku uplatnice da bismo Vam odmah otključali pristup.</p>
-                                    <div className="flex flex-col gap-2 w-full">
-                                        <a href="https://wa.me/381648201496?text=Pozdrav,%20šaljem%20dokaz%20o%20uplati%20za%20V8%20Alat" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all flex justify-center items-center shadow-lg gap-2">
-                                            Pošalji na WhatsApp
-                                        </a>
-                                        <a href="mailto:aitoolsprosmart@gmail.com?subject=Dokaz o uplati - V8 Pametni Alati" className="bg-red-600/30 border border-red-500/50 hover:bg-red-600 text-white px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex justify-center items-center gap-2">
-                                            <Mail className="w-3 h-3" /> Pošalji na Email
-                                        </a>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                           </div>
-                        )}
-                    </div>
-
-                    {(isPaid || isAdmin) && (
-                      <button 
-                        onClick={() => { navigator.clipboard.writeText(rezultat); alert("V8 Rezultat je uspešno kopiran u memoriju!"); }}
-                        className="w-full py-5 mt-4 bg-orange-600 hover:bg-orange-500 rounded-xl font-black uppercase tracking-widest text-[13px] text-white transition-all flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(234,88,12,0.3)]"
-                      >
-                        <Award className="w-5 h-5" /> KOPIRAJ CEO TEKST
-                      </button>
-                    )}
-                </div>
-            )}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
-          {alati.map((alat) => (
-            <div key={alat.id} className="bg-black border border-white/5 p-8 rounded-[2rem] hover:border-orange-500/50 transition-all group cursor-pointer flex flex-col h-full shadow-lg" onClick={() => handleOtvoriAlat(alat)}>
-              {renderIkona(alat.ikona)}
-              <h3 className="text-lg font-black text-white uppercase tracking-widest mb-3 group-hover:text-orange-500 transition-colors">{alat.naziv}</h3>
-              <p className="text-zinc-500 text-sm mb-6 flex-1">{alat.opis}</p>
-              <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-auto">
-                <span className="text-white font-black">{alat.cena}</span>
-                <span className="text-[10px] font-black uppercase text-orange-500 tracking-widest flex items-center gap-1 group-hover:translate-x-2 transition-transform">Pokreni <ChevronRight className="w-3 h-3" /></span>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-      </div>
-    </div>
-  );
-};
-/// KRAJ FUNKCIJE: V8PametniAlatiPage ///
-
 /// POČETAK FUNKCIJE: AdminDemoProjekti ///
 const AdminDemoProjekti = () => {
   const [name, setName] = useState('');
@@ -1510,7 +1240,7 @@ const AdminMikroAlati = () => {
 /// POČETAK FUNKCIJE: AdminPage ///
 const AdminPage = ({ apps = [], refreshData }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); 
-  const [authChecking, setAuthChecking] = useState(true); // NOVO: Provera sesije u pozadini
+  const [authChecking, setAuthChecking] = useState(true); 
   const [adminTab, setAdminTab] = useState('assets'); 
   const [isUploading, setIsUploading] = useState(false); 
   const [loading, setLoading] = useState(false);
@@ -1527,7 +1257,18 @@ const AdminPage = ({ apps = [], refreshData }) => {
   const [gallery, setGallery] = useState([]);
   const [analyticsData, setAnalyticsData] = useState([]);
 
-  // NOVO: V8 Pamćenje Sesije - Proverava da li si već prijavljen čim otvoriš stranicu
+  // --- V8 IPS MOCK PODACI ---
+  const [zahtevi, setZahtevi] = useState([
+    { id: 1, klijent: "Marko M.", film: "GLADIATOR", vreme: "Pre 2 min", status: "ceka_uplatu" },
+    { id: 2, klijent: "Studio X", film: "MATRIX", vreme: "Pre 15 min", status: "ceka_uplatu" },
+  ]);
+
+  const otkljucajKlijentu = (id) => {
+    setZahtevi(zahtevi.filter(z => z.id !== id));
+    if(typeof v8Toast !== 'undefined') v8Toast.success("IPS Uplata potvrđena! Klijentu je otključan 4K vizual.");
+  };
+  // --------------------------
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user && user.email === "damnjanovicgoran7@gmail.com") {
@@ -1535,7 +1276,7 @@ const AdminPage = ({ apps = [], refreshData }) => {
       } else {
         setIsAuthenticated(false);
       }
-      setAuthChecking(false); // Završio proveru, skloni učitavanje
+      setAuthChecking(false); 
     });
     return () => unsub();
   }, []);
@@ -1566,429 +1307,493 @@ const AdminPage = ({ apps = [], refreshData }) => {
     const parts = (app.whopLink || "").split("[SPLIT]"); 
     const loadedFaq = app.faq || []; 
     const paddedFaq = Array.from({ length: 7 }, (_, i) => loadedFaq[i] || { q: '', a: '' }); 
-    setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); 
-    setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); 
-  };
+  setFormData({ ...app, whopLink: parts[0] || '', reactSourceCode: parts[1] || '', gumroadLink: app.gumroadLink || '', faq: paddedFaq }); 
+  setEditingId(app.id); setAdminTab('assets'); window.scrollTo(0, 0); 
+};
+
+// 🚀 DIREKTNO UPISIVANJE U FIREBASE BAZU (BEZ NODE.JS-A)
+const handleSubmit = async (e) => { 
+  e.preventDefault(); 
+  const finalId = formData.id ? String(formData.id).trim() : (editingId || null);
   
-  const handleSubmit = async (e) => { 
-    e.preventDefault(); 
-    const finalId = formData.id ? String(formData.id) : (editingId || String(Date.now()));
-    const payload = { ...formData, id: finalId, whopLink: `${formData.whopLink}[SPLIT]${formData.reactSourceCode}`, faq: formData.faq.filter(f => f.q && f.a) }; 
-    try { 
-      const targetUrl = editingId ? `${API_URL}/${editingId}` : API_URL;
-      const res = await fetch(targetUrl, { method: editingId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
-      if (res.ok) { setFormData(initialForm); setEditingId(null); refreshData(); v8Toast.success("Proizvod uspešno sačuvan na Railway server!"); } 
-    } catch (err) { v8Toast.error("Greška pri čuvanju proizvoda!"); } 
+  const payload = { 
+    ...formData, 
+    whopLink: `${formData.whopLink}[SPLIT]${formData.reactSourceCode}`, 
+    faq: formData.faq.filter(f => f.q && f.a),
+    updatedAt: serverTimestamp()
   }; 
   
-  const handleImageUpload = async (e) => { 
-    const files = Array.from(e.target.files); setIsUploading(true); 
-    for (const file of files) { 
-      const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); 
-      try { 
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd }); 
-        const resData = await res.json(); 
-        setFormData(prev => ({ ...prev, media: [...prev.media, { url: resData.secure_url, type: file.type.startsWith('video/') ? 'video' : 'image' }] })); 
-      } catch (err) {} 
-    } setIsUploading(false); 
-  };
+  if (!editingId) payload.createdAt = serverTimestamp();
+  delete payload.id; // Firebase sam postavlja ime dokumenta
 
-  const handleDeleteAsset = async (appId) => {
-    if(window.confirm("Trajno obrisati ovaj proizvod sa sajta?")) { 
-      await fetch(`${API_URL}/${appId}`, { method: 'DELETE' }); 
-      refreshData(); v8Toast.success("Proizvod uspešno obrisan!"); 
+  try { 
+    if (editingId) {
+       await setDoc(doc(db, "v8_products", editingId), payload, { merge: true });
+       v8Toast.success("Proizvod uspešno ažuriran u V8 bazi!");
+    } else if (finalId) {
+       await setDoc(doc(db, "v8_products", finalId), payload);
+       v8Toast.success("Novi proizvod dodat u V8 bazu!");
+    } else {
+       await addDoc(collection(db, "v8_products"), payload);
+       v8Toast.success("Novi proizvod dodat u V8 bazu!");
     }
-  };
+    setFormData(initialForm); setEditingId(null); refreshData(); 
+  } catch (err) { 
+    console.error(err);
+    v8Toast.error("Greška pri čuvanju proizvoda u Firebase!"); 
+  } 
+}; 
 
-  const handleAddVip = async (e) => {
-    e.preventDefault(); 
-    if(!vipEmail) return v8Toast.error("Unesi email kupca!");
-    if(selectedApps.length === 0) return v8Toast.error("Izaberi bar jedan proizvod koji mu otključavaš!");
-    const emailLower = vipEmail.trim().toLowerCase();
+const handleImageUpload = async (e) => { 
+  const files = Array.from(e.target.files); setIsUploading(true); 
+  for (const file of files) { 
+    const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); 
     try { 
-      await setDoc(doc(db, "vip_users", emailLower), { addedAt: Date.now(), unlockedApps: selectedApps }, { merge: true }); 
-      setVipEmail(''); setSelectedApps([]); fetchAllFirebaseData(); v8Toast.success(`Pristup uspešno dodeljen!`); 
-    } catch(e) { v8Toast.error("Greška pri dodavanju u bazu!"); }
-  };
-  
-  const handleDeleteVip = async (id) => { 
-    if(window.confirm(`Izbrisati ${id} iz VIP baze i oduzeti mu sav pristup?`)) { await deleteDoc(doc(db, "vip_users", id)); fetchAllFirebaseData(); v8Toast.success("Korisnik trajno obrisan."); } 
-  };
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd }); 
+      const resData = await res.json(); 
+      setFormData(prev => ({ ...prev, media: [...prev.media, { url: resData.secure_url, type: file.type.startsWith('video/') ? 'video' : 'image' }] })); 
+    } catch (err) {} 
+  } setIsUploading(false); 
+};
 
-  const handleUploadGallery = async (e) => {
-    const file = e.target.files[0]; if (!file) return; setIsUploading(true);
-    const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
+// 🚀 DIREKTNO BRISANJE IZ FIREBASE BAZE
+const handleDeleteAsset = async (appId) => {
+  if(window.confirm("Trajno obrisati ovaj proizvod sa sajta?")) { 
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
-      const resData = await res.json();
-      await addDoc(collection(db, "enhancer_gallery"), { url: resData.secure_url, createdAt: Date.now() }); fetchAllFirebaseData();
-    } catch (err) {} finally { setIsUploading(false); }
-  };
-  
-  const handleDeleteGallery = async (id) => { if(window.confirm("Obrisati sliku iz Enhancer galerije?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); fetchAllFirebaseData(); } };
+      await deleteDoc(doc(db, "v8_products", appId));
+      refreshData(); v8Toast.success("Proizvod uspešno obrisan iz V8 baze!"); 
+    } catch(e) {
+      v8Toast.error("Greška pri brisanju!");
+    }
+  }
+};
 
-  // Dok sistem proverava da li si ulogovan, vrti narandžasti krug umesto dugmeta
-  if (authChecking) return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-       <Loader2 className="w-12 h-12 text-orange-500 animate-spin" />
+const handleAddVip = async (e) => {
+  e.preventDefault(); 
+  if(!vipEmail) return v8Toast.error("Unesi email kupca!");
+  if(selectedApps.length === 0) return v8Toast.error("Izaberi bar jedan proizvod koji mu otključavaš!");
+  const emailLower = vipEmail.trim().toLowerCase();
+  try { 
+    await setDoc(doc(db, "vip_users", emailLower), { addedAt: Date.now(), unlockedApps: selectedApps }, { merge: true }); 
+    setVipEmail(''); setSelectedApps([]); fetchAllFirebaseData(); v8Toast.success(`Pristup uspešno dodeljen!`); 
+  } catch(e) { v8Toast.error("Greška pri dodavanju u bazu!"); }
+};
+
+const handleDeleteVip = async (id) => { 
+  if(window.confirm(`Izbrisati ${id} iz VIP baze i oduzeti mu sav pristup?`)) { await deleteDoc(doc(db, "vip_users", id)); fetchAllFirebaseData(); v8Toast.success("Korisnik trajno obrisan."); } 
+};
+
+const handleUploadGallery = async (e) => {
+  const file = e.target.files[0]; if (!file) return; setIsUploading(true);
+  const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET);
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
+    const resData = await res.json();
+    await addDoc(collection(db, "enhancer_gallery"), { url: resData.secure_url, createdAt: Date.now() }); fetchAllFirebaseData();
+  } catch (err) {} finally { setIsUploading(false); }
+};
+
+const handleDeleteGallery = async (id) => { if(window.confirm("Obrisati sliku iz Enhancer galerije?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); fetchAllFirebaseData(); } };
+
+if (authChecking) return (
+  <div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="w-12 h-12 text-orange-500 animate-spin" /></div>
+);
+
+if (!isAuthenticated) return (
+  <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 text-center">
+    <div className="bg-[#0a0a0a] p-12 rounded-[2rem] border-2 border-red-900 shadow-[0_0_30px_rgba(185,28,28,0.2)] max-w-md w-full relative group">
+      <ShieldAlert className="w-16 h-16 text-red-600 mx-auto mb-10 animate-pulse" />
+      <button onClick={handleGoogleLogin} className="w-full rounded-2xl bg-gradient-to-r from-red-900 to-red-600 px-6 py-5 font-black uppercase text-[12px] tracking-widest text-white shadow-xl hover:shadow-[0_0_20px_rgba(185,28,28,0.3)] transition-all flex items-center justify-center gap-3"><Zap className="w-5 h-5" /> PRIJAVI SE KAO GORAN</button>
     </div>
-  );
+  </div>
+);
 
-  if (!isAuthenticated) return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6 text-center">
-      <div className="bg-[#0a0a0a] p-12 rounded-[2rem] border-2 border-red-900 shadow-[0_0_30px_rgba(185,28,28,0.2)] max-w-md w-full relative group">
-        <ShieldAlert className="w-16 h-16 text-red-600 mx-auto mb-10 animate-pulse" />
-        <button onClick={handleGoogleLogin} className="w-full rounded-2xl bg-gradient-to-r from-red-900 to-red-600 px-6 py-5 font-black uppercase text-[12px] tracking-widest text-white shadow-xl hover:shadow-[0_0_20px_rgba(185,28,28,0.3)] transition-all flex items-center justify-center gap-3"><Zap className="w-5 h-5" /> PRIJAVI SE KAO GORAN</button>
-      </div>
+return (
+  <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white relative">
+    <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto custom-scrollbar">
+       <button type="button" onClick={() => setAdminTab('assets')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'assets' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Award className="w-4 h-4 inline mr-2" /> Assets Manager</button>
+       <button type="button" onClick={() => setAdminTab('enhancer')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'enhancer' ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Sparkles className="w-4 h-4 inline mr-2" /> Enhancer Gallery</button>
+       <button type="button" onClick={() => setAdminTab('demo')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'demo' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Layers className="w-4 h-4 inline mr-2" /> Demo Projekti</button>
+       <button type="button" onClick={() => setAdminTab('vip')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'vip' ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Users className="w-4 h-4 inline mr-2" /> VIP Baza</button>
+       <button type="button" onClick={() => setAdminTab('analytics')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'analytics' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><BarChart className="w-4 h-4 inline mr-2" /> V8 Analytics</button>
+       <button type="button" onClick={() => setAdminTab('mikroalati')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'mikroalati' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Zap className="w-4 h-4 inline mr-2" /> Mikro Alati</button>
+       <div className="w-[1px] h-10 bg-white/10 mx-2 hidden md:block"></div>
+       <button type="button" onClick={() => setAdminTab('ips_zahtevi')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'ips_zahtevi' ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}>
+         <QrCode className="w-4 h-4 inline mr-2" /> IPS Odobrenja
+         {zahtevi.length > 0 && <span className="ml-2 bg-white text-red-600 px-1.5 py-0.5 rounded-full text-[9px]">{zahtevi.length}</span>}
+       </button>
+       <button type="button" onClick={() => setAdminTab('v8_alati')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'v8_alati' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Camera className="w-4 h-4 inline mr-2" /> V8 Pixar Bypass</button>
     </div>
-  );
 
-  return (
-    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white relative">
-      <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto">
-         <button type="button" onClick={() => setAdminTab('assets')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'assets' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Award className="w-4 h-4 inline mr-2" /> Assets Manager</button>
-         <button type="button" onClick={() => setAdminTab('enhancer')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'enhancer' ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Sparkles className="w-4 h-4 inline mr-2" /> Enhancer Gallery</button>
-         <button type="button" onClick={() => setAdminTab('demo')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'demo' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Layers className="w-4 h-4 inline mr-2" /> Demo Projekti</button>
-         <button type="button" onClick={() => setAdminTab('vip')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'vip' ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Users className="w-4 h-4 inline mr-2" /> VIP Baza</button>
-         <button type="button" onClick={() => setAdminTab('analytics')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'analytics' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><BarChart className="w-4 h-4 inline mr-2" /> V8 Analytics</button>
-         <button type="button" onClick={() => setAdminTab('mikroalati')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'mikroalati' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Zap className="w-4 h-4 inline mr-2" /> Mikro Alati</button>
+    {adminTab === 'ips_zahtevi' && (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
+          <div className="mb-8"><h1 className="text-3xl font-black uppercase tracking-widest text-white mb-2">IPS ODOBRENJA</h1><p className="text-zinc-500 text-[12px] font-bold tracking-widest uppercase">Klijenti koji čekaju otključavanje V8 vizuala (Mockup Prikaz)</p></div>
+          <div className="bg-[#0a0a0a] border border-orange-500/20 rounded-[2rem] p-4 shadow-[0_0_40px_rgba(234,88,12,0.05)]">
+            {zahtevi.length === 0 ? (
+              <div className="text-center py-20 opacity-50"><CheckCircle className="w-16 h-16 text-zinc-600 mx-auto mb-4" /><p className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Svi IPS zahtevi su rešeni.</p></div>
+            ) : (
+              <div className="space-y-3">
+                {zahtevi.map((z) => (
+                  <div key={z.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-3xl bg-[#050505] border border-white/5 hover:border-orange-500/30 transition-all gap-4">
+                    <div className="flex items-center gap-6"><div className="w-12 h-12 rounded-full bg-orange-600/10 flex items-center justify-center border border-orange-500/30 shrink-0"><ImageIcon className="w-5 h-5 text-orange-500" /></div><div><h3 className="text-[14px] font-black uppercase tracking-widest text-white">{z.klijent}</h3><p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Traži: <span className="text-orange-400">{z.film}</span> • {z.vreme}</p></div></div>
+                    <div className="flex flex-wrap items-center gap-4 w-full md:w-auto"><div className="px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-[9px] font-black uppercase tracking-widest text-center">Skenirao QR</div><button onClick={() => otkljucajKlijentu(z.id)} className="px-6 py-3 w-full md:w-auto rounded-xl bg-gradient-to-r from-orange-600 to-red-600 text-white font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_15px_rgba(234,88,12,0.4)]">OTKLJUČAJ (POTVRDI)</button></div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
       </div>
-      
-      {adminTab === 'assets' && (
-        <div className="flex flex-col gap-12">
-          <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
-               <div className="flex items-center gap-3 mb-6"><Settings className="w-6 h-6 text-orange-500" /><h2 className="text-xl font-black text-orange-500 uppercase tracking-widest">{editingId ? 'Edit Product' : 'Add New Product'}</h2></div>
-               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <input type="number" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Unesi ID" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
-                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ime Proizvoda" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
-                  <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Kategorija" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
-                  <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Tip" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
-               </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standardna Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
-               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Podnaslov" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] w-full" /></div>
-               <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="LINK ZA APLIKACIJU" className="bg-black border border-green-500/50 p-3 rounded-xl text-[11px] outline-none" /></div>
-               <div className="bg-black border border-white/10 p-4 rounded-xl">
-                 <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media (Slike i Video)</label>
-                 <div className="flex flex-wrap gap-4">
-                   {formData.media.map((m, i) => (
-                     <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden group border border-white/10">
-                       {m.type === 'video' ? ( <><video src={`${m.url}#t=0.001`} className="w-full h-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-8 h-8 text-white opacity-80" /></div></>) : (<img src={m.url} className="w-full h-full object-cover" />)}
-                       <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:scale-110"><X className="w-3 h-3" /></button>
-                     </div>
-                   ))}
-                   <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 text-zinc-500 bg-white/[0.02]">{isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><UploadCloud className="w-6 h-6 mb-2" /><span className="text-[8px] uppercase font-black">Upload</span></>}<input type="file" multiple accept="image/*,video/*" onChange={handleImageUpload} className="hidden" /></label>
-                 </div>
-               </div>
-               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Glavni Opis" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono" />
-               <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Pitanje" className="flex-1 bg-black border border-white/5 p-3 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Odgovor" className="flex-[2] bg-black border border-white/5 p-3 rounded-lg text-[10px]" /></div>))}</div></div>
-               <div className="flex gap-4 pt-4 border-t border-white/10">
-                 <button type="submit" disabled={isUploading} className="flex-1 py-5 rounded-2xl font-black uppercase text-[12px] bg-orange-600 hover:bg-orange-500 transition-all flex justify-center items-center gap-2"><Zap className="w-4 h-4"/> {editingId ? "Update Product" : "Save New Product"}</button>
-                 {editingId && <button type="button" onClick={() => {setFormData(initialForm); setEditingId(null);}} className="px-8 py-5 rounded-2xl bg-zinc-800 uppercase font-black text-[12px] hover:bg-zinc-700">Cancel</button>}
-               </div>
-          </form>
-          <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
-             <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6">Database ({sortedAppsAdmin.length})</h2>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {sortedAppsAdmin.map(app => (
-                   <div key={app.id} className="p-5 bg-black border border-white/10 rounded-[1.5rem] flex flex-col gap-4 shadow-xl group hover:border-orange-500/50 transition-all">
-                     <div className="aspect-video relative overflow-hidden rounded-2xl bg-zinc-900">
-                       {app.media?.[0]?.type === 'video' ? ( <><video src={`${app.media[0].url}#t=0.001`} className="w-full h-full object-cover" muted /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-10 h-10 text-white opacity-80" /></div></>) : (<img src={data.getMediaThumbnail(app.media?.[0]?.url)} className="w-full h-full object-cover" alt="" />)}
-                     </div>
-                     <div className="flex justify-between items-start gap-4">
-                       <div><span className="text-[13px] font-black uppercase text-white line-clamp-2">{app.name}</span><span className="text-[9px] text-zinc-500 block mt-1">ID: {app.id}</span></div>
-                       <div className="flex gap-2">
-                         <button type="button" onClick={() => handleEditClick(app)} className="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
-                         <button type="button" onClick={() => handleDeleteAsset(app.id)} className="p-2.5 bg-red-600/20 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
-                       </div>
-                     </div>
+    )}
+
+    {adminTab === 'v8_alati' && (
+      <div className="animate-in fade-in duration-500 w-full">
+        <div className="mb-4 text-center"><h1 className="text-2xl font-black uppercase tracking-widest text-orange-500 mb-2">MASTER BYPASS AKTIVAN</h1><p className="text-zinc-500 text-[10px] font-bold tracking-widest uppercase">Generiši premium vizuale bez IPS naplate.</p></div>
+        <div className="origin-top scale-[0.9] -mt-16"><V8PixarSelfiePage isAdmin={true} /></div>
+      </div>
+    )}
+
+    {adminTab === 'assets' && (
+      <div className="flex flex-col gap-12">
+        <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+             <div className="flex items-center gap-3 mb-6"><Settings className="w-6 h-6 text-orange-500" /><h2 className="text-xl font-black text-orange-500 uppercase tracking-widest">{editingId ? 'Edit Product' : 'Add New Product'}</h2></div>
+             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Custom ID (Opciono)" className="bg-black border border-orange-500/50 p-3 rounded-xl text-[11px] text-orange-400 font-black outline-none" />
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ime Proizvoda" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] md:col-span-1" required />
+                <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Kategorija" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+                <input type="text" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} placeholder="Tip" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" />
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="Standardna Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /><input type="text" value={formData.priceLifetime} onChange={e => setFormData({...formData, priceLifetime: e.target.value})} placeholder="Lifetime Cena" className="bg-black border border-white/10 p-3 rounded-xl text-[11px]" /></div>
+             <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.headline} onChange={e => setFormData({...formData, headline: e.target.value})} placeholder="Podnaslov" className="bg-black border border-white/10 p-3 rounded-xl text-[11px] w-full" /></div>
+             <div className="grid grid-cols-1 gap-4"><input type="text" value={formData.whopLink} onChange={e => setFormData({...formData, whopLink: e.target.value})} placeholder="LINK ZA APLIKACIJU" className="bg-black border border-green-500/50 p-3 rounded-xl text-[11px] outline-none" /></div>
+             <div className="bg-black border border-white/10 p-4 rounded-xl">
+               <label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">Media (Slike i Video)</label>
+               <div className="flex flex-wrap gap-4">
+                 {formData.media.map((m, i) => (
+                   <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden group border border-white/10">
+                     {m.type === 'video' ? ( <><video src={`${m.url}#t=0.001`} className="w-full h-full object-cover" /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-8 h-8 text-white opacity-80" /></div></>) : (<img src={m.url} className="w-full h-full object-cover" />)}
+                     <button type="button" onClick={() => setFormData({...formData, media: formData.media.filter((_, idx) => idx !== i)})} className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:scale-110"><X className="w-3 h-3" /></button>
                    </div>
                  ))}
-             </div>
-          </div>
-        </div>
-      )}
-
-      {adminTab === 'enhancer' && (
-        <div className="bg-[#0a0a0a] border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_30px_rgba(147,51,234,0.1)]">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-            <div><h2 className="text-xl md:text-2xl font-black text-purple-500 uppercase tracking-widest flex items-center gap-3"><Sparkles className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2></div>
-            <label className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white px-6 py-4 rounded-xl font-black text-[12px] cursor-pointer hover:scale-105"><UploadCloud className="w-5 h-5 inline mr-2" /> UPLOAD NEW IMAGE <input type="file" accept="image/*" onChange={handleUploadGallery} className="hidden" /></label>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {gallery.map(img => (
-              <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all group-hover:scale-105" alt="Ref" /><button type="button" onClick={() => handleDeleteGallery(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 hover:scale-110"><Trash2 className="w-4 h-4" /></button></div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {adminTab === 'demo' && <AdminDemoProjekti />}
-
-      {adminTab === 'mikroalati' && <AdminMikroAlati />}
-
-      {adminTab === 'vip' && (
-        <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
-           <h2 className="text-xl font-black text-green-500 uppercase tracking-widest flex items-center gap-3"><Lock className="w-6 h-6" /> Premium VIP Baza</h2>
-           <form onSubmit={handleAddVip} className="space-y-6 mb-10 max-w-4xl">
-             <div className="flex flex-col sm:flex-row gap-4">
-               <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500" required />
-               <button type="submit" className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[12px]"><Zap className="w-4 h-4 inline"/> OTKLJUČAJ PRISTUP</button>
-             </div>
-             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-               <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-4 block">Štikliraj šta je kupac platio:</label>
-               <div className="flex flex-wrap gap-3">
-                 {sortedAppsAdmin.map(app => (
-                   <button type="button" key={app.id} onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>{app.name}</button>
-                 ))}
-                 <button type="button" onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>SVE OTKLJUČANO (V8 FULL)</button>
+                 <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 text-zinc-500 bg-white/[0.02]">{isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><UploadCloud className="w-6 h-6 mb-2" /><span className="text-[8px] uppercase font-black">Upload</span></>}<input type="file" multiple accept="image/*,video/*" onChange={handleImageUpload} className="hidden" /></label>
                </div>
              </div>
-           </form>
-           <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar max-w-4xl">
-             <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aktivni Premium Korisnici ({vipList.length})</h3>
-             {vipList.map(vip => (
-               <div key={vip.id} className="flex justify-between items-center bg-black border border-white/5 p-5 rounded-xl hover:border-green-500/30 transition-colors group">
-                 <div className="flex flex-col gap-2">
-                   <div className="flex items-center gap-3"><span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span></div>
-                   <div className="flex flex-wrap gap-2 mt-1">
-                     {vip.unlockedApps && vip.unlockedApps.map(appId => {
-                        if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
-                        const foundApp = sortedAppsAdmin.find(a => a.id === appId);
-                        return <span key={appId} className="text-[9px] bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
-                     })}
+             <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Glavni Opis" className="bg-black border border-white/10 p-4 rounded-xl text-[11px] h-96 w-full outline-none font-mono" />
+             <div className="bg-black border border-white/10 p-4 rounded-xl"><label className="text-[10px] font-black uppercase text-zinc-500 block mb-3">FAQ</label><div className="space-y-3">{formData.faq.map((f, i) => (<div key={i} className="flex gap-2"><input type="text" value={f.q} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].q = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Pitanje" className="flex-1 bg-black border border-white/5 p-3 rounded-lg text-[10px]" /><input type="text" value={f.a} onChange={e => { const newFaq = [...formData.faq]; newFaq[i].a = e.target.value; setFormData({...formData, faq: newFaq}); }} placeholder="Odgovor" className="flex-[2] bg-black border border-white/5 p-3 rounded-lg text-[10px]" /></div>))}</div></div>
+             <div className="flex gap-4 pt-4 border-t border-white/10">
+               <button type="submit" disabled={isUploading} className="flex-1 py-5 rounded-2xl font-black uppercase text-[12px] bg-orange-600 hover:bg-orange-500 transition-all flex justify-center items-center gap-2"><Zap className="w-4 h-4"/> {editingId ? "Update Product" : "Save New Product"}</button>
+               {editingId && <button type="button" onClick={() => {setFormData(initialForm); setEditingId(null);}} className="px-8 py-5 rounded-2xl bg-zinc-800 uppercase font-black text-[12px] hover:bg-zinc-700">Cancel</button>}
+             </div>
+        </form>
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
+           <h2 className="text-xl font-black text-white uppercase tracking-widest mb-6">V8 Database ({sortedAppsAdmin.length})</h2>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {sortedAppsAdmin.map(app => (
+                 <div key={app.id} className="p-5 bg-black border border-white/10 rounded-[1.5rem] flex flex-col gap-4 shadow-xl group hover:border-orange-500/50 transition-all">
+                   <div className="aspect-video relative overflow-hidden rounded-2xl bg-zinc-900">
+                     {app.media?.[0]?.type === 'video' ? ( <><video src={`${app.media[0].url}#t=0.001`} className="w-full h-full object-cover" muted /><div className="absolute inset-0 flex items-center justify-center bg-black/40"><PlayCircle className="w-10 h-10 text-white opacity-80" /></div></>) : (<img src={data.getMediaThumbnail(app.media?.[0]?.url)} className="w-full h-full object-cover" alt="" />)}
+                   </div>
+                   <div className="flex justify-between items-start gap-4">
+                     <div><span className="text-[13px] font-black uppercase text-white line-clamp-2">{app.name}</span><span className="text-[9px] text-zinc-500 block mt-1">ID: {app.id}</span></div>
+                     <div className="flex gap-2">
+                       <button type="button" onClick={() => handleEditClick(app)} className="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
+                       <button type="button" onClick={() => handleDeleteAsset(app.id)} className="p-2.5 bg-red-600/20 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                     </div>
                    </div>
                  </div>
-                 <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/10 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-               </div>
-             ))}
+               ))}
            </div>
         </div>
-      )}
+      </div>
+    )}
 
-      {adminTab === 'analytics' && (
-        <div className="space-y-8 animate-in fade-in duration-700">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-orange-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Visitors</span><span className="text-3xl font-black text-white">{new Set(analyticsData.map(s => s.sessionId)).size}</span></div>
-            <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Clicks</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'click').length}</span></div>
-            <div className="bg-[#0a0a0a] border border-amber-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Zap className="w-8 h-8 text-amber-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Enhancer Actions</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'enhancer_action').length}</span></div>
-          </div>
+    {adminTab === 'enhancer' && (
+      <div className="bg-[#0a0a0a] border border-purple-500/30 rounded-[2.5rem] p-8 shadow-[0_0_30px_rgba(147,51,234,0.1)]">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <div><h2 className="text-xl md:text-2xl font-black text-purple-500 uppercase tracking-widest flex items-center gap-3"><Sparkles className="w-6 h-6" /> 10X Enhancer Reference Gallery</h2></div>
+          <label className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white px-6 py-4 rounded-xl font-black text-[12px] cursor-pointer hover:scale-105"><UploadCloud className="w-5 h-5 inline mr-2" /> UPLOAD NEW IMAGE <input type="file" accept="image/*" onChange={handleUploadGallery} className="hidden" /></label>
         </div>
-      )}
-    </div>
-  );
-};
-/// KRAJ FUNKCIJE: AdminPage ///
-function TrezorPage({ apps = [] }) {
-  const [unlockedApps, setUnlockedApps] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {gallery.map(img => (
+            <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-white/10 aspect-square bg-[#050505]"><img src={img.url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-all group-hover:scale-105" alt="Ref" /><button type="button" onClick={() => handleDeleteGallery(img.id)} className="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 p-2 rounded-xl text-white opacity-0 group-hover:opacity-100 hover:scale-110"><Trash2 className="w-4 h-4" /></button></div>
+          ))}
+        </div>
+      </div>
+    )}
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        if (user.email === "damnjanovicgoran7@gmail.com") {
-          setUnlockedApps(['FULL_ACCESS']);
-        } else {
-          try {
-            const docRef = doc(db, "vip_users", user.email.toLowerCase());
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().unlockedApps) { setUnlockedApps(docSnap.data().unlockedApps); } 
-            else { setUnlockedApps([]); }
-          } catch(e) { setUnlockedApps([]); }
-        }
-      } else { navigate('/'); }
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [navigate]);
-
-  if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-orange-500"><Loader2 className="w-10 h-10 animate-spin" /></div>;
-
-  const hasFullAccess = unlockedApps.includes('FULL_ACCESS');
-  const myApps = hasFullAccess ? apps : apps.filter(app => unlockedApps.includes(app.id));
-
-  return (
-    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white min-h-screen">
-      <Helmet><title>MOJ TREZOR | AI TOOLS PRO SMART</title></Helmet>
-      <div className="flex items-center gap-4 mb-10 border-b border-orange-500/20 pb-6"><Lock className="w-8 h-8 text-orange-500" /><h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-white">VIP TREZOR</h1></div>
-      {myApps.length === 0 ? (
-         <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-10 text-center shadow-xl"><p className="text-zinc-500 uppercase tracking-widest font-bold text-[12px]">Trenutno nemate otključanih alata.</p><Link to="/" className="inline-block mt-6 bg-orange-600 px-8 py-3 rounded-xl text-white font-black text-[11px] uppercase tracking-widest hover:bg-orange-500">Idi u Prodavnicu</Link></div>
-      ) : (
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {myApps.map((app) => {
-               const isVideo = app.media?.[0]?.type === 'video' || app.media?.[0]?.url?.match(/\.(mp4|webm|ogg|mov)$/i);
-               const displayUrl = app.media?.[0]?.url || data.bannerUrl;
-               const parts = (app.whopLink || "").split("[SPLIT]");
-               const mainLink = parts[0] || "";
-               return (
-                 <div key={app.id} className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2rem] p-5 flex flex-col hover:border-orange-500/60 transition-all group">
-                   <Link to={`/app/${app.id}`} className="aspect-video relative rounded-xl overflow-hidden mb-4 bg-black block">
-                      {isVideo ? <video src={`${displayUrl}#t=0.001`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" muted playsInline /> : <img src={displayUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" alt={app.name} />}
-                   </Link>
-                   <h3 className="text-[16px] font-black uppercase text-white mb-2 line-clamp-1">{app.name}</h3>
-                   <p className="text-zinc-500 text-[10px] uppercase font-bold mb-6 flex-1 line-clamp-2">{app.headline}</p>
-                   {mainLink ? <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">🚀 OTVORI APLIKACIJU</a> : <Link to={`/app/${app.id}`} className="w-full py-3.5 bg-zinc-800 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">POGLEDAJ DETALJE</Link>}
+    {adminTab === 'demo' && <AdminDemoProjekti />}
+    {adminTab === 'mikroalati' && <AdminMikroAlati />}
+    
+    {adminTab === 'vip' && (
+      <div className="bg-[#0a0a0a] border border-green-500/30 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+         <h2 className="text-xl font-black text-green-500 uppercase tracking-widest flex items-center gap-3"><Lock className="w-6 h-6" /> Premium VIP Baza</h2>
+         <form onSubmit={handleAddVip} className="space-y-6 mb-10 max-w-4xl">
+           <div className="flex flex-col sm:flex-row gap-4">
+             <input type="email" value={vipEmail} onChange={e => setVipEmail(e.target.value)} placeholder="Email korisnika" className="flex-1 bg-black border border-white/10 p-4 rounded-xl text-[13px] outline-none focus:border-green-500" required />
+             <button type="submit" className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[12px]"><Zap className="w-4 h-4 inline"/> OTKLJUČAJ PRISTUP</button>
+           </div>
+           <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+             <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-4 block">Štikliraj šta je kupac platio:</label>
+             <div className="flex flex-wrap gap-3">
+               {sortedAppsAdmin.map(app => (
+                 <button type="button" key={app.id} onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>{app.name}</button>
+               ))}
+               <button type="button" onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>SVE OTKLJUČANO (V8 FULL)</button>
+             </div>
+           </div>
+         </form>
+         <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar max-w-4xl">
+           <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aktivni Premium Korisnici ({vipList.length})</h3>
+           {vipList.map(vip => (
+             <div key={vip.id} className="flex justify-between items-center bg-black border border-white/5 p-5 rounded-xl hover:border-green-500/30 transition-colors group">
+               <div className="flex flex-col gap-2">
+                 <div className="flex items-center gap-3"><span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span></div>
+                 <div className="flex flex-wrap gap-2 mt-1">
+                   {vip.unlockedApps && vip.unlockedApps.map(appId => {
+                      if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
+                      const foundApp = sortedAppsAdmin.find(a => a.id === appId);
+                      return <span key={appId} className="text-[9px] bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
+                   })}
                  </div>
-               );
-            })}
+               </div>
+               <button type="button" onClick={() => handleDeleteVip(vip.id)} className="bg-red-600/10 text-red-500 p-3 rounded-lg hover:bg-red-600 hover:text-white opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+             </div>
+           ))}
          </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+
+    {adminTab === 'analytics' && (
+      <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-orange-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Visitors</span><span className="text-3xl font-black text-white">{new Set(analyticsData.map(s => s.sessionId)).size}</span></div>
+          <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><MousePointerClick className="w-8 h-8 text-blue-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Clicks</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'click').length}</span></div>
+          <div className="bg-[#0a0a0a] border border-amber-500/20 p-6 rounded-[2rem] shadow-xl flex flex-col justify-center items-center text-center"><Zap className="w-8 h-8 text-amber-500 mb-3 opacity-80" /><span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Enhancer Actions</span><span className="text-3xl font-black text-white">{analyticsData.filter(s => s.type === 'enhancer_action').length}</span></div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+};
+
+function TrezorPage({ apps = [] }) {
+const [unlockedApps, setUnlockedApps] = useState([]);
+const [loading, setLoading] = useState(true);
+const navigate = useNavigate();
+
+useEffect(() => {
+  window.scrollTo(0, 0);
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      if (user.email === "damnjanovicgoran7@gmail.com") {
+        setUnlockedApps(['FULL_ACCESS']);
+      } else {
+        try {
+          const docRef = doc(db, "vip_users", user.email.toLowerCase());
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().unlockedApps) { setUnlockedApps(docSnap.data().unlockedApps); } 
+          else { setUnlockedApps([]); }
+        } catch(e) { setUnlockedApps([]); }
+      }
+    } else { navigate('/'); }
+    setLoading(false);
+  });
+  return () => unsubscribe();
+}, [navigate]);
+
+if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-orange-500"><Loader2 className="w-10 h-10 animate-spin" /></div>;
+
+const hasFullAccess = unlockedApps.includes('FULL_ACCESS');
+const myApps = hasFullAccess ? apps : apps.filter(app => unlockedApps.includes(app.id));
+
+return (
+  <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto font-sans text-left text-white min-h-screen">
+    <Helmet><title>MOJ TREZOR | AI TOOLS PRO SMART</title></Helmet>
+    <div className="flex items-center gap-4 mb-10 border-b border-orange-500/20 pb-6"><Lock className="w-8 h-8 text-orange-500" /><h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-white">VIP TREZOR</h1></div>
+    {myApps.length === 0 ? (
+       <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-10 text-center shadow-xl"><p className="text-zinc-500 uppercase tracking-widest font-bold text-[12px]">Trenutno nemate otključanih alata.</p><Link to="/" className="inline-block mt-6 bg-orange-600 px-8 py-3 rounded-xl text-white font-black text-[11px] uppercase tracking-widest hover:bg-orange-500">Idi u Prodavnicu</Link></div>
+    ) : (
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {myApps.map((app) => {
+             const isVideo = app.media?.[0]?.type === 'video' || app.media?.[0]?.url?.match(/\.(mp4|webm|ogg|mov)$/i);
+             const displayUrl = app.media?.[0]?.url || data.bannerUrl;
+             const parts = (app.whopLink || "").split("[SPLIT]");
+             const mainLink = parts[0] || "";
+             return (
+               <div key={app.id} className="bg-[#0a0a0a] border border-orange-500/30 rounded-[2rem] p-5 flex flex-col hover:border-orange-500/60 transition-all group">
+                 <Link to={`/app/${app.id}`} className="aspect-video relative rounded-xl overflow-hidden mb-4 bg-black block">
+                    {isVideo ? <video src={`${displayUrl}#t=0.001`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" muted playsInline /> : <img src={displayUrl} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" alt={app.name} />}
+                 </Link>
+                 <h3 className="text-[16px] font-black uppercase text-white mb-2 line-clamp-1">{app.name}</h3>
+                 <p className="text-zinc-500 text-[10px] uppercase font-bold mb-6 flex-1 line-clamp-2">{app.headline}</p>
+                 {mainLink ? <a href={data.formatExternalLink(mainLink)} target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">🚀 OTVORI APLIKACIJU</a> : <Link to={`/app/${app.id}`} className="w-full py-3.5 bg-zinc-800 text-white rounded-xl text-center font-black text-[11px] uppercase tracking-widest hover:scale-105 block">POGLEDAJ DETALJE</Link>}
+               </div>
+             );
+          })}
+       </div>
+    )}
+  </div>
+);
 }
 
-/// POČETAK FUNKCIJE: AppContent ///
 function AppContent({ appsData, refreshData }) {
-  const [isBooting, setIsBooting] = useState(true); 
-  const [showBanner, setShowBanner] = useState(false); 
-  const location = useLocation();
-  const prevLocation = useRef(location.pathname); 
-  const entryTime = useRef(Date.now());
-  const [isVIPLoggedIn, setIsVIPLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  
-  // V8 LIVE SAT I DATUM
-  const [trenutnoVreme, setTrenutnoVreme] = useState(new Date());
+const [isBooting, setIsBooting] = useState(true); 
+const [showBanner, setShowBanner] = useState(false); 
+const location = useLocation();
+const prevLocation = useRef(location.pathname); 
+const entryTime = useRef(Date.now());
+const [isVIPLoggedIn, setIsVIPLoggedIn] = useState(false);
+const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    // Tajmer koji osvežava vreme svake sekunde
-    const timer = setInterval(() => setTrenutnoVreme(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+const [trenutnoVreme, setTrenutnoVreme] = useState(new Date());
 
-  const daniUSedmici = ['Nedelja', 'Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota'];
-  const datumPrikaz = `${daniUSedmici[trenutnoVreme.getDay()]} , ${trenutnoVreme.getDate().toString().padStart(2, '0')}/${(trenutnoVreme.getMonth() + 1).toString().padStart(2, '0')}/${trenutnoVreme.getFullYear()}`;
-  const vremePrikaz = `${trenutnoVreme.getHours().toString().padStart(2, '0')}:${trenutnoVreme.getMinutes().toString().padStart(2, '0')}:${trenutnoVreme.getSeconds().toString().padStart(2, '0')}`;
+useEffect(() => {
+  const timer = setInterval(() => setTrenutnoVreme(new Date()), 1000);
+  return () => clearInterval(timer);
+}, []);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-       if(user) {
-          if (user.email === "damnjanovicgoran7@gmail.com") { setIsAdmin(true); setIsVIPLoggedIn(true); } 
-          else { setIsAdmin(false); if((await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists()) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); } }
-       } else { setIsVIPLoggedIn(false); setIsAdmin(false); }
-    }); return () => unsub();
-  }, []);
+const daniUSedmici = ['Nedelja', 'Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota'];
+const datumPrikaz = `${daniUSedmici[trenutnoVreme.getDay()]} , ${trenutnoVreme.getDate().toString().padStart(2, '0')}/${(trenutnoVreme.getMonth() + 1).toString().padStart(2, '0')}/${trenutnoVreme.getFullYear()}`;
+const vremePrikaz = `${trenutnoVreme.getHours().toString().padStart(2, '0')}:${trenutnoVreme.getMinutes().toString().padStart(2, '0')}:${trenutnoVreme.getSeconds().toString().padStart(2, '0')}`;
 
-  useEffect(() => {
-    if (prevLocation.current !== location.pathname) {
-       const timeSpent = Date.now() - entryTime.current;
-       logAnalyticsEvent('time_spent', { path: prevLocation.current, durationMS: timeSpent });
-       prevLocation.current = location.pathname; entryTime.current = Date.now();
-       logAnalyticsEvent('page_view', { path: location.pathname });
-    }
-  }, [location.pathname]);
-  
-  useEffect(() => { logAnalyticsEvent('page_view', { path: location.pathname }); }, []);
-  
-  useEffect(() => {
-    const handleGlobalClick = (e) => { const target = e.target.closest('button, a'); if (target) logAnalyticsEvent('click', { elementText: target.innerText || target.getAttribute('aria-label') || 'Icon', path: window.location.pathname }); };
-    document.addEventListener('click', handleGlobalClick); return () => document.removeEventListener('click', handleGlobalClick);
-  }, []);
-  
-  const handleHomeClick = (e) => { if (location.pathname === '/') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); window.history.replaceState(null, '', '/'); } };
-  
-  return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col font-sans relative pb-20 lg:pb-0 text-left">
-      <V8ToastContainer />
-      <AnimatePresence>
-        {isBooting && <FullScreenBoot key="boot" onComplete={() => { setIsBooting(false); setShowBanner(true); window.scrollTo(0,0); }} />}
-        {!isBooting && showBanner && <WelcomeBanner key="banner" onClose={() => setShowBanner(false)} />}
-      </AnimatePresence>
-      <div className="fixed top-0 left-0 w-full z-[1000]">
-        <nav className="w-full px-4 md:px-8 py-3 md:py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
-          <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
-            <Link to="/" onClick={handleHomeClick} className="flex items-center gap-4 group">
-              <img src={data.logoUrl} className="h-8 md:h-10 object-contain animate-pulse" alt="logo" />
-              <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] hidden sm:block"><span className="text-blue-500">AI TOOLS</span> <span className="text-orange-500">PRO SMART</span></span>
-            </Link>
-            <div className="flex items-center gap-3 md:gap-4 font-black uppercase text-[10px] md:text-[11px] tracking-widest">
-              <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
-              {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
-              <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, async (user) => {
+     if(user) {
+        if (user.email === "damnjanovicgoran7@gmail.com") { setIsAdmin(true); setIsVIPLoggedIn(true); } 
+        else { setIsAdmin(false); if((await getDoc(doc(db, "vip_users", user.email.toLowerCase()))).exists()) { setIsVIPLoggedIn(true); } else { setIsVIPLoggedIn(false); } }
+     } else { setIsVIPLoggedIn(false); setIsAdmin(false); }
+  }); return () => unsub();
+}, []);
 
-              <div className="relative group">
-                <button className="bg-gradient-to-r from-orange-600 to-red-600 border border-orange-400 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black tracking-widest text-[10px] md:text-xs shadow-[0_0_20px_rgba(234,88,12,0.6)] flex items-center gap-2 cursor-pointer">
-                  <Zap className="w-4 h-4" /> 
-                  V8 ALATI 
-                  <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" />
-                </button>
-                <div className="absolute left-0 mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 z-50">
-                  <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.3)] py-3 flex flex-col overflow-hidden">
-                    <Link to="/v8-pametni-alati" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3 border-b border-white/5">
-                      <Settings className="w-4 h-4 text-orange-500" /> Pametni Alati
-                    </Link>
-                    <Link to="/v8-kreator-slika" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3">
-                      <Eye className="w-4 h-4 text-orange-500" /> Kreator Slika
-                    </Link>
-                    <Link to="/pixar-selfie" className="block px-4 py-2 text-orange-400 hover:text-orange-500 font-bold flex items-center gap-2">
-                      Pixar Selfie Mejker <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase">Novo</span>
-                    </Link>
-                  </div>
+useEffect(() => {
+  if (prevLocation.current !== location.pathname) {
+     const timeSpent = Date.now() - entryTime.current;
+     logAnalyticsEvent('time_spent', { path: prevLocation.current, durationMS: timeSpent });
+     prevLocation.current = location.pathname; entryTime.current = Date.now();
+     logAnalyticsEvent('page_view', { path: location.pathname });
+  }
+}, [location.pathname]);
+
+useEffect(() => { logAnalyticsEvent('page_view', { path: location.pathname }); }, []);
+
+useEffect(() => {
+  const handleGlobalClick = (e) => { const target = e.target.closest('button, a'); if (target) logAnalyticsEvent('click', { elementText: target.innerText || target.getAttribute('aria-label') || 'Icon', path: window.location.pathname }); };
+  document.addEventListener('click', handleGlobalClick); return () => document.removeEventListener('click', handleGlobalClick);
+}, []);
+
+const handleHomeClick = (e) => { if (location.pathname === '/') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); window.history.replaceState(null, '', '/'); } };
+
+return (
+  <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col font-sans relative pb-20 lg:pb-0 text-left">
+    <V8ToastContainer />
+    <AnimatePresence>
+      {isBooting && <FullScreenBoot key="boot" onComplete={() => { setIsBooting(false); setShowBanner(true); window.scrollTo(0,0); }} />}
+      {!isBooting && showBanner && <WelcomeBanner key="banner" onClose={() => setShowBanner(false)} />}
+    </AnimatePresence>
+    <div className="fixed top-0 left-0 w-full z-[1000]">
+      <nav className="w-full px-4 md:px-8 py-3 md:py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
+          <Link to="/" onClick={handleHomeClick} className="flex items-center gap-4 group">
+            <img src={data.logoUrl} className="h-8 md:h-10 object-contain animate-pulse" alt="logo" />
+            <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] hidden sm:block"><span className="text-blue-500">AI TOOLS</span> <span className="text-orange-500">PRO SMART</span></span>
+          </Link>
+          <div className="flex items-center gap-3 md:gap-4 font-black uppercase text-[10px] md:text-[11px] tracking-widest">
+            <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
+            {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
+            <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
+
+            <div className="relative group">
+              <button className="bg-gradient-to-r from-orange-600 to-red-600 border border-orange-400 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black tracking-widest text-[10px] md:text-xs shadow-[0_0_20px_rgba(234,88,12,0.6)] flex items-center gap-2 cursor-pointer">
+                <Zap className="w-4 h-4" /> 
+                V8 ALATI 
+                <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" />
+              </button>
+              <div className="absolute left-0 mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 z-50">
+                <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.3)] py-3 flex flex-col overflow-hidden">
+                  <Link to="/v8-pametni-alati" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3 border-b border-white/5">
+                    <Settings className="w-4 h-4 text-orange-500" /> Pametni Alati
+                  </Link>
+                  <Link to="/v8-kreator-slika" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3">
+                    <Eye className="w-4 h-4 text-orange-500" /> Kreator Slika
+                  </Link>
+                  <Link to="/pixar-selfie" className="block px-4 py-2 text-orange-400 hover:text-orange-500 font-bold flex items-center gap-2">
+                    Pixar Selfie Mejker <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase">Novo</span>
+                  </Link>
                 </div>
               </div>
-              
-              {location.pathname !== '/enxance' && (<Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 10X ENHANCER</Link>)}
-              {isVIPLoggedIn ? (
-                 <div className="flex items-center gap-2 md:gap-3 ml-2">
-                    {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]"><Settings className="w-3.5 h-3.5" /> DASHBOARD</Link>)}
-                    <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-3.5 h-3.5" /> MOJ TREZOR</Link>
-                    <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex"><User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}</span>
-                    <button onClick={() => { signOut(auth); v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
-                 </div>
-              ) : (<Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>)}
             </div>
+            
+            {location.pathname !== '/enxance' && (<Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 10X ENHANCER</Link>)}
+            {isVIPLoggedIn ? (
+               <div className="flex items-center gap-2 md:gap-3 ml-2">
+                  {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]"><Settings className="w-3.5 h-3.5" /> DASHBOARD</Link>)}
+                  <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-3.5 h-3.5" /> MOJ TREZOR</Link>
+                  <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex"><User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}</span>
+                  <button onClick={() => { signOut(auth); v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
+               </div>
+            ) : (<Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>)}
           </div>
-        </nav>
-      </div>
-      <div className="flex-1 text-left pt-20">
-       <Routes>
-          <Route path="/" element={<HomePage apps={appsData} />} />
-          <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
-          <Route path="/enxance" element={<V8Enhancer10x />} />
-          <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
-          <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
-          <Route path="/pixar-selfie" element={<V8PixarSelfiePage isAdmin={isAdmin} />} />
-          <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
-          <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
-          <Route path="/trezor" element={<TrezorPage apps={appsData} />} />
-        </Routes>
-      </div>
-      <SmartScrollButton />
-
-      {/* V8 MODIFIKOVAN FUTER */}
-      <footer className="flex flex-col items-center gap-6 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-8 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
-        <div className="flex items-center gap-6">
-          <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>
-          <a href="https://www.youtube.com/@SmartAiToolsPro-Smart-AI" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><Youtube size={20} className="text-[#FF0000]" /></a>
-          <a href="https://www.instagram.com/aitoolsprosmart/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" className="h-4 w-4 object-contain" /></a>
-          <a href="https://www.tiktok.com/@smartaitoolspro" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" className="h-4 w-4 object-contain" /></a>
         </div>
-
-        <div className="w-full px-6 flex flex-col items-center gap-3">
-           <div className="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center gap-4">
-              
-              {/* LEVA STRANA: DATUM - Povećan font i boldovano */}
-              <div className="text-zinc-400 font-mono font-black tracking-widest text-[11px] md:text-[13px]">{datumPrikaz}</div>
-              
-              {/* SREDINA: COPYRIGHT */}
-              <div className="text-[9px] md:text-[10px]">© 2026 <span className="text-blue-500 font-black">AI TOOLS</span> <span className="text-orange-500 font-black">PRO SMART</span> <span className="mx-1 text-white font-black">|</span> SVA PRAVA ZADRŽANA</div>
-              
-              {/* DESNA STRANA: VREME - Značajno povećan font, brojevi i ikona */}
-              <div className="text-orange-500 font-mono font-black tracking-widest flex items-center justify-center gap-2 text-[12px] md:text-[15px]"><Clock className="w-4 h-4 md:w-5 md:h-5" /> {vremePrikaz}</div>
-           
-           </div>
-           
-           <div className="text-orange-500/60 font-bold normal-case tracking-[0.2em] text-[11px] mt-2">Premium Solutions for Premium Clients.</div>
-        </div>
-      </footer>
+      </nav>
     </div>
-  );
+    <div className="flex-1 text-left pt-20">
+     <Routes>
+        <Route path="/" element={<HomePage apps={appsData} />} />
+        <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
+        <Route path="/enxance" element={<V8Enhancer10x />} />
+        <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
+        <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
+        <Route path="/pixar-selfie" element={<V8PixarSelfiePage isAdmin={isAdmin} />} />
+        <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
+        <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
+        <Route path="/trezor" element={<TrezorPage apps={appsData} />} />
+      </Routes>
+    </div>
+    <SmartScrollButton />
+    <footer className="flex flex-col items-center gap-6 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-8 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
+      <div className="flex items-center gap-6">
+        <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>
+        <a href="https://www.youtube.com/@SmartAiToolsPro-Smart-AI" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><Youtube size={20} className="text-[#FF0000]" /></a>
+        <a href="https://www.instagram.com/aitoolsprosmart/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" className="h-4 w-4 object-contain" /></a>
+        <a href="https://www.tiktok.com/@smartaitoolspro" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" className="h-4 w-4 object-contain" /></a>
+      </div>
+      <div className="w-full px-6 flex flex-col items-center gap-3">
+         <div className="w-full max-w-5xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-zinc-400 font-mono font-black tracking-widest text-[11px] md:text-[13px]">{datumPrikaz}</div>
+            <div className="text-[9px] md:text-[10px]">© 2026 <span className="text-blue-500 font-black">AI TOOLS</span> <span className="text-orange-500 font-black">PRO SMART</span> <span className="mx-1 text-white font-black">|</span> SVA PRAVA ZADRŽANA</div>
+            <div className="text-orange-500 font-mono font-black tracking-widest flex items-center justify-center gap-2 text-[12px] md:text-[15px]"><Clock className="w-4 h-4 md:w-5 md:h-5" /> {vremePrikaz}</div>
+         </div>
+         <div className="text-orange-500/60 font-bold normal-case tracking-[0.2em] text-[11px] mt-2">Premium Solutions for Premium Clients.</div>
+      </div>
+    </footer>
+  </div>
+);
 }
-/// KRAJ FUNKCIJE: AppContent ///celu
+
+// 🚀 V8 FIREBASE GLAVNA PETLJA (REPLACES LOCALHOST API)
 export default function App() { 
-  const [appsData, setAppsData] = useState([]); 
-  const refreshData = useCallback(() => { fetch(API_URL).then(res => res.json()).then(db => setAppsData(db)).catch(() => setAppsData([])); }, []); 
-  useEffect(() => { refreshData(); }, [refreshData]);
-  return (<HelmetProvider><Router><AppContent appsData={appsData} refreshData={refreshData} /><data.LiveSalesNotification apps={appsData} /></Router></HelmetProvider>); 
+const [appsData, setAppsData] = useState([]); 
+
+const refreshData = useCallback(async () => { 
+  try {
+    // Povlači proizvode iz Firebase kolekcije 'v8_products' sortirane po datumu (od najnovijeg)
+    const q = query(collection(db, "v8_products"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setAppsData(data);
+  } catch (error) {
+    console.error("❌ V8 Greška pri učitavanju iz Firebase baze: ", error);
+    setAppsData([]); // Fallback u slučaju greške
+  }
+}, []); 
+
+useEffect(() => { refreshData(); }, [refreshData]);
+
+return (
+  <HelmetProvider>
+    <Router>
+      <AppContent appsData={appsData} refreshData={refreshData} />
+      <data.LiveSalesNotification apps={appsData} />
+    </Router>
+  </HelmetProvider>
+); 
 }

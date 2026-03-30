@@ -7,6 +7,7 @@ const BASE_BACKEND_URL = window.location.hostname === 'localhost'
   ? "http://localhost:5000" 
   : "https://goranov-sajt-srpski-backend-production.up.railway.app";
 
+// POČETAK FUNKCIJE: V8PixarSelfiePage
 const V8PixarSelfiePage = ({ isAdmin }) => {
   const [unos, setUnos] = useState('');
   const [slika, setSlika] = useState(null);
@@ -15,30 +16,87 @@ const V8PixarSelfiePage = ({ isAdmin }) => {
   // V8 MENJAČ
   const [stil, setStil] = useState('pixar');
 
+  // POČETAK FUNKCIJE: bazniPrompt
   const bazniPrompt = (unosTekst, stilTokens) => {
-    const template = `Ultra-detailed stylized 3D animation render with strong real-actor likeness preservation, inspired by Disney/Pixar CGI but grounded in semi-realistic human facial reconstruction, vertical 3:4 frame.
+    const template = `Ultra-detailed stylized 3D animation render with Pixar-inspired CGI surface quality BUT with STRICT real-actor facial identity preservation, vertical 3:4 frame.
 
-Scene shows the primary iconic characters from {SHOW_MOVIE_INPUT}, automatically inferred and generated based on the original film/series cast, with high resemblance to the actors who portrayed them.
+Scene shows the primary iconic characters from {SHOW_MOVIE_INPUT}, automatically inferred from the original cast, with MAXIMUM likeness accuracy to the real actors who portrayed them.
 
-The central protagonist holds a large retro camera toward a mirror, while supporting characters gather tightly around, forming a dynamic, playful group selfie.
+All characters are positioned tightly together in a bathroom mirror selfie composition.
+The central protagonist holds a retro camera toward the mirror while others crowd naturally with dynamic, in-character expressions.
 
-All characters wear their screen-accurate outfits from {SHOW_MOVIE_INPUT}.
-
-FACES — CRITICAL:
-preserve strong actor likeness, accurate facial structure, bone proportions, age accuracy, recognizable identity traits, avoid generic AI faces, avoid face distortion.
-
-Mirror includes realistic smudges, toothpaste marks, and bold black handwritten-style text "{SHOW_MOVIE_INPUT}" visible in reflection.
+Wardrobe must be 100% screen-accurate to {SHOW_MOVIE_INPUT}.
 
 ---
-RENDER QUALITY:
-4K, high detail, clean CGI shading, realistic skin texture, no watermark
+
+IDENTITY LOCK — CRITICAL (DO NOT BREAK):
+same person consistency, fixed facial identity, no variation across faces  
+accurate skull structure, jawline, cheekbones, eye spacing, nose shape, lip structure  
+preserve actor-specific asymmetry and imperfections (do NOT beautify)  
+maintain correct age, ethnicity, and facial proportions  
+no generic AI faces, no face averaging, no symmetry correction  
+no cartoon exaggeration of facial features  
+facial geometry must match real-world human anatomy exactly  
 
 ---
-FINAL V8 STYLE BOOST: ${stilTokens}`;
+
+LIKELINESS BOOST ENGINE:
+trained-on-film-stills look, production still photography reference  
+casting-photo accuracy, on-set lighting reference realism  
+IMG_0001.CR2 DSLR realism simulation, studio archive capture feel  
+subsurface_scattering_skin, micro_skin_detail, pore-level texture  
+fine facial hair, natural skin roughness, subtle eye imperfections  
+real iris detail, natural eye reflections, no artificial glow  
+
+---
+
+EXPRESSION & BEHAVIOR:
+each character must reflect their personality from {SHOW_MOVIE_INPUT}  
+natural micro-expressions, not exaggerated cartoon emotions  
+authentic interaction between characters (overlapping poses, depth layering)  
+
+---
+
+MIRROR ENVIRONMENT:
+realistic bathroom mirror with smudges, fingerprints, toothpaste marks  
+bold black handwritten text "{SHOW_MOVIE_INPUT}" visible in reflection  
+accurate reflection physics, slight imperfections in mirror surface  
+
+---
+
+RENDER STYLE:
+Pixar-inspired rendering ONLY for materials, lighting and shading — NOT for facial structure  
+faces must remain semi-photorealistic, grounded in real human anatomy  
+
+---
+
+CAMERA & OPTICS:
+shot as mirror reflection using 35mm lens equivalent  
+natural perspective distortion, slight handheld feel  
+depth of field subtle and realistic  
+
+---
+
+LIGHTING:
+soft bathroom practical lighting mixed with flash reflection  
+natural skin highlights, realistic shadow falloff  
+no overexposed CGI lighting, no plastic shine  
+
+---
+
+OUTPUT QUALITY:
+4K resolution, ultra-clean render, no artifacts, no watermark  
+
+---
+
+FINAL V10 STYLE BOOST:
+${stilTokens}`;
 
     return template.replaceAll("{SHOW_MOVIE_INPUT}", unosTekst);
   };
+  // KRAJ FUNKCIJE: bazniPrompt
 
+  // POČETAK FUNKCIJE: kreirajRemekDelo
   const kreirajRemekDelo = async () => {
     if (!unos.trim()) {
       if(typeof v8Toast !== 'undefined') v8Toast.error("Moraš uneti ime filma ili serije!");
@@ -80,7 +138,9 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
       setIsGenerating(false);
     }
   };
+  // KRAJ FUNKCIJE: kreirajRemekDelo
 
+  // POČETAK FUNKCIJE: preuzmiSliku
   const preuzmiSliku = () => {
     if (!slika) return;
     const a = document.createElement('a');
@@ -90,11 +150,14 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
     a.click();
     document.body.removeChild(a);
   };
+  // KRAJ FUNKCIJE: preuzmiSliku
 
+  // POČETAK FUNKCIJE: kopirajEmail
   const kopirajEmail = () => {
-    navigator.clipboard.writeText("tvoj@email.com"); // ZAMENI SA TVOJIM EMAILOM
+    navigator.clipboard.writeText("aitoolsprosmart@gmail.com"); 
     if(typeof v8Toast !== 'undefined') v8Toast.success("Email je kopiran u beležnicu!");
   };
+  // KRAJ FUNKCIJE: kopirajEmail
 
   return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-24 px-6 flex flex-col items-center text-white">
@@ -121,7 +184,30 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
               <h2 className="text-2xl font-black uppercase tracking-widest text-white mb-3">VIZIONARSKI POGLED<br/><span className="text-orange-500">ZA VAŠ BREND</span></h2>
               <p className="text-zinc-500 text-[13px] font-medium leading-relaxed">Privucite pažnju premium klijenata vizualima koji pomeraju granice mogućeg.</p>
             </div>
-            {/* Ostatak leve kolone (skraćeno zbog preglednosti, ostaje tvoje isto) */}
+            
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><Brain className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">REVOLUCIONARNA AI MOĆ</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Pretvorite bilo koji film ili seriju u nezaboravne, interaktivne kampanje koje generišu enorman angažman publike.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><Diamond className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">UNIKATNO BRENDIRANJE</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Stvorite prepoznatljive 4K vizuale koji se ne mogu imitirati, apsolutno podižući vizuelni identitet vaše kompanije.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><Globe className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">GLOBALNI ODJEK</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Iskoristite snagu globalne pop kulture za instantno prepoznavanje, poverenje i lojalnost vaših premium klijenata.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* SREDNJA KOLONA: APLIKACIJA */}
@@ -165,7 +251,7 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
               {isGenerating ? (
                 <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
                    <Loader2 className="w-12 h-12 text-orange-500 animate-spin" />
-                   <p className="text-orange-500 text-[10px] font-black uppercase tracking-widest animate-pulse text-center">Rekonstrukcija...</p>
+                   <p className="text-orange-500 text-[10px] font-black uppercase tracking-widest animate-pulse text-center">V10 Rekonstrukcija...</p>
                 </div>
               ) : slika ? (
                 <>
@@ -184,7 +270,7 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
                       {/* IPS QR MODAL */}
                       <div className="bg-[#0a0a0a]/95 border border-orange-500/50 rounded-3xl p-5 flex flex-col items-center shadow-[0_0_40px_rgba(234,88,12,0.4)] w-full max-w-[280px]">
                         <div className="bg-white p-2 rounded-xl mb-3 w-full flex justify-center shadow-inner">
-                          {/* 🔧 GORANE: Ovde zameni <QrCode/> sa tvojom slikom: <img src="/tvoj-qr-kod.png" className="w-32 h-32" /> */}
+                          {/* 🔧 GORANE: ZAMENI OVO SVOJIM QR KODOM: <img src="/tvoj-qr-kod.png" className="w-32 h-32" /> */}
                           <QrCode className="w-32 h-32 text-black" /> 
                         </div>
                         
@@ -195,11 +281,11 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
 
                         {/* KONTAKT DUGMIĆI */}
                         <div className="w-full flex justify-between gap-2 border-t border-white/10 pt-4">
-                          <a href="viber://chat?number=%2B38160000000" className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl bg-[#7360f2]/10 text-[#7360f2] hover:bg-[#7360f2]/30 border border-[#7360f2]/30 transition-colors">
+                          <a href="viber://chat?number=%2B381648201496" className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl bg-[#7360f2]/10 text-[#7360f2] hover:bg-[#7360f2]/30 border border-[#7360f2]/30 transition-colors">
                             <MessageCircle className="w-5 h-5 mb-1" />
                             <span className="text-[8px] font-black uppercase tracking-widest">Viber</span>
                           </a>
-                          <a href="https://wa.me/38160000000" target="_blank" rel="noreferrer" className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/30 border border-[#25D366]/30 transition-colors">
+                          <a href="https://wa.me/381648201496" target="_blank" rel="noreferrer" className="flex-1 flex flex-col items-center justify-center py-2 rounded-xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/30 border border-[#25D366]/30 transition-colors">
                             <Phone className="w-5 h-5 mb-1" />
                             <span className="text-[8px] font-black uppercase tracking-widest">WApp</span>
                           </a>
@@ -238,9 +324,36 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
             </button>
           </div>
 
-          {/* DESNA KOLONA (Skraćeno zbog preglednosti, ostaje isto) */}
+          {/* DESNA KOLONA: TRANSFORMACIJA */}
           <div className="w-full lg:w-[28%] flex flex-col text-left space-y-8 pt-4">
-             {/* Ostavio si ovde tvoje tekstove za desnu stranu */}
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-widest text-white mb-3">TRANSFORMACIJA:<br/><span className="text-orange-500">IDEJA U STVARNOST</span></h2>
+              <p className="text-zinc-500 text-[13px] font-medium leading-relaxed">Superiorni rezultati bez tehničkih kompromisa.</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><ImageIcon className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">POVERENJE PRE KUPOVINE</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Prozirnost i poverenje su V8 standard. Vidite punu kreativnost vizuala u visokoj rezoluciji pre nego što uložite novac, uz samo centralno IPS preklapanje.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><Zap className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">TRENUTNI REZULTATI</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Nema dugotrajnog čekanja agencija. Naš V8 AI endžin isporučuje premium kvalitet vizuala u roku od nekoliko sekundi.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-orange-600/10 border border-orange-500/30 rounded-xl shrink-0"><ShieldCheck className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">MAKSIMALNA SIGURNOST</h3>
+                  <p className="text-[11px] text-zinc-500 font-medium">Plaćanje se vrši isključivo putem zvaničnog i sigurnog IPS QR sistema. Vaši podaci i transakcije ostaju potpuno zaštićeni.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -248,5 +361,6 @@ FINAL V8 STYLE BOOST: ${stilTokens}`;
     </div>
   );
 };
+// KRAJ FUNKCIJE: V8PixarSelfiePage
 
 export default V8PixarSelfiePage;
