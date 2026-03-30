@@ -9,6 +9,9 @@ import V8PixarSelfiePage from './V8PixarSelfiePage';
 // POČETAK FUNKCIJE: V8AdminDashboard
 const V8AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('ips_zahtevi');
+// REZERVOAR ZA 10X PROMO STRANICU
+  const [promoVideo, setPromoVideo] = useState("");
+  const [promoImages, setPromoImages] = useState("");
 
   // MOCK PODACI: Ovde će ti kasnije stizati pravi zahtevi iz baze kada klijent skenira QR
   const [zahtevi, setZahtevi] = useState([
@@ -47,6 +50,14 @@ const V8AdminDashboard = () => {
               <span className="ml-auto bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full">{zahtevi.length}</span>
             )}
           </button>
+// POČETAK FUNKCIJE: DugmePromo10xTab
+<button
+  onClick={() => setActiveTab('promo_10x')}
+  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${activeTab === 'promo_10x' ? 'bg-orange-600/10 text-orange-500 border border-orange-500/30 shadow-[0_0_15px_rgba(234,88,12,0.1)]' : 'text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent'}`}
+>
+  <Zap className="w-4 h-4" /> 10X Promo
+</button>
+// KRAJ FUNKCIJE: DugmePromo10xTab
 
           <button 
             onClick={() => setActiveTab('v8_alati')}
@@ -122,6 +133,63 @@ const V8AdminDashboard = () => {
             </div>
           </motion.div>
         )}
+
+{/* TAB 3: PROMO 10X REKLAMA */}
+      {activeTab === 'promo_10x' && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto bg-[#0a0a0a] border border-orange-500/30 p-8 rounded-[2rem] shadow-[0_0_50px_rgba(234,88,12,0.1)] mb-8">
+          
+          <div className="flex items-center gap-3 mb-8 border-b border-orange-500/20 pb-4">
+            <Zap className="w-8 h-8 text-orange-500" />
+            <h2 className="text-2xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+              Podešavanje 10X Reklame
+            </h2>
+          </div>
+          
+          <div className="flex flex-col gap-6">
+            {/* GLAVNI VIDEO */}
+            <div className="flex flex-col gap-2">
+              <label className="text-zinc-400 text-[11px] uppercase tracking-[0.2em] font-black flex items-center gap-2">
+                <PlayCircle className="w-4 h-4 text-orange-500" /> Glavni Video (URL)
+              </label>
+              <input 
+                type="text" 
+                value={promoVideo} 
+                onChange={(e) => setPromoVideo(e.target.value)} 
+                className="w-full bg-black border border-white/10 hover:border-orange-500/50 focus:border-orange-500 rounded-xl p-4 text-[13px] text-white transition-all outline-none"
+                placeholder="Unesi link do MP4 videa" 
+              />
+            </div>
+
+            {/* GALERIJA SLIKA */}
+            <div className="flex flex-col gap-2">
+              <label className="text-zinc-400 text-[11px] uppercase tracking-[0.2em] font-black flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-orange-500" /> Trakica Slika (Zarezima odvojeni linkovi)
+              </label>
+              <textarea 
+                value={promoImages} 
+                onChange={(e) => setPromoImages(e.target.value)} 
+                className="w-full bg-black border border-white/10 hover:border-orange-500/50 focus:border-orange-500 rounded-xl p-4 text-[13px] text-white transition-all outline-none resize-none font-mono leading-relaxed"
+                placeholder="link_slike_1.jpg, link_slike_2.jpg, link_slike_3.jpg"
+                rows="5"
+              />
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">
+                * Razdvoj linkove zarezom da bi se napravio onaj brutalni V8 karusel.
+              </p>
+            </div>
+            
+            {/* DUGME ZA ČUVANJE */}
+            <button 
+              onClick={() => {
+                if(typeof v8Toast !== 'undefined') v8Toast.success("V8 Reklama Ažurirana! BOMBA!");
+              }}
+              className="mt-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-2 w-full md:w-auto self-end cursor-pointer"
+            >
+              <CheckCircle className="w-5 h-5" /> Sačuvaj Podešavanja
+            </button>
+
+          </div>
+        </motion.div>
+      )}
 
         {/* TAB 2: V8 ALATI (UČITAVA TVOJ EKRAN BEZ BLOKADE) */}
         {activeTab === 'v8_alati' && (

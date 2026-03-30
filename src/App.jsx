@@ -1,5 +1,8 @@
+import V8Promo10xPage from './V8Promo10xPage';
+import V8ContactWidget from './V8ContactWidget';
 import './App.css'; // Obavezno uvezi CSS ako već nisi
 import V8Enhancer10x from './V8Enhancer10x';
+import V8MasterCollection from './V8MasterCollection';
 import V8PametniAlatiPage from './PametniAlati';
 import V8KreatorSlikaPage from './V8KreatorSlika';
 import V8PixarSelfiePage from './V8PixarSelfie';
@@ -10,7 +13,7 @@ import {
   PlayCircle, Sparkles, Youtube,  ChevronLeft, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick,Mail,Download, Briefcase, QrCode, X, ChevronRight, Clock, Users, Zap,Camera, Crop, Image as ImageIcon, HelpCircle, ChevronDown,
-  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus, ExternalLink
+  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus,Crown, ExternalLink
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -975,7 +978,12 @@ function HomePage({ apps = [] }) {
             ) : (
               <>
               <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 20000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
-                <a href="https://www.youtube.com/watch?v=TVOJ_LINK" target="_blank" rel="noopener noreferrer" className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer">POGLEDAJ DEMO</a>
+                <Link 
+  to="/reklama-10x" 
+  className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer"
+>
+  POGLEDAJ DEMO
+</Link>
               </>
             )}
           </div>
@@ -1244,6 +1252,8 @@ const AdminPage = ({ apps = [], refreshData }) => {
   const [adminTab, setAdminTab] = useState('assets'); 
   const [isUploading, setIsUploading] = useState(false); 
   const [loading, setLoading] = useState(false);
+  const [promoVideo, setPromoVideo] = useState("");
+  const [promoImages, setPromoImages] = useState("");
 
   const [editingId, setEditingId] = useState(null); 
   const initialForm = { id: '', name: '', category: 'AI ASSET', type: '', headline: '', price: '', priceLifetime: '', description: '', media: [], whopLink: '', reactSourceCode: '', gumroadLink: '', faq: Array.from({ length: 7 }, () => ({ q: '', a: '' })) }; 
@@ -1423,6 +1433,18 @@ return (
          {zahtevi.length > 0 && <span className="ml-2 bg-white text-red-600 px-1.5 py-0.5 rounded-full text-[9px]">{zahtevi.length}</span>}
        </button>
        <button type="button" onClick={() => setAdminTab('v8_alati')} className={`shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${adminTab === 'v8_alati' ? 'bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.5)]' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'}`}><Camera className="w-4 h-4 inline mr-2" /> V8 Pixar Bypass</button>
+       {/* POČETAK: 10X Promo Dugme */}
+<button
+  onClick={() => setAdminTab('promo_10x')}
+  className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${
+    adminTab === 'promo_10x' 
+      ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.4)]' 
+      : 'text-zinc-400 hover:bg-white/10 hover:text-white'
+  }`}
+>
+  <Zap className="w-4 h-4 inline mr-2" /> 10X Promo
+</button>
+{/* KRAJ: 10X Promo Dugme */}
     </div>
 
     {adminTab === 'ips_zahtevi' && (
@@ -1451,6 +1473,94 @@ return (
         <div className="origin-top scale-[0.9] -mt-16"><V8PixarSelfiePage isAdmin={true} /></div>
       </div>
     )}
+
+
+{/* POČETAK: V8 10X PROMO FORMA */}
+{adminTab === 'promo_10x' && (
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto mt-8 w-full px-4">
+    <div className="bg-[#0a0a0a] border border-orange-500/20 p-8 rounded-[2rem] shadow-[0_0_40px_rgba(234,88,12,0.1)]">
+      
+      <div className="flex items-center gap-3 mb-8 border-b border-orange-500/20 pb-4">
+        <Zap className="w-8 h-8 text-orange-500" />
+        <h2 className="text-2xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
+          Podešavanje 10X Reklame
+        </h2>
+      </div>
+      
+      <div className="flex flex-col gap-6">
+        {/* GLAVNI VIDEO */}
+        <div className="flex flex-col gap-2">
+          <label className="text-zinc-400 text-[11px] uppercase tracking-[0.2em] font-black flex items-center gap-2">
+            <PlayCircle className="w-4 h-4 text-orange-500" /> Glavni Video (URL)
+          </label>
+          <input 
+            type="text" 
+            value={promoVideo} 
+            onChange={(e) => setPromoVideo(e.target.value)} 
+            className="w-full bg-black border border-white/10 hover:border-orange-500/50 focus:border-orange-500 rounded-xl p-4 text-[13px] text-white transition-all outline-none"
+            placeholder="Unesi link do MP4 videa" 
+          />
+        </div>
+
+        {/* GALERIJA SLIKA */}
+        <div className="flex flex-col gap-2">
+          {/* POČETAK FUNKCIJE: V8 Upload Modul */}
+        <div className="flex flex-col gap-2">
+          <label className="text-zinc-400 text-[11px] uppercase tracking-[0.2em] font-black flex items-center gap-2 mb-1">
+            <ImageIcon className="w-4 h-4 text-orange-500" /> Trakica Slika (Upload)
+          </label>
+          
+          <div className="relative flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-orange-500/30 rounded-xl bg-black hover:border-orange-500/60 hover:bg-orange-500/5 transition-all duration-300 cursor-pointer group overflow-hidden">
+            
+            <input 
+              type="file" 
+              multiple 
+              accept="image/*"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              onChange={(e) => {
+                // Ovde kasnije kačimo tvoju Firebase ili Cloudinary funkciju
+                const files = e.target.files;
+                if(files.length > 0 && typeof v8Toast !== 'undefined') {
+                  v8Toast.success(`Selektovano ${files.length} slika! V8 spreman za upload.`);
+                }
+              }}
+            />
+            
+            <div className="flex flex-col items-center justify-center pointer-events-none z-0">
+              <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                <UploadCloud className="w-6 h-6 text-orange-500" />
+              </div>
+              <p className="text-[13px] text-zinc-300 font-bold group-hover:text-white transition-colors">
+                Klikni ili prevuci slike ovde
+              </p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] mt-2 font-black">
+                Podržano: JPG, PNG, WEBP
+              </p>
+            </div>
+
+            {/* V8 Hover Efekat Linija */}
+            <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-orange-600 to-yellow-500 group-hover:w-full transition-all duration-500"></div>
+          </div>
+        </div>
+        {/* KRAJ FUNKCIJE: V8 Upload Modul */}
+        </div>
+        
+        {/* DUGME ZA ČUVANJE */}
+        <button 
+          onClick={() => {
+            if(typeof v8Toast !== 'undefined') v8Toast.success("V8 Reklama Ažurirana! BOMBA!");
+          }}
+          className="mt-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-2 w-full md:w-auto self-end cursor-pointer"
+        >
+          <CheckCircle className="w-5 h-5" /> Sačuvaj Podešavanja
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+{/* KRAJ: V8 10X PROMO FORMA */}
+
 
     {adminTab === 'assets' && (
       <div className="flex flex-col gap-12">
@@ -1692,15 +1802,24 @@ return (
     <div className="fixed top-0 left-0 w-full z-[1000]">
       <nav className="w-full px-4 md:px-8 py-3 md:py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
-          <Link to="/" onClick={handleHomeClick} className="flex items-center gap-4 group">
-            <img src={data.logoUrl} className="h-8 md:h-10 object-contain animate-pulse" alt="logo" />
-            <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] hidden sm:block"><span className="text-blue-500">AI TOOLS</span> <span className="text-orange-500">PRO SMART</span></span>
-          </Link>
-          <div className="flex items-center gap-3 md:gap-4 font-black uppercase text-[10px] md:text-[11px] tracking-widest">
+          <Link to="/" onClick={handleHomeClick} className="flex items-center gap-2 md:gap-3 group shrink-0 mr-2">
+  <img src={data.logoUrl} className="h-7 md:h-9 object-contain animate-pulse" alt="logo" />
+  <div className="flex flex-col leading-[0.8] whitespace-nowrap">
+    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.1em] text-blue-500 italic">AI TOOLS</span>
+    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.1em] text-orange-500 italic">PRO SMART</span>
+  </div>
+</Link>
+<div className="flex-1 flex items-center justify-end gap-1 md:gap-1.5 font-black uppercase text-[7px] md:text-[8px] tracking-tighter whitespace-nowrap">
             <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
             {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
             <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
-
+<Link 
+  to="/v8-trezor" 
+  className="bg-gradient-to-r from-yellow-500 to-orange-600 px-3 md:px-4 py-1.5 rounded-full text-white font-black text-[8px] md:text-[9px] uppercase tracking-wider shadow-[0_0_15px_rgba(234,88,12,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all border border-orange-400/50 hidden lg:flex items-center gap-1.5 whitespace-nowrap"
+>
+  <Crown className="w-3 h-3" />
+  Master Kolekcija
+</Link>
             <div className="relative group">
               <button className="bg-gradient-to-r from-orange-600 to-red-600 border border-orange-400 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black tracking-widest text-[10px] md:text-xs shadow-[0_0_20px_rgba(234,88,12,0.6)] flex items-center gap-2 cursor-pointer">
                 <Zap className="w-4 h-4" /> 
@@ -1740,7 +1859,9 @@ return (
         <Route path="/" element={<HomePage apps={appsData} />} />
         <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
         <Route path="/enxance" element={<V8Enhancer10x />} />
+<Route path="/reklama-10x" element={<V8Promo10xPage />} />
         <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
+<Route path="/v8-trezor" element={<V8MasterCollection />} />
         <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
         <Route path="/pixar-selfie" element={<V8PixarSelfiePage isAdmin={isAdmin} />} />
         <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
@@ -1749,6 +1870,7 @@ return (
       </Routes>
     </div>
     <SmartScrollButton />
+<V8ContactWidget />
     <footer className="flex flex-col items-center gap-6 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-8 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
       <div className="flex items-center gap-6">
         <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>

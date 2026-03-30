@@ -40,3 +40,23 @@
   background: #f97316;
   border-radius: 10px;
 }
+/* 🟢 POČETAK: V8 AI AURA ANIMACIJA (GEMINI STYLE) */
+@keyframes v8-aura-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.v8-ai-aura {
+  background: linear-gradient(
+    90deg, 
+    #4285f4, /* Google Blue */
+    #ea4335, /* Google Red */
+    #fbbc05, /* Google Yellow */
+    #34a853, /* Google Green */
+    #4285f4  /* Nazad na plavu */
+  );
+  background-size: 300% 100%;
+  animation: v8-aura-flow 4s linear infinite;
+}
+/* 🔴 KRAJ: V8 AI AURA ANIMACIJA */

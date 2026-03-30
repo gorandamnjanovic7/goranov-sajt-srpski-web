@@ -192,7 +192,15 @@ const V8Enhancer10x = () => {
   const handleAnalyzeImage = async (e) => {
     if (e) e.preventDefault(); if (!uploadedImage) return; setIsAnalyzingImage(true);
     try {
-        const res = await fetch(`${BASE_BACKEND_URL}/api/read-image`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ imageUrl: uploadedImage, prompt: "Dubinski analiziraj ovu sliku tehnički." }) });
+        // V8 PROMPT ZA VISION MODEL (Strogo na engleskom)
+        const visionPrompt = "Analyze this image technically in extreme detail. Describe the subject, composition, lighting, colors, camera angle, and overall atmosphere. Do not use conversational filler. Provide the entire response STRICTLY IN ENGLISH, formatted as a continuous descriptive text suitable for an image generation prompt.";
+        
+        const res = await fetch(`${BASE_BACKEND_URL}/api/read-image`, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ imageUrl: uploadedImage, prompt: visionPrompt }) 
+        });
+        
         const apiData = await res.json();
         if (apiData.result) { setDemoInput(apiData.result); setCustomerPrompt(''); v8Toast.success("Analiza završena!"); }
     } catch (err) { v8Toast.error("Vision server nije dostupan."); } finally { setIsAnalyzingImage(false); }
