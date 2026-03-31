@@ -979,11 +979,11 @@ function HomePage({ apps = [] }) {
               <>
               <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 20000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
                 <Link 
-  to="/reklama-10x" 
-  className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer"
->
-  POGLEDAJ DEMO
-</Link>
+                  to="/reklama-10x" 
+                  className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer"
+                >
+                  POGLEDAJ DEMO
+                </Link>
               </>
             )}
           </div>
@@ -1028,12 +1028,34 @@ function HomePage({ apps = [] }) {
           <HelpCircle className="w-6 h-6 text-blue-500 shrink-0 mt-1 animate-pulse" />
           <p className="text-[11px] md:text-[13px] text-zinc-300 font-medium uppercase tracking-[0.1em] leading-relaxed text-left"><span className="text-blue-400 font-black">VAŽNA NAPOMENA:</span> Svi proizvodi iz sekcije Premium Prodavnica AI Sredstava su sajtovi koji koriste <span className="text-white font-bold">isključivo engleski jezik</span> za generisanje promptova radi boljeg postizanja rezultata.</p>
         </motion.div>
+        
+        {/* --- POČETAK FUNKCIJE: Rotirajući V8/Gemini Grid --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">
-          {sortedApps.map((app, index) => <MarketplaceCard key={app.id} app={app} index={index} />)}
+          {sortedApps.map((app, index) => (
+            <div key={app.id} className="relative p-[2px] rounded-[2.1rem] overflow-hidden group transition-all duration-500 hover:scale-[1.02]">
+              
+              {/* 1. ANIMIRANA IVICA (Vuče Google boje iz tvog index.css i vrti ih 24/7 oko centra) */}
+              <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] v8-ai-aura opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* 2. UNUTRAŠNJA KARTICA (Crna pozadina koja ostavlja samo onaj 2px okvir da svetli i kruži) */}
+              <div className="relative h-full w-full rounded-[2rem] overflow-hidden bg-[#050505] z-10 flex flex-col">
+                {/* --- POČETAK FUNKCIJE: MarketplaceCard --- */}
+                <MarketplaceCard app={app} index={index} />
+                {/* --- KRAJ FUNKCIJE: MarketplaceCard --- */}
+              </div>
+
+              {/* 3. GLOW EFEKAT ISPOD (Mutna verzija tvoje CSS animacije za pozadinski sjaj koji se takođe vrti) */}
+              <div className="absolute -inset-4 animate-[spin_4s_linear_infinite] v8-ai-aura opacity-20 group-hover:opacity-50 blur-2xl transition-opacity duration-700 pointer-events-none z-0"></div>
+
+            </div>
+          ))}
         </div>
-      </div>
-      
-     <AnimatePresence>
+        {/* --- KRAJ FUNKCIJE: Rotirajući V8/Gemini Grid --- */}
+
+      </div> {/* ZATVARA GLAVNI max-w-7xl KONTEJNER */}
+
+      {/* MODAL ZA IPS UPLATU */}
+      <AnimatePresence>
         {ipsModalData && (
           <div className="fixed inset-0 z-[7000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="bg-[#0a0a0a] border border-orange-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(234,88,12,0.15)] overflow-hidden">

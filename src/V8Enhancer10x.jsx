@@ -533,10 +533,23 @@ const V8Enhancer10x = () => {
            {gallery.length > 0 && (
              <div className="bg-[#0a0a0a]/50 border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col gap-6 mt-12 items-center transition-all hover:border-orange-500/60 shadow-xl">
                <h2 className="text-xl md:text-2xl font-black text-orange-500 uppercase tracking-widest border-b border-orange-500/20 pb-4 mb-4 w-full text-center"><Zap className="inline w-6 h-6 mr-3" /> Premium V8 Galerija</h2>
-               <div className="w-full max-w-4xl aspect-video rounded-3xl overflow-hidden border border-white/10 relative group bg-black">
-                  <img src={gallery[activeGalleryIndex]?.url} className="w-full h-full object-cover transition-all" alt="Gallery" />
-                  <button onClick={() => { setUploadedImage(gallery[activeGalleryIndex]?.url); setDemoInput(gallery[activeGalleryIndex]?.url); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="absolute bottom-6 right-12 p-3.5 bg-blue-600 rounded-xl text-white hover:scale-110 transition-transform shadow-2xl"><UploadCloud className="w-5 h-5" /></button>
-               </div>
+               {/* --- POČETAK ANIMIRANOG OKVIRA ZA GLAVNU SLIKU --- */}
+        <div className="w-full max-w-4xl mx-auto aspect-video relative p-[2px] rounded-3xl overflow-hidden group bg-black">
+          
+          {/* 1. ROTIRAJUĆA IVICA (Gemini motor) */}
+          <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] v8-ai-aura opacity-70 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
+          
+          {/* 2. GLAVNA SLIKA (Zapakovana u crni okvir da bi samo ivica svetlela) */}
+          <div className="relative w-full h-full bg-black rounded-[calc(1.5rem-2px)] overflow-hidden z-10">
+            <img src={gallery[activeGalleryIndex]?.url} className="w-full h-full object-cover transition-all" alt="Gallery" />
+            <button onClick={() => { setUploadedImage(gallery[activeGalleryIndex]?.url); setDemoInput(gallery[activeGalleryIndex]?.url); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="absolute bottom-6 right-12 p-3.5 bg-blue-600 rounded-xl text-white hover:scale-110 transition-transform shadow-2xl z-20"><UploadCloud className="w-5 h-5" /></button>
+          </div>
+
+          {/* 3. GLOW EFEKAT OKO SLIKE (Mutni rotirajući sjaj) */}
+          <div className="absolute -inset-4 animate-[spin_4s_linear_infinite] v8-ai-aura opacity-20 group-hover:opacity-50 blur-2xl transition-opacity duration-700 pointer-events-none z-0"></div>
+          
+        </div>
+        {/* --- KRAJ ANIMIRANOG OKVIRA --- */}
                <div className="flex flex-wrap justify-center gap-4 mt-8 pb-4">
                   {gallery.map((img, idx) => (
                      <button key={img.id} onClick={() => setActiveGalleryIndex(idx)} className={`w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all ${activeGalleryIndex === idx ? 'border-orange-500 scale-105 shadow-lg' : 'border-white/5 opacity-40 hover:opacity-100'}`}><img src={img.url} className="w-full h-full object-cover" alt="Thumb" /></button>
