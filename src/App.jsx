@@ -609,6 +609,32 @@ function SingleProductPage({ apps = [] }) {
 }
 
 /// POČETAK FUNKCIJE: IzradaSajtovaPage ///
+
+// 1. Tvoja stroga funkcija za mail (definisana van glavne, ali u istom fajlu)
+// 1. Tvoja stroga funkcija za mail (Popravljena V8 metoda)
+// 1. Tvoja stroga funkcija za mail (Čist HTML, bez blokada)
+/// POČETAK FUNKCIJE: ContactButton ///
+const ContactButton = () => {
+  const email = "aitoolsprosmart@gmail.com";
+  const subject = encodeURIComponent("V8 Konsultacije - Izrada Premium Sajta");
+  const body = encodeURIComponent(
+    "Poštovani,\n\nŽelim da zakažem besplatne konsultacije u vezi izrade premium web sajta.\n\nMoje ime je:\nMoj broj telefona je:\n"
+  );
+
+  const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+
+  return (
+    <a 
+      href={mailtoLink} 
+      className="inline-block bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all shadow-2xl cursor-pointer text-center"
+    >
+      ZAKAŽI BESPLATNE KONSULTACIJE
+    </a>
+  );
+};
+/// KRAJ FUNKCIJE: ContactButton ///
+
+// 2. Tvoja glavna stranica
 function IzradaSajtovaPage() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [demoProjekti, setDemoProjekti] = useState([]);
@@ -678,7 +704,8 @@ function IzradaSajtovaPage() {
             </div>
 
             <div className="mt-16 flex justify-center">
-              <MagneticButton href="mailto:damnjanovicgoran7@gmail.com" className="bg-white text-black px-12 py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all shadow-2xl">ZAKAŽI BESPLATNE KONSULTACIJE</MagneticButton>
+              {/* Ovdje pozivamo tvoju strogu funkciju */}
+              <ContactButton />
             </div>
           </div>
       </section>
@@ -978,12 +1005,12 @@ function HomePage({ apps = [] }) {
             ) : (
               <>
               <button type="button" onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 20000)} className="bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-colors flex items-center justify-center cursor-pointer">KUPI SAD</button>
-                <Link 
-                  to="/reklama-10x" 
-                  className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer"
-                >
-                  POGLEDAJ DEMO
-                </Link>
+             <Link 
+  to="/reklama-10x" 
+  className="bg-[#ea580c] hover:bg-orange-500 text-white px-10 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-colors flex items-center justify-center cursor-pointer"
+>
+  POGLEDAJ DEMO
+</Link>
               </>
             )}
           </div>
