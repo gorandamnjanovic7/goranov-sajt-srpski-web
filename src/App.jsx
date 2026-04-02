@@ -24,7 +24,7 @@ import { useGSAP } from '@gsap/react';
 // FIREBASE
 import { db, auth, provider } from './firebase';
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, getDoc, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, getDocs, getDoc, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp, arrayUnion } from "firebase/firestore";
 import * as data from './data';
 import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription, TypewriterText } from './data';
 import mojBaner from './moj-baner.png'; 
@@ -1454,6 +1454,49 @@ const handleUploadGallery = async (e) => {
 
 const handleDeleteGallery = async (id) => { if(window.confirm("Obrisati sliku iz Enhancer galerije?")) { await deleteDoc(doc(db, "enhancer_gallery", id)); fetchAllFirebaseData(); } };
 
+// POČETAK FUNKCIJE: Čuvanje 10X Promo Reklame
+ // POČETAK FUNKCIJE: handleSavePromo
+  const handleSavePromo = async () => {
+    try {
+      if (!promoImages || promoImages === "") {
+        alert("ALARM: Slike nisu detektovane u memoriji! Pokušaj ponovo upload.");
+        return;
+      }
+
+      if (typeof v8Toast !== 'undefined') v8Toast.success("V8 Mašina pakuje podatke...");
+      
+      const promoRef = doc(db, "v8_settings", "promo10x");
+      const imagesArray = promoImages.split(',').filter(img => img.trim() !== "");
+
+      // 1. Pripremamo paket za bazu (dodajemo NOVE slike na STARE)
+      const updateData = {
+        images: arrayUnion(...imagesArray), // OVO JE KLJUČ: "arrayUnion" znači "samo dodaj"
+        lastUpdated: serverTimestamp()
+      };
+
+      // 2. Ako si u polje upisao novi video, ažuriraj ga. Ako je prazno, ne diraj stari video!
+      if (promoVideo && promoVideo.trim() !== "") {
+        updateData.videoUrl = promoVideo.trim();
+      }
+
+      // 3. Šaljemo u bazu
+      await setDoc(promoRef, updateData, { merge: true });
+
+      // 4. Čistimo memoriju panela nakon uspešnog čuvanja
+      setPromoImages("");
+      setPromoVideo("");
+
+      if (typeof v8Toast !== 'undefined') v8Toast.success("10X REKLAMA AŽURIRANA! Nove slike su dodate.");
+    } catch (err) {
+      console.error("V8 KATASTROFA:", err);
+      if (typeof v8Toast !== 'undefined') v8Toast.error("KVAR NA KARDANU!");
+    }
+  };
+  // KRAJ FUNKCIJE: handleSavePromo
+  // KRAJ FUNKCIJE: Čuvanje 10X Promo Reklame
+
+
+
 if (authChecking) return (
   <div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="w-12 h-12 text-orange-500 animate-spin" /></div>
 );
@@ -1566,12 +1609,32 @@ return (
               multiple 
               accept="image/*"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              onChange={(e) => {
-                // Ovde kasnije kačimo tvoju Firebase ili Cloudinary funkciju
-                const files = e.target.files;
-                if(files.length > 0 && typeof v8Toast !== 'undefined') {
-                  v8Toast.success(`Selektovano ${files.length} slika! V8 spreman za upload.`);
+             onChange={async (e) => {
+                const files = Array.from(e.target.files);
+                if(files.length === 0) return;
+                
+                if(typeof v8Toast !== 'undefined') v8Toast.success("Pakujem V8 podatke za bazu...");
+
+                let uploadedUrls = [];
+                for (const file of files) {
+                  const fd = new FormData(); 
+                  fd.append('file', file); 
+                  fd.append('upload_preset', data.CLOUDINARY_UPLOAD_PRESET); 
+                  
+                  try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${data.CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST', body: fd });
+                    const resData = await res.json();
+                    if(resData.secure_url) uploadedUrls.push(resData.secure_url);
+                  } catch (err) {
+                    console.error("Cloudinary greška:", err);
+                  }
                 }
+                
+                if(uploadedUrls.length > 0) {
+                  setPromoImages(prev => prev ? prev + ',' + uploadedUrls.join(',') : uploadedUrls.join(','));
+                  if(typeof v8Toast !== 'undefined') v8Toast.success(`Slike spremne! V8 motor čeka čuvanje.`);
+                }
+                setIsUploading(false);
               }}
             />
             
@@ -1593,12 +1656,48 @@ return (
         </div>
         {/* KRAJ FUNKCIJE: V8 Upload Modul */}
         </div>
+        {/* POČETAK FUNKCIJE: V8 Admin Prikaz Slika (Retrovizor) */}
+        {promoImages && promoImages.trim() !== '' && (
+          <div className="mt-4 mb-6 border-t border-white/5 pt-4 w-full">
+            <h4 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-3">
+              Pregled ubačenih slika:
+            </h4>
+            <div className="flex flex-wrap gap-3">
+              {promoImages.split(',').map((url, index) => {
+                const cleanUrl = url.trim();
+                if (!cleanUrl) return null; 
+                return (
+                  <div key={index} className="w-20 h-20 rounded-lg overflow-hidden border border-white/10 bg-black relative group">
+                    <img 
+                      src={cleanUrl} 
+                      alt={`V8 Preview ${index + 1}`} 
+                      className="w-full h-full object-cover" 
+                    />
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const currentImages = promoImages.split(',').map(u => u.trim()).filter(Boolean);
+                        currentImages.splice(index, 1);
+                        setPromoImages(currentImages.join(','));
+                      }}
+                      className="absolute inset-0 bg-red-600/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer text-white font-black"
+                    >
+                      X
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* KRAJ FUNKCIJE: V8 Admin Prikaz Slika */}
+
+
         
-        {/* DUGME ZA ČUVANJE */}
+       {/* DUGME ZA ČUVANJE */}
         <button 
-          onClick={() => {
-            if(typeof v8Toast !== 'undefined') v8Toast.success("V8 Reklama Ažurirana! BOMBA!");
-          }}
+          onClick={handleSavePromo}
           className="mt-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-2 w-full md:w-auto self-end cursor-pointer"
         >
           <CheckCircle className="w-5 h-5" /> Sačuvaj Podešavanja
@@ -1908,7 +2007,7 @@ return (
         <Route path="/" element={<HomePage apps={appsData} />} />
         <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
         <Route path="/enxance" element={<V8Enhancer10x />} />
-<Route path="/reklama-10x" element={<V8Promo10xPage />} />
+<Route path="/reklama-10x" element={<V8Promo10xPage promoData={appsData} />} />
         <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
 <Route path="/v8-trezor" element={<V8MasterCollection />} />
         <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
