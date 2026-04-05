@@ -153,9 +153,42 @@ const V8Enhancer10x = () => {
     } catch (err) { v8Toast.error("Greška pri prijavi!"); }
   };
 
+  // --- V8 GOOGLE LOGIN + IPS NAPLATA (Ažurirano) ---
   const handlePaymentV8 = async (tip, cena) => {
-    if (auth.currentUser) { try { await setDoc(doc(db, "posetioci", auth.currentUser.uid), { poslednjiKlik: serverTimestamp(), zainteresovanZa: tip }, { merge: true }); } catch (err) {} }
-    setIpsModalData({ tip, cena });
+    if (auth.currentUser) { 
+      try { 
+        await setDoc(doc(db, "posetioci", auth.currentUser.uid), { poslednjiKlik: serverTimestamp(), zainteresovanZa: tip }, { merge: true }); 
+      } catch (err) {} 
+      setIpsModalData({ tip, cena });
+    } else {
+      // Ako NIJE prijavljen, prvo Google Auth!
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        await setDoc(doc(db, "posetioci", user.uid), { 
+          ime: user.displayName, 
+          email: user.email, 
+          vremePrijave: serverTimestamp(), 
+          zainteresovanZa: tip, 
+          identitet: "V8-Klijent" 
+        }, { merge: true });
+        
+        const docRef = doc(db, "vip_users", user.email.toLowerCase());
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists() && docSnap.data().unlockedApps && (docSnap.data().unlockedApps.includes('FULL_ACCESS') || docSnap.data().unlockedApps.includes('10X_ENHANCER'))) {
+            setIsVIP(true);
+            v8Toast.success("Dobrodošli nazad! Pristup je već otključan.");
+            loadHistory(user.email);
+        } else {
+            // Otvara se IPS prozor za plaćanje nakon logina
+            setIpsModalData({ tip, cena });
+        }
+      } catch (error) { 
+        v8Toast.error("Greška pri prijavi preko Google-a!"); 
+      }
+    }
   };
 
   useGSAP(() => { if (generatedPrompts.abstract) { gsap.from('.gsap-result-box', { y: 50, opacity: 0, duration: 0.6, stagger: 0.15, ease: 'back.out(1.2)', clearProps: 'all' }); } }, { dependencies: [generatedPrompts.abstract], scope: containerRef });
@@ -342,13 +375,13 @@ const V8Enhancer10x = () => {
         
         <div className="mb-12 text-center w-full relative z-10 flex flex-col items-center">
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">10X PROMPT ENHANCER</h1>
-          <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center gap-3">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 15.000 RSD DOŽIVOTNO.</div>
+          <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center gap-3">Premium 3-u-1 alat vredan 200$/mesečno. SAMO 20.000 RSD DOŽIVOTNO.</div>
           {!isVIP && (
              <div className="mt-8 p-6 bg-[#050505] border border-red-500/30 rounded-3xl flex flex-col items-center max-w-4xl mx-auto z-20 shadow-2xl">
                 <Lock className="w-10 h-10 text-red-500 mb-4" />
                 <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-2">SISTEM JE ZAKLJUČAN</h3>
                 <div className="flex gap-4 w-full justify-center mb-6">
-                   <RippleButton onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 15000)} className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest">KUPI PRISTUP (15.000 RSD)</RippleButton>
+                   <RippleButton onClick={() => handlePaymentV8('10X Enhancer - Doživotno', 20000)} className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest">KUPI PRISTUP (20.000 RSD)</RippleButton>
                    <button onClick={handlePremiumLogin} className="text-[10px] uppercase font-black tracking-widest text-zinc-500 hover:text-white border-b border-zinc-700">VEĆ IMAM PRISTUP - PRIJAVI SE</button>
                 </div>
              </div>
