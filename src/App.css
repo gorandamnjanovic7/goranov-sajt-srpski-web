@@ -77,3 +77,8 @@
     opacity: 1;
   }
 }
+/* V8 ZABRANA PREVLAČENJA I MARKIRANJA SLIKA */
+img {
+  -webkit-user-drag: none; /* Ne dozvoljava hvatanje slike mišem */
+  user-select: none;       /* Ne dozvoljava markiranje (plavi veo) */
+}

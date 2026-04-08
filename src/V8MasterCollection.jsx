@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Camera, Sun, Film, Copy, Check, Zap } from 'lucide-react';
 
 // BAZA PODATAKA (Izdvojeno iz tvog Ultimate teksta)
@@ -39,6 +40,8 @@ const V8PromptVault = () => {
         </h1>
         <p className="text-[12px] uppercase font-black tracking-[0.3em] text-zinc-500">Premium Master Collection • 1000+ Combinations</p>
       </div>
+      
+
 
       {/* KONTROLNA TABLA */}
       <div className="w-full max-w-4xl bg-[#0a0a0a] border border-orange-500/20 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_40px_rgba(234,88,12,0.1)] flex flex-col gap-8">

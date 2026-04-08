@@ -101,15 +101,44 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleGenerisiRezultat = (adminBypass = false) => {
+  // --- POČETAK: V8 PRAVA OPENAI GENERACIJA ---
+  const handleGenerisiRezultat = async (adminBypass = false) => {
     setIsGenerating(true);
     if (adminBypass) setIsPaid(true); 
     
-    setTimeout(() => {
-      setRezultat(aktivniAlat.mockText || "V8 Sistem je uspešno generisao tekst...");
+    try {
+      // Šaljemo tvoj tekst i ID alata na backend (port 5000)
+      const response = await fetch('http://localhost:5000/api/openai-alati', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          alatId: aktivniAlat.id, 
+          unos: unos 
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Greška u komunikaciji sa V8 serverom');
+      }
+
+      // Čekamo pravi odgovor od OpenAI-a
+      const data = await response.json();
+
+      // V8 MAGIJA: Uzimamo pravi odgovor i lepimo tvoj unos na vrh!
+      const dinamickiOdgovor = `/// V8 SISTEMSKA ANALIZA ///\nPrijemni podaci: "${unos}"\nStatus: Podaci uspešno obrađeni 🟢\n\n${data.rezultat}`;
+      
+      setRezultat(dinamickiOdgovor);
+
+    } catch (error) {
+      console.error('V8 Motor Greška:', error);
+      setRezultat(`/// V8 SISTEMSKA GREŠKA ///\nPrijemni podaci: "${unos}"\n\nSistem nije uspeo da se poveže sa OpenAI motorom. Proverite da li je backend server upaljen.`);
+    } finally {
       setIsGenerating(false);
-    }, 2500);
+    }
   };
+  // --- KRAJ: V8 PRAVA OPENAI GENERACIJA ---
 
   const handleProveraUplate = () => {
     setProveraUplate('loading');
@@ -232,83 +261,101 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
                         <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
                         <span className="text-green-400 font-black uppercase tracking-widest text-[11px]">Sistem uspešno izvršio zadatak</span>
                     </div>
+<div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[450px] flex flex-col">
+    
+    {/* --- POČETAK: V8 TEASER EFEKAT BEZ BLURA --- */}
+    <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 flex-1 pb-24 ${(!isPaid && !isAdmin) ? 'select-none overflow-hidden h-[450px]' : ''}`}>
+        {(!isPaid && !isAdmin) ? (
+            <>
+              {/* Prvih 350 karaktera svetli belo i mami na čitanje */}
+              <span className="text-white font-bold drop-shadow-md leading-relaxed">{rezultat.substring(0, 350)}</span>
+              
+              {/* Ostatak prelazi u tamno sivu i stapa se sa pozadinom bez zamućenja */}
+              <span className="text-zinc-600 opacity-90 leading-relaxed">
+                {rezultat.length > 350 ? rezultat.substring(350, 1200) + "\n\n[... OSTATAK V8 TEKSTA I PREMIUM ANALIZE JE ZAKLJUČAN ...]" : ""}
+              </span>
+            </>
+        ) : (
+            rezultat
+        )}
+    </div>
 
-                    <div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[450px] flex flex-col">
-                        
-                        <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 flex-1 ${(!isPaid && !isAdmin) ? 'select-none' : ''}`}>
-                            {(!isPaid && !isAdmin) ? (
-                                <>
-                                  <span className="text-white font-bold drop-shadow-md">{rezultat.substring(0, 150)}</span>
-                                  <span className="blur-[4px] opacity-40">{rezultat.substring(150, 1000)}...</span>
-                                </>
-                            ) : (
-                                rezultat
-                            )}
-                        </div>
+    {(!isPaid && !isAdmin) && (
+       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505] flex flex-col items-center justify-end p-4 z-10 pb-8 pt-20">
+          
+          <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px] animate-in zoom-in duration-500">
+            <Lock className="w-8 h-8 text-orange-500 mb-2 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
+            <h3 className="text-[14px] font-black text-white uppercase tracking-widest mb-1">OTKLJUČAJ PUN REZULTAT</h3>
+            <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Skeniraj IPS kod ({aktivniAlat.cena})</p>
+            
+            <div className="bg-white p-2 rounded-2xl inline-block mb-3 shadow-inner border border-zinc-200">
+              <QRCodeCanvas 
+                value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${aktivniAlat.cena.replace(/\D/g, '')},00|SF:289|S:${aktivniAlat.naziv.substring(0,20)}`}
+                size={120} bgColor={"#ffffff"} fgColor={"#000000"} level={"H"} includeMargin={false}
+              />
+            </div>
 
-                        {(!isPaid && !isAdmin) && (
-                           <div className="absolute inset-0 bg-[#0a0a0a]/50 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-10">
-                              <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px] animate-in zoom-in duration-500">
-                                <Lock className="w-8 h-8 text-orange-500 mb-2 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
-                                <h3 className="text-[14px] font-black text-white uppercase tracking-widest mb-1">OTKLJUČAJ PUN REZULTAT</h3>
-                                <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Skeniraj IPS kod ({aktivniAlat.cena})</p>
-                                
-                                <div className="bg-white p-2 rounded-2xl inline-block mb-3 shadow-inner border border-zinc-200">
-                                  <QRCodeCanvas 
-                                    value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${aktivniAlat.cena.replace(/\D/g, '')},00|SF:289|S:${aktivniAlat.naziv.substring(0,20)}`}
-                                    size={120} bgColor={"#ffffff"} fgColor={"#000000"} level={"H"} includeMargin={false}
-                                  />
-                                </div>
+            <div className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 mb-4 text-left space-y-1.5 font-mono shadow-inner">
+               <div className="flex justify-between border-b border-white/5 pb-1.5">
+                  <span className="text-[9px] text-zinc-500 uppercase">Primalac:</span>
+                  <span className="text-[9px] font-bold text-white">Goran Damnjanović</span>
+               </div>
+               <div className="flex justify-between border-b border-white/5 pb-1.5">
+                  <span className="text-[9px] text-zinc-500 uppercase">Račun:</span>
+                  <span className="text-[9px] font-bold text-white">265-0000006535770-83</span>
+               </div>
+               <div className="flex justify-between border-b border-white/5 pb-1.5">
+                  <span className="text-[9px] text-zinc-500 uppercase">Svrha:</span>
+                  <span className="text-[9px] font-bold text-white truncate max-w-[120px]">{aktivniAlat.naziv}</span>
+               </div>
+               <div className="flex justify-between pt-0.5">
+                  <span className="text-[9px] text-zinc-500 uppercase">Iznos:</span>
+                  <span className="text-[11px] font-black text-orange-500">{aktivniAlat.cena}</span>
+               </div>
+            </div>
 
-                                <div className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 mb-4 text-left space-y-1.5 font-mono shadow-inner">
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Primalac:</span>
-                                      <span className="text-[9px] font-bold text-white">Goran Damnjanović</span>
-                                   </div>
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Račun:</span>
-                                      <span className="text-[9px] font-bold text-white">265-0000006535770-83</span>
-                                   </div>
-                                   <div className="flex justify-between border-b border-white/5 pb-1.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Svrha:</span>
-                                      <span className="text-[9px] font-bold text-white truncate max-w-[120px]">{aktivniAlat.naziv}</span>
-                                   </div>
-                                   <div className="flex justify-between pt-0.5">
-                                      <span className="text-[9px] text-zinc-500 uppercase">Iznos:</span>
-                                      <span className="text-[11px] font-black text-orange-500">{aktivniAlat.cena}</span>
-                                   </div>
-                                </div>
-                                
-                                {proveraUplate === 'idle' && (
-                                  <button onClick={handleProveraUplate} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:scale-105 rounded-xl font-black uppercase tracking-widest text-[11px] text-white transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.4)]">
-                                    <Zap className="w-4 h-4" /> POTVRDIO SAM UPLATU
-                                  </button>
-                                )}
+            {/* --- NOVI KONTAKT BLOK SA VIBEROM I WHATSAPPOM --- */}
+            <div className="mt-4 mb-4 w-full bg-[#050505] border border-orange-500/30 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(234,88,12,0.15)] relative z-20">
+              <p className="text-[10px] md:text-[11px] text-zinc-400 font-black uppercase tracking-widest mb-3">Nakon uplate, pošaljite dokaz na:</p>
+              <div className="flex flex-col gap-2">
+                <a href="mailto:aitoolsprosmart@gmail.com" onClick={(e) => { navigator.clipboard.writeText('aitoolsprosmart@gmail.com'); alert('Email adresa je kopirana!'); }} className="flex items-center justify-center gap-2 w-full bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 text-orange-400 py-2.5 rounded-lg font-black text-[11px] md:text-[12px] tracking-widest transition-all cursor-pointer shadow-inner">
+                  📧 aitoolsprosmart@gmail.com
+                </a>
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
+                  <a href="viber://chat?number=%2B381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#7360f2]/10 border border-[#7360f2]/30 hover:bg-[#7360f2]/20 hover:border-[#7360f2] text-[#7360f2] py-2.5 rounded-lg font-black text-[10px] md:text-[11px] tracking-widest transition-all cursor-pointer">
+                    🟣 VIBER
+                  </a>
+                  <a href="https://wa.me/381648201496" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 hover:border-[#25D366] text-[#25D366] py-2.5 rounded-lg font-black text-[10px] md:text-[11px] tracking-widest transition-all cursor-pointer">
+                    🟢 WHATSAPP
+                  </a>
+                </div>
+              </div>
+              <span className="block mt-3 text-[9px] text-zinc-500 uppercase font-black tracking-widest">Sistem će vam odmah otključati pristup! 🚀</span>
+            </div>
+            
+            {proveraUplate === 'idle' && (
+              <button onClick={handleProveraUplate} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:scale-105 rounded-xl font-black uppercase tracking-widest text-[11px] text-white transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                <Zap className="w-4 h-4" /> POTVRDIO SAM UPLATU
+              </button>
+            )}
 
-                                {proveraUplate === 'loading' && (
-                                  <button disabled className="w-full py-4 bg-zinc-800 border border-zinc-600 rounded-xl font-black uppercase tracking-widest text-[10px] text-zinc-400 flex items-center justify-center gap-2 cursor-wait">
-                                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> PROVERA BANKE U TOKU...
-                                  </button>
-                                )}
+            {proveraUplate === 'loading' && (
+              <button disabled className="w-full py-4 bg-zinc-800 border border-zinc-600 rounded-xl font-black uppercase tracking-widest text-[10px] text-zinc-400 flex items-center justify-center gap-2 cursor-wait">
+                <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> PROVERA BANKE U TOKU...
+              </button>
+            )}
 
-                                {proveraUplate === 'failed' && (
-                                  <div className="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-center animate-in zoom-in">
-                                    <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2 flex justify-center items-center gap-1"><ShieldAlert className="w-3 h-3" /> UPLATA NIJE EVIDENTIRANA</p>
-                                    <p className="text-zinc-300 text-[9px] uppercase font-bold leading-relaxed mb-3">Sistem ne vidi uplatu. Pošaljite nam sliku uplatnice da bismo Vam odmah otključali pristup.</p>
-                                    <div className="flex flex-col gap-2 w-full">
-                                        <a href="https://wa.me/381648201496?text=Pozdrav,%20šaljem%20dokaz%20o%20uplati%20za%20V8%20Alat" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all flex justify-center items-center shadow-lg gap-2">
-                                            Pošalji na WhatsApp
-                                        </a>
-                                        <a href="mailto:aitoolsprosmart@gmail.com?subject=Dokaz o uplati - V8 Pametni Alati" className="bg-red-600/30 border border-red-500/50 hover:bg-red-600 text-white px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex justify-center items-center gap-2">
-                                            <Mail className="w-3 h-3" /> Pošalji na Email
-                                        </a>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                           </div>
-                        )}
-                    </div>
+            {proveraUplate === 'failed' && (
+              <div className="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-center animate-in zoom-in">
+                <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2 flex justify-center items-center gap-1"><ShieldAlert className="w-3 h-3" /> UPLATA NIJE EVIDENTIRANA</p>
+                <p className="text-zinc-300 text-[9px] uppercase font-bold leading-relaxed mb-3">Sistem ne vidi uplatu. Pošaljite nam sliku uplatnice da bismo Vam odmah otključali pristup.</p>
+              </div>
+            )}
+          </div>
+       </div>
+    )}
+</div>
+                              
 
                     {(isPaid || isAdmin) && (
                       <button 
