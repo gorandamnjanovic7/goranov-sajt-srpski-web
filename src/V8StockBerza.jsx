@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil } from 'lucide-react';
+import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { db, auth } from './firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import * as data from './data'; 
 
-// 🔥 OSNOVNE KATEGORIJE (Dodat "Viral", a "Hrana i Piće" je već tu) 🔥
+// 🔥 OSNOVNE KATEGORIJE 🔥
 const KATEGORIJE = [
   "Prilagođen dizajn",
   "Viral",
@@ -22,7 +22,7 @@ const KATEGORIJE = [
   "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
 ];
 
-// 🔥 V8 PAMETNE PODKATEGORIJE (Za sada samo Luksuzni Lajfstajl) 🔥
+// 🔥 V8 PAMETNE PODKATEGORIJE 🔥
 const PODKATEGORIJE = {
   "Luksuzni Lajfstajl": [
     "Haute Horlogerie Tourbillon sat na tamnom opsidijanskom postolju",
@@ -77,6 +77,7 @@ const FullScreenLightbox = ({ imageUrl, onClose }) => {
 const V8StockBerza = () => {
   const [paketi, setPaketi] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null); // Pratimo ulogovanog korisnika
   const [showIpsModal, setShowIpsModal] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -94,11 +95,21 @@ const V8StockBerza = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [zipLink, setZipLink] = useState('');
 
+  // Admin Klijenti Baza
+  const [showKlijentiPanel, setShowKlijentiPanel] = useState(false);
+  const [klijenti, setKlijenti] = useState([]);
+
   // POČETAK FUNKCIJE: useEffect
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (user && user.email === "damnjanovicgoran7@gmail.com") setIsAdmin(true);
-      else setIsAdmin(false);
+      if (user) {
+          setCurrentUser(user);
+          if (user.email === "damnjanovicgoran7@gmail.com") setIsAdmin(true);
+          else setIsAdmin(false);
+      } else {
+          setCurrentUser(null);
+          setIsAdmin(false);
+      }
     });
     fetchPaketi();
   }, []);
@@ -116,7 +127,59 @@ const V8StockBerza = () => {
   };
   // KRAJ FUNKCIJE: fetchPaketi
 
-  // POČETAK FUNKCIJE: handleUploadPreview
+  // POČETAK FUNKCIJE: fetchKlijenti
+  const fetchKlijenti = async () => {
+      try {
+          const q = query(collection(db, "v8_kupci"), orderBy("vreme", "desc"));
+          const snap = await getDocs(q);
+          setKlijenti(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch (err) {
+          console.error("Greška pri učitavanju klijenata:", err);
+      }
+  };
+  // KRAJ FUNKCIJE: fetchKlijenti
+
+  // POČETAK FUNKCIJE: prijavaIKupovina
+  const prijavaIKupovina = async (paket) => {
+      if (currentUser) {
+          // Već je ulogovan, beležimo nameru i otvaramo IPS
+          snimiKupcaUBazu(currentUser, paket);
+          setShowIpsModal(paket);
+      } else {
+          // Nije ulogovan, otvaramo Google Login
+          const provider = new GoogleAuthProvider();
+          try {
+              const result = await signInWithPopup(auth, provider);
+              const ulogovaniKorisnik = result.user;
+              // Čim se uloguje, beležimo ga
+              await snimiKupcaUBazu(ulogovaniKorisnik, paket);
+              setShowIpsModal(paket); // Otvaramo naplatu
+          } catch (error) {
+              console.error("Prijava prekinuta", error);
+              alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
+          }
+      }
+  };
+  // KRAJ FUNKCIJE: prijavaIKupovina
+
+  // POČETAK FUNKCIJE: snimiKupcaUBazu
+  const snimiKupcaUBazu = async (user, paket) => {
+      try {
+          await addDoc(collection(db, "v8_kupci"), {
+              ime: user.displayName || "Klijent",
+              email: user.email,
+              uid: user.uid,
+              zeliPaket: paket.naziv,
+              cenaPaketa: paket.cena,
+              vreme: serverTimestamp()
+          });
+      } catch (error) {
+          console.error("Greška pri beleženju klijenta", error);
+      }
+  };
+  // KRAJ FUNKCIJE: snimiKupcaUBazu
+
+  // Ostale funkcije za upload...
   const handleUploadPreview = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -134,9 +197,7 @@ const V8StockBerza = () => {
       setIsUploading(false);
     }
   };
-  // KRAJ FUNKCIJE: handleUploadPreview
 
-  // POČETAK FUNKCIJE: handleUploadPrimeri
   const handleUploadPrimeri = async (e) => {
     const files = Array.from(e.target.files); 
     if (files.length === 0) return;
@@ -168,16 +229,12 @@ const V8StockBerza = () => {
       e.target.value = null; 
     }
   };
-  // KRAJ FUNKCIJE: handleUploadPrimeri
 
-  // POČETAK FUNKCIJE: handleKategorijaChange
   const handleKategorijaChange = (e) => {
     setNovaKategorija(e.target.value);
     setNovaPodkategorija(''); 
   };
-  // KRAJ FUNKCIJE: handleKategorijaChange
 
-  // POČETAK FUNKCIJE: dodajPaket
   const dodajPaket = async (e) => {
     e.preventDefault();
     if (!previewUrl || !zipLink) return alert("Moraš dodati Preview i Link do ZIP fajla!");
@@ -212,9 +269,7 @@ const V8StockBerza = () => {
       alert(`Greška: ${error.message}`);
     }
   };
-  // KRAJ FUNKCIJE: dodajPaket
 
-  // POČETAK FUNKCIJE: startEditPaket
   const startEditPaket = (paket) => {
     setEditingPaketId(paket.id);
     setNoviNaziv(paket.naziv);
@@ -227,24 +282,20 @@ const V8StockBerza = () => {
     setZipLink(paket.zipLink);
     setPrimeriUrls(paket.primeri || []);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setShowKlijentiPanel(false);
   };
-  // KRAJ FUNKCIJE: startEditPaket
 
-  // POČETAK FUNKCIJE: stoziEdit
   const stoziEdit = () => {
     setEditingPaketId(null);
     setNoviNaziv(''); setPreviewUrl(''); setZipLink(''); setPrimeriUrls([]); setNovaPodkategorija('');
   };
-  // KRAJ FUNKCIJE: stoziEdit
 
-  // POČETAK FUNKCIJE: obrisiPaket
   const obrisiPaket = async (id) => {
     if (window.confirm("Obrisati ovaj paket iz prodavnice?")) {
       await deleteDoc(doc(db, "v8_stock_paketi", id));
       fetchPaketi();
     }
   };
-  // KRAJ FUNKCIJE: obrisiPaket
 
   return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-24 px-6 font-sans text-white text-left">
@@ -301,12 +352,55 @@ const V8StockBerza = () => {
           <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4 italic">
             GOTOVI V8 <span className="text-blue-500">VIZUALNI PAKETI</span>
           </h1>
-          <p className="text-zinc-400 text-[13px] uppercase tracking-widest font-bold max-w-3xl mx-auto leading-relaxed text-center leading-relaxed">
+          <p className="text-zinc-400 text-[13px] uppercase tracking-widest font-bold max-w-3xl mx-auto leading-relaxed text-center">
             Zaboravite na preskupe produkcije. Preuzmite kompletne ZIP arhive ekskluzivnih slika i videa u kristalno čistoj <span className="text-blue-400 drop-shadow-md font-black">2K rezoluciji</span>. Svaki V8 paket je inženjerski optimizovan i isporučuje svaki vizual u sva 4 ključna formata (1:1, 9:16, 16:9, 21:9). Spremno za preuzimanje. Spremno za apsolutnu dominaciju u vašim kampanjama.
           </p>
         </div>
 
+        {/* ADMIN PANEL - KONTROLE */}
         {isAdmin && (
+            <div className="mb-6 flex gap-4 justify-center">
+                <button onClick={() => { setShowKlijentiPanel(false); stoziEdit(); }} className={`px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${!showKlijentiPanel ? 'bg-orange-600 text-white shadow-lg' : 'bg-zinc-900 text-zinc-500 hover:text-white border border-white/5'}`}>
+                   📦 Dodaj Paket
+                </button>
+                <button onClick={() => { setShowKlijentiPanel(true); fetchKlijenti(); }} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${showKlijentiPanel ? 'bg-blue-600 text-white shadow-lg' : 'bg-zinc-900 text-zinc-500 hover:text-white border border-white/5'}`}>
+                   <Users size={16} /> Baza Klijenata
+                </button>
+            </div>
+        )}
+
+        {/* 🔥 ADMIN BAZA KLIJENATA TAB 🔥 */}
+        {isAdmin && showKlijentiPanel && (
+            <div className="bg-[#0a0a0a] border-2 border-blue-500/50 rounded-[2.5rem] p-8 mb-16 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
+                <h2 className="text-xl font-black text-blue-500 uppercase tracking-widest mb-6 flex items-center gap-2"><Users className="w-6 h-6" /> Klijenti koji su tražili kupovinu</h2>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-white/10 text-zinc-400 text-[10px] uppercase tracking-widest">
+                                <th className="p-4">Ime klijenta</th>
+                                <th className="p-4">Email adresa</th>
+                                <th className="p-4">Željeni Paket</th>
+                                <th className="p-4 text-right">Cena</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {klijenti.map((k, i) => (
+                                <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-all text-[12px] text-white">
+                                    <td className="p-4 font-bold">{k.ime}</td>
+                                    <td className="p-4 text-blue-400 select-all">{k.email}</td>
+                                    <td className="p-4 text-orange-400 font-bold">{k.zeliPaket}</td>
+                                    <td className="p-4 text-right">{k.cenaPaketa} RSD</td>
+                                </tr>
+                            ))}
+                            {klijenti.length === 0 && <tr><td colSpan="4" className="p-8 text-center text-zinc-500">Još uvek nema klijenata u bazi.</td></tr>}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )}
+
+        {/* ADMIN FORMA ZA PAKETE TAB */}
+        {isAdmin && !showKlijentiPanel && (
           <form onSubmit={dodajPaket} className="bg-[#0a0a0a] border-2 border-orange-500/50 rounded-[2.5rem] p-8 mb-16 shadow-[0_0_30px_rgba(234,88,12,0.1)] relative">
             
             {editingPaketId && (
@@ -419,7 +513,8 @@ const V8StockBerza = () => {
                 
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
                     <span className="text-xl font-black text-white">{paket.cena} <span className="text-[10px] text-zinc-500">RSD</span></span>
-                    <button onClick={() => setShowIpsModal(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2">
+                    {/* 🔥 V8 DUGME KOJE POKREĆE PRIJAVU ZATIM IPS 🔥 */}
+                    <button onClick={() => prijavaIKupovina(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2">
                         Kupi <Zap className="w-3 h-3" />
                     </button>
                 </div>
