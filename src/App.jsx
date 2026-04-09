@@ -2146,6 +2146,7 @@ return (
      <Routes>
         <Route path="/" element={<HomePage apps={appsData} />} />
         <Route path="/izrada-sajtova" element={<IzradaSajtovaPage />} />
+        <Route path="/v8-kreator-slika" element={<V8KreatorSlikaPage isAdmin={isAdmin} />} />
         <Route path="/enxance" element={<V8Enhancer10x />} />
         <Route path="/reklama-10x" element={<V8Promo10xPage promoData={appsData} />} />
         <Route path="/v8-pametni-alati" element={<V8PametniAlatiPage isAdmin={isAdmin} />} />
