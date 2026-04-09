@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Zap, Lock, Mail, Briefcase, ChevronRight, ChevronLeft, X, Loader2, ShieldAlert, Award } from 'lucide-react';
+import { Settings, Zap, Lock, Mail, Briefcase, ChevronRight, X, Loader2, ShieldAlert, Award } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { collection, getDocs } from "firebase/firestore";
-import { db } from './firebase'; // Proveri da li ti je putanja do firebase.js tačna!
+import { db } from './firebase'; 
 
+// POČETAK FUNKCIJE: V8PametniAlatiPage
 const V8PametniAlatiPage = ({ isAdmin }) => {
   const [alati, setAlati] = useState([]);
   const [aktivniAlat, setAktivniAlat] = useState(null);
   const [unos, setUnos] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showUnderConstruction, setShowUnderConstruction] = useState(true);
   const [rezultat, setRezultat] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
   const [proveraUplate, setProveraUplate] = useState('idle');
@@ -101,34 +100,21 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // --- POČETAK: V8 PRAVA OPENAI GENERACIJA ---
   const handleGenerisiRezultat = async (adminBypass = false) => {
     setIsGenerating(true);
     if (adminBypass) setIsPaid(true); 
     
     try {
-      // Šaljemo tvoj tekst i ID alata na backend (port 5000)
       const response = await fetch('http://localhost:5000/api/openai-alati', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          alatId: aktivniAlat.id, 
-          unos: unos 
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alatId: aktivniAlat.id, unos: unos }),
       });
 
-      if (!response.ok) {
-        throw new Error('Greška u komunikaciji sa V8 serverom');
-      }
+      if (!response.ok) throw new Error('Greška u komunikaciji sa V8 serverom');
 
-      // Čekamo pravi odgovor od OpenAI-a
       const data = await response.json();
-
-      // V8 MAGIJA: Uzimamo pravi odgovor i lepimo tvoj unos na vrh!
       const dinamickiOdgovor = `/// V8 SISTEMSKA ANALIZA ///\nPrijemni podaci: "${unos}"\nStatus: Podaci uspešno obrađeni 🟢\n\n${data.rezultat}`;
-      
       setRezultat(dinamickiOdgovor);
 
     } catch (error) {
@@ -138,7 +124,6 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
       setIsGenerating(false);
     }
   };
-  // --- KRAJ: V8 PRAVA OPENAI GENERACIJA ---
 
   const handleProveraUplate = () => {
     setProveraUplate('loading');
@@ -150,49 +135,10 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
   return (
     <div className="min-h-screen bg-[#050505] pt-24 pb-24 px-6 relative flex flex-col items-center">
       
-      <AnimatePresence>
-        {showUnderConstruction && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-[#050505]/80 backdrop-blur-xl"
-          >
-            <div className="relative max-w-2xl w-full bg-blue-950/40 border border-blue-500/30 rounded-[2.5rem] p-10 md:p-14 text-center shadow-[0_0_50px_rgba(59,130,246,0.15)] overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-40 bg-blue-600/20 blur-[70px] rounded-full pointer-events-none"></div>
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <Settings className="w-12 h-12 text-blue-400 mb-6 animate-spin-slow" style={{ animationDuration: '4s' }} />
-                <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-widest mb-6">
-                  Stranica u <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">Doradi</span>
-                </h2>
-                <p className="text-blue-100/90 text-[14px] md:text-[16px] leading-relaxed mb-8 font-medium max-w-lg mx-auto">
-                  Poštovani posetioci, stranica je u doradi. Kao što vidite, imamo mnogo usluga koje trenutno usavršavamo. 
-                  Stranica kreće sa punim kapacitetom veoma uskoro.
-                </p>
-                <p className="text-blue-400 font-black uppercase tracking-[0.2em] text-[11px] mb-8">
-                  Hvala Vam na strpljenju, Vaš AI-ALATI tim.
-                </p>
-
-                {isAdmin && (
-                  <button 
-                    onClick={() => setShowUnderConstruction(false)}
-                    className="mt-4 bg-gradient-to-r from-red-700 to-red-600 border border-red-500 text-white px-8 py-4 rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 hover:scale-105 transition-all shadow-[0_0_20px_rgba(220,38,38,0.5)] cursor-pointer group"
-                  >
-                    <Zap className="w-4 h-4" /> Admin Bypass
-                  </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="max-w-7xl w-full mx-auto font-sans text-left text-white relative z-10 flex flex-col items-center">
         
         <div className="mb-12 text-center w-full relative z-10 flex flex-col items-center">
-          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 text-gradient-animate drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">
+          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]">
             V8 PAMETNI ALATI
           </h1>
           <div className="text-[12px] md:text-[14px] font-black text-green-400 uppercase tracking-[0.2em] flex items-center flex-wrap gap-3 justify-center text-center">
@@ -216,7 +162,7 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
             </div>
             
             {!rezultat && !isGenerating && (
-                <div className="space-y-6 animate-in fade-in">
+                <div className="space-y-6">
                   <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500">Unesite vaš polazni tekst:</label>
                   <textarea 
                     value={unos} 
@@ -248,7 +194,7 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
             )}
 
             {isGenerating && (
-                <div className="py-16 flex flex-col items-center justify-center space-y-6 animate-in fade-in">
+                <div className="py-16 flex flex-col items-center justify-center space-y-6">
                     <Zap className="w-16 h-16 text-orange-500 animate-pulse drop-shadow-[0_0_15px_rgba(234,88,12,0.8)]" />
                     <h3 className="text-xl font-black text-white uppercase tracking-widest text-center">V8 NEURONSKA MREŽA OBRAĐUJE PODATKE...</h3>
                     <p className="text-zinc-500 font-bold text-sm uppercase tracking-widest animate-pulse">Generisanje premium rezultata u toku</p>
@@ -256,21 +202,17 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
             )}
 
             {rezultat && !isGenerating && (
-                <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
                         <span className="text-green-400 font-black uppercase tracking-widest text-[11px]">Sistem uspešno izvršio zadatak</span>
                     </div>
 <div className="relative w-full bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden shadow-inner min-h-[450px] flex flex-col">
     
-    {/* --- POČETAK: V8 TEASER EFEKAT BEZ BLURA --- */}
     <div className={`text-zinc-300 text-[13px] md:text-[14px] whitespace-pre-wrap leading-relaxed font-mono transition-all duration-700 relative z-0 flex-1 pb-24 ${(!isPaid && !isAdmin) ? 'select-none overflow-hidden h-[450px]' : ''}`}>
         {(!isPaid && !isAdmin) ? (
             <>
-              {/* Prvih 350 karaktera svetli belo i mami na čitanje */}
               <span className="text-white font-bold drop-shadow-md leading-relaxed">{rezultat.substring(0, 350)}</span>
-              
-              {/* Ostatak prelazi u tamno sivu i stapa se sa pozadinom bez zamućenja */}
               <span className="text-zinc-600 opacity-90 leading-relaxed">
                 {rezultat.length > 350 ? rezultat.substring(350, 1200) + "\n\n[... OSTATAK V8 TEKSTA I PREMIUM ANALIZE JE ZAKLJUČAN ...]" : ""}
               </span>
@@ -281,9 +223,9 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
     </div>
 
     {(!isPaid && !isAdmin) && (
-       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505] flex flex-col items-center justify-end p-4 z-10 pb-8 pt-20">
+       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] flex flex-col items-center justify-end p-4 z-10 pb-8 pt-20">
           
-          <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px] animate-in zoom-in duration-500">
+          <div className="bg-[#050505] border border-orange-500/50 p-6 rounded-3xl text-center flex flex-col items-center shadow-[0_0_50px_rgba(234,88,12,0.4)] w-full max-w-[360px]">
             <Lock className="w-8 h-8 text-orange-500 mb-2 drop-shadow-[0_0_10px_rgba(234,88,12,0.8)]" />
             <h3 className="text-[14px] font-black text-white uppercase tracking-widest mb-1">OTKLJUČAJ PUN REZULTAT</h3>
             <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Skeniraj IPS kod ({aktivniAlat.cena})</p>
@@ -314,7 +256,6 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
                </div>
             </div>
 
-            {/* --- NOVI KONTAKT BLOK SA VIBEROM I WHATSAPPOM --- */}
             <div className="mt-4 mb-4 w-full bg-[#050505] border border-orange-500/30 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(234,88,12,0.15)] relative z-20">
               <p className="text-[10px] md:text-[11px] text-zinc-400 font-black uppercase tracking-widest mb-3">Nakon uplate, pošaljite dokaz na:</p>
               <div className="flex flex-col gap-2">
@@ -346,7 +287,7 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
             )}
 
             {proveraUplate === 'failed' && (
-              <div className="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-center animate-in zoom-in">
+              <div className="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-center">
                 <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2 flex justify-center items-center gap-1"><ShieldAlert className="w-3 h-3" /> UPLATA NIJE EVIDENTIRANA</p>
                 <p className="text-zinc-300 text-[9px] uppercase font-bold leading-relaxed mb-3">Sistem ne vidi uplatu. Pošaljite nam sliku uplatnice da bismo Vam odmah otključali pristup.</p>
               </div>
@@ -388,5 +329,6 @@ const V8PametniAlatiPage = ({ isAdmin }) => {
     </div>
   );
 };
+// KRAJ FUNKCIJE: V8PametniAlatiPage
 
 export default V8PametniAlatiPage;

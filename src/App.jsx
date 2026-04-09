@@ -28,7 +28,7 @@ import { useGSAP } from '@gsap/react';
 // FIREBASE
 import { db, auth, provider } from './firebase';
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, getDoc, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp, arrayUnion } from "firebase/firestore";
+import { collection, getDocs, getDoc, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp, arrayUnion,increment } from "firebase/firestore";
 import * as data from './data';
 import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription, TypewriterText } from './data';
 import mojBaner from './moj-baner.png'; 
@@ -1911,6 +1911,56 @@ function TrezorPage({ apps = [] }) {
     </div>
   );
 }
+// POČETAK FUNKCIJE: VisitorCounter
+const VisitorCounter = () => {
+  const [visitorCount, setVisitorCount] = useState(0);
+
+  useEffect(() => {
+    const trackVisitor = async () => {
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const userIP = ipData.ip;
+        
+        const docRef = doc(db, 'v8_stats', 'visitors');
+        const docSnap = await getDoc(docRef);
+        let currentCount = 0;
+        
+        if (docSnap.exists()) {
+          currentCount = docSnap.data().count;
+        } else {
+          await setDoc(docRef, { count: 0 });
+        }
+
+        const hasCounted = sessionStorage.getItem('v8_counted');
+        
+        // V8 Filter: Ignorišemo tvoj IP (213.196.99.10)
+        if (userIP !== '213.196.99.10' && !hasCounted) {
+          await updateDoc(docRef, { count: increment(1) });
+          setVisitorCount(currentCount + 1);
+          sessionStorage.setItem('v8_counted', 'true');
+        } else {
+          setVisitorCount(currentCount);
+        }
+      } catch (error) {
+        console.error("V8 Skener Greška:", error);
+      }
+    };
+    trackVisitor();
+  }, []);
+
+  if (visitorCount === 0) return null; 
+
+  return (
+    <div className="fixed bottom-6 right-20 md:right-28 z-[4900] bg-[#0a0a0a]/90 backdrop-blur-md border border-orange-500/30 px-4 py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.2)] flex items-center gap-2 font-sans transition-all hover:border-orange-500">
+      <Users className="w-4 h-4 text-orange-500" />
+      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+        Poseta: <span className="text-white text-[11px]">{visitorCount.toLocaleString('sr-RS')}</span>
+      </span>
+    </div>
+  );
+};
+// KRAJ FUNKCIJE: VisitorCounter
 function AppContent({ appsData, refreshData }) {
 const [isBooting, setIsBooting] = useState(true); 
 const [showBanner, setShowBanner] = useState(false); 
@@ -1983,7 +2033,7 @@ return (
       {!isBooting && showBanner && <WelcomeBanner key="banner" onClose={() => setShowBanner(false)} />}
     </AnimatePresence>
     <div className="fixed top-0 left-0 w-full z-[1000]">
-     {/* POČETAK NAVBARA */}
+    {/* POČETAK NAVBARA */}
 <nav className="w-full px-4 md:px-8 py-6 md:py-8 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
 {/* KRAJ NAVBARA */}
         <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
@@ -1998,8 +2048,7 @@ return (
             <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
             {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
             <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
-            {/* 🔥 OVDE ZALEPI TVOJE NOVO DUGME ZA BERZU 🔥 */}
-<Link to="/berza-paketa" className="bg-purple-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-purple-400 border border-purple-500/30 shadow-xl hover:bg-purple-600 hover:text-white transition-all hidden md:block">Stock Paketi</Link>
+            
 {/* --- POČETAK FUNKCIJE: Master Kolekcija Padajući Meni --- */}
 <div className="relative group hidden lg:block">
   <button className="bg-gradient-to-r from-yellow-500 to-orange-600 px-3 md:px-4 py-1.5 rounded-full text-white font-black text-[8px] md:text-[9px] uppercase tracking-wider shadow-[0_0_15px_rgba(234,88,12,0.4)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all border border-orange-400/50 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
@@ -2016,14 +2065,20 @@ return (
       </Link>
       
       {/* 2. STAVKA - B2B PORTFOLIO */}
-      <Link to="/portfolio" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-600/20 hover:text-blue-400 transition-colors flex items-center gap-3">
+      <Link to="/portfolio" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-600/20 hover:text-blue-400 transition-colors flex items-center gap-3 border-b border-white/5">
         <Briefcase className="w-4 h-4 text-blue-500" /> B2B Portfolio
+      </Link>
+
+      {/* 3. STAVKA - STOCK PAKETI (PREBAČENO OVDE) */}
+      <Link to="/berza-paketa" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-purple-600/20 hover:text-purple-400 transition-colors flex items-center gap-3">
+        <Zap className="w-4 h-4 text-purple-500" /> Stock Paketi
       </Link>
 
     </div>
   </div>
 </div>
 {/* --- KRAJ FUNKCIJE: Master Kolekcija Padajući Meni --- */}
+
             <div className="relative group">
               <button className="bg-gradient-to-r from-orange-600 to-red-600 border border-orange-400 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black tracking-widest text-[10px] md:text-xs shadow-[0_0_20px_rgba(234,88,12,0.6)] flex items-center gap-2 cursor-pointer">
                 <Zap className="w-4 h-4" /> 
@@ -2063,7 +2118,8 @@ return (
           </div>
         </div>
       </nav>
-    </div>
+      
+          </div>
     <div className="flex-1 text-left pt-20">
      <Routes>
         <Route path="/" element={<HomePage apps={appsData} />} />
@@ -2084,8 +2140,9 @@ return (
         <Route path="/berza-paketa" element={<V8StockBerza />} />
       </Routes>
     </div>
-    <SmartScrollButton />
-<V8ContactWidget />
+<SmartScrollButton />
+    <VisitorCounter />  {/* 🔥 V8 BROJAČ POSETA JE SADA OVDE 🔥 */}
+    <V8ContactWidget />
     <footer className="flex flex-col items-center gap-6 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-8 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
       <div className="flex items-center gap-6">
         <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>

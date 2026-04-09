@@ -77,7 +77,7 @@ const FullScreenLightbox = ({ imageUrl, onClose }) => {
 const V8StockBerza = () => {
   const [paketi, setPaketi] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Pratimo ulogovanog korisnika
+  const [currentUser, setCurrentUser] = useState(null); 
   const [showIpsModal, setShowIpsModal] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -95,7 +95,6 @@ const V8StockBerza = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [zipLink, setZipLink] = useState('');
 
-  // Admin Klijenti Baza
   const [showKlijentiPanel, setShowKlijentiPanel] = useState(false);
   const [klijenti, setKlijenti] = useState([]);
 
@@ -142,18 +141,15 @@ const V8StockBerza = () => {
   // POČETAK FUNKCIJE: prijavaIKupovina
   const prijavaIKupovina = async (paket) => {
       if (currentUser) {
-          // Već je ulogovan, beležimo nameru i otvaramo IPS
           snimiKupcaUBazu(currentUser, paket);
           setShowIpsModal(paket);
       } else {
-          // Nije ulogovan, otvaramo Google Login
           const provider = new GoogleAuthProvider();
           try {
               const result = await signInWithPopup(auth, provider);
               const ulogovaniKorisnik = result.user;
-              // Čim se uloguje, beležimo ga
               await snimiKupcaUBazu(ulogovaniKorisnik, paket);
-              setShowIpsModal(paket); // Otvaramo naplatu
+              setShowIpsModal(paket); 
           } catch (error) {
               console.error("Prijava prekinuta", error);
               alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
@@ -179,7 +175,7 @@ const V8StockBerza = () => {
   };
   // KRAJ FUNKCIJE: snimiKupcaUBazu
 
-  // Ostale funkcije za upload...
+  // POČETAK FUNKCIJE: handleUploadPreview
   const handleUploadPreview = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -197,7 +193,9 @@ const V8StockBerza = () => {
       setIsUploading(false);
     }
   };
+  // KRAJ FUNKCIJE: handleUploadPreview
 
+  // POČETAK FUNKCIJE: handleUploadPrimeri
   const handleUploadPrimeri = async (e) => {
     const files = Array.from(e.target.files); 
     if (files.length === 0) return;
@@ -229,12 +227,16 @@ const V8StockBerza = () => {
       e.target.value = null; 
     }
   };
+  // KRAJ FUNKCIJE: handleUploadPrimeri
 
+  // POČETAK FUNKCIJE: handleKategorijaChange
   const handleKategorijaChange = (e) => {
     setNovaKategorija(e.target.value);
     setNovaPodkategorija(''); 
   };
+  // KRAJ FUNKCIJE: handleKategorijaChange
 
+  // POČETAK FUNKCIJE: dodajPaket
   const dodajPaket = async (e) => {
     e.preventDefault();
     if (!previewUrl || !zipLink) return alert("Moraš dodati Preview i Link do ZIP fajla!");
@@ -269,7 +271,9 @@ const V8StockBerza = () => {
       alert(`Greška: ${error.message}`);
     }
   };
+  // KRAJ FUNKCIJE: dodajPaket
 
+  // POČETAK FUNKCIJE: startEditPaket
   const startEditPaket = (paket) => {
     setEditingPaketId(paket.id);
     setNoviNaziv(paket.naziv);
@@ -284,20 +288,24 @@ const V8StockBerza = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setShowKlijentiPanel(false);
   };
+  // KRAJ FUNKCIJE: startEditPaket
 
+  // POČETAK FUNKCIJE: stoziEdit
   const stoziEdit = () => {
     setEditingPaketId(null);
     setNoviNaziv(''); setPreviewUrl(''); setZipLink(''); setPrimeriUrls([]); setNovaPodkategorija('');
   };
+  // KRAJ FUNKCIJE: stoziEdit
 
+  // POČETAK FUNKCIJE: obrisiPaket
   const obrisiPaket = async (id) => {
     if (window.confirm("Obrisati ovaj paket iz prodavnice?")) {
       await deleteDoc(doc(db, "v8_stock_paketi", id));
       fetchPaketi();
     }
   };
-
-  return (
+  // KRAJ FUNKCIJE: obrisiPaket
+ return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-24 px-6 font-sans text-white text-left">
       
       <style>{`
@@ -513,7 +521,6 @@ const V8StockBerza = () => {
                 
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
                     <span className="text-xl font-black text-white">{paket.cena} <span className="text-[10px] text-zinc-500">RSD</span></span>
-                    {/* 🔥 V8 DUGME KOJE POKREĆE PRIJAVU ZATIM IPS 🔥 */}
                     <button onClick={() => prijavaIKupovina(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2">
                         Kupi <Zap className="w-3 h-3" />
                     </button>
@@ -534,36 +541,89 @@ const V8StockBerza = () => {
           ))}
         </div>
 
+        {/* 🔥 POČETAK: CUSTOM DIZAJN BANER 🔥 */}
+        <div className="mt-20 relative bg-[#0a0a0a] border-2 border-blue-600 rounded-[2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(59,130,246,0.3)] flex flex-col md:flex-row items-center gap-8 md:gap-12 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-transparent pointer-events-none" />
+
+          {/* Slike levo */}
+          <div className="flex items-center gap-4 shrink-0 relative z-10">
+            <div className="w-28 h-28 md:w-40 md:h-40 rounded-2xl overflow-hidden border-2 border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+              <img src="https://images.pexels.com/photos/266621/pexels-photo-266621.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Premium Custom 1" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            </div>
+            {/* 🔥 OVDE JE SKLONJENA mt-6 MARGINA 🔥 */}
+            <div className="w-28 h-28 md:w-40 md:h-40 rounded-2xl overflow-hidden border-2 border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+              <img src="https://images.pexels.com/photos/1961795/pexels-photo-1961795.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Premium Custom 2" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 delay-100" />
+            </div>
+          </div>
+
+          {/* Tekst desno */}
+          <div className="flex-1 relative z-10 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">
+              <Sparkles className="w-3 h-3" /> V8 Studio Produkcija
+            </div>
+            <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-4 text-white italic">
+              USLUGA IZRADE <span className="text-blue-500">PRILAGOĐENIH PAKETA</span> FOTOGRAFIJA
+            </h3>
+            <p className="text-zinc-400 text-[11px] md:text-[13px] font-bold tracking-wide uppercase leading-relaxed mb-8">
+              Kreiramo jedinstvene pakete vizuala po vašim pojedinačnim željama, hirurški prilagođene specifičnim potrebama, estetici i bojama vašeg biznisa. Ne nalazite na Berzi tačno ono što tražite? Naš V8 AI tim će izraditi ekskluzivnu kolekciju samo za vas.
+            </p>
+            <a href="mailto:damnjanovicgoran7@gmail.com" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all">
+              📧 Kontaktirajte nas za ponudu na mail
+            </a>
+          </div>
+        </div>
+        {/* 🔥 KRAJ: CUSTOM DIZAJN BANER 🔥 */}
+
       </div>
 
+      {/* 🔥 POČETAK FUNKCIJE: NOVI IPS MODAL SA SLIKE 🔥 */}
       {showIpsModal && (
-        <div className="fixed inset-0 z-[9000] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0a] border border-blue-500/40 rounded-[2.5rem] max-w-md w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(59,130,246,0.15)] overflow-hidden">
-            <button onClick={() => setShowIpsModal(null)} className="absolute top-5 right-5 bg-white/5 p-2 rounded-full text-zinc-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all z-10"><X size={20} strokeWidth={3} /></button>
+        <div className="fixed inset-0 z-[9000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0f1522] rounded-xl max-w-[420px] w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col items-center pt-8 pb-10 px-8 border border-white/5">
             
-            <div className="p-10 flex flex-col items-center">
-              <h3 className="text-[18px] font-black uppercase tracking-widest mb-2 text-blue-500 flex items-center gap-3"><Zap className="w-5 h-5" /> IPS Uplata</h3>
-              <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-6 text-center leading-relaxed">Paket: {showIpsModal.naziv}</p>
+            {/* Naslovi */}
+            <h2 className="text-xl font-black uppercase tracking-widest mb-3 text-white">IPS UPLATA</h2>
+            <p className="text-[12px] text-zinc-300 font-bold uppercase tracking-widest mb-6 text-center">PAKET: {showIpsModal.naziv}</p>
+            
+            <p className="text-[13px] text-zinc-300 mb-3 text-center">Konfirmacija uplate:</p>
+            
+            {/* Plavi box za QR */}
+            <div className="w-full border border-blue-500/60 rounded-xl p-6 flex flex-col items-center mb-6 bg-[#141b2d]">
+              <p className="text-[12px] text-zinc-200 mb-5 text-center">Skenirajte QR kod za potvrdu uplate:</p>
               
-              <div className="w-52 h-52 bg-white p-3 rounded-3xl mb-5 flex items-center justify-center border-4 border-dashed border-blue-500/30 shadow-inner overflow-hidden relative">
-                <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${showIpsModal.cena},00|SF:289|S:V8 Paket-${showIpsModal.naziv.substring(0,10)}|RO:V8-PAKET`} size={180} bgColor={"#ffffff"} fgColor={"#000000"} level={"M"} includeMargin={false} />
-              </div>
-              
-              <div className="text-[10px] font-black bg-blue-500/10 border border-blue-500/20 text-blue-400 px-5 py-2.5 rounded-full uppercase tracking-widest mb-8 shadow-lg">Skeniraj m-banking aplikacijom</div>
-              
-              <div className="mt-4 w-full bg-[#050505] border border-blue-500/30 rounded-2xl p-5 text-center shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-                <p className="text-[11px] text-zinc-400 font-black uppercase tracking-widest mb-4">Pošaljite potvrdu uplate na:</p>
-                <div className="flex flex-col gap-3">
-                  <a href="viber://chat?number=%2B381648201496" className="flex items-center justify-center gap-2 bg-[#7360f2]/10 border border-[#7360f2]/30 text-[#7360f2] py-3 rounded-xl font-black text-[12px] tracking-widest hover:bg-[#7360f2]/20 transition-all">🟣 VIBER</a>
-                  <a href="https://wa.me/381648201496" className="flex items-center justify-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] py-3 rounded-xl font-black text-[12px] tracking-widest hover:bg-[#25D366]/20 transition-all">🟢 WHATSAPP</a>
-                  <a href="mailto:damnjanovicgoran7@gmail.com" className="flex items-center justify-center gap-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 py-3 rounded-xl font-black text-[12px] tracking-widest hover:bg-blue-500/20 transition-all">📧 EMAIL</a>
-                </div>
-                <span className="block mt-4 text-[9px] text-zinc-500 uppercase font-black tracking-widest">Sistem vam automatski šalje ZIP link.</span>
+              <div className="bg-white p-2 rounded-lg relative flex items-center justify-center">
+                <QRCodeCanvas 
+                   value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${showIpsModal.cena},00|SF:289|S:V8 Paket-${showIpsModal.naziv.substring(0,10)}|RO:V8-PAKET`} 
+                   size={180} 
+                   bgColor={"#ffffff"} 
+                   fgColor={"#000000"} 
+                   level={"M"} 
+                   includeMargin={false} 
+                />
               </div>
             </div>
+            
+            {/* Kontakt */}
+            <p className="text-[13px] text-zinc-300 mb-5 text-center">Pošaljite potvrdu uplate na:</p>
+            
+            <div className="flex items-center gap-6">
+               {/* Viber Ikona - Bulletproof SVG */}
+               <a href="viber://chat?number=%2B381648201496" className="w-12 h-12 bg-[#7360f2] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+                 <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                   <path d="M21.05 6.64c-.38-1.5-1.12-2.82-2.13-3.83-1.01-1.01-2.33-1.75-3.83-2.13C13.63.31 12 0 12 0s-1.63.31-3.09.68c-1.5.38-2.82 1.12-3.83 2.13-1.01 1.01-1.75 2.33-2.13 3.83-.37 1.46-.68 3.09-.68 3.09s.31 1.63.68 3.09c.38 1.5 1.12 2.82 2.13 3.83 1.01 1.01 2.33 1.75 3.83 2.13C10.37 19.16 12 19.47 12 19.47v4.53s2.94-2.58 4.71-4.35c.18-.18.33-.37.49-.55.97-.24 1.89-.66 2.7-1.22l.06-.05c.89-.68 1.63-1.52 2.15-2.48.37-1.46.68-3.09.68-3.09s.32-1.63-.06-3.09h-.02a18.23 18.23 0 0 0-.01-.01c-.42-1.55-1.19-2.9-2.22-3.95zm-2.07 9.54c-.16.51-.51.9-.98 1.09-.81.33-1.99.11-3.23-.48-1.42-.69-3.05-1.92-4.52-3.39-1.47-1.47-2.7-3.1-3.39-4.52-.59-1.24-.81-2.42-.48-3.23.19-.47.58-.82 1.09-.98.44-.14 1.01-.13 1.43.14.3.19.49.52.61.85.19.55.33 1.12.39 1.69.05.41-.09.82-.39 1.12-.2.2-.42.38-.66.53-.13.08-.18.25-.11.39.54 1.11 1.34 2.11 2.33 2.95.84.72 1.84 1.3 2.95 1.69.14.05.3-.02.39-.14.15-.24.33-.46.53-.66.3-.3.71-.44 1.12-.39.57.06 1.14.2 1.69.39.33.12.66.31.85.61.27.42.28.99.14 1.43zM16.6 9.69a6.6 6.6 0 0 0-4.66-4.66c-.46-.12-.86.27-.86.74 0 .36.26.68.61.76 1.95.46 3.49 2 3.95 3.95.08.35.4.61.76.61.47 0 .86-.4.74-.86v-.01c-.13-.19-.32-.38-.54-.53zm1.88-.53c-.3-.49-.69-.94-1.14-1.34-.4-.36-.85-.68-1.34-.94-.55-.29-1.14-.52-1.76-.66-.46-.11-.86.27-.86.74 0 .36.26.68.61.75 1.1.25 2.14.77 2.99 1.54.77.85 1.29 1.89 1.54 2.99.07.35.39.61.75.61.47 0 .85-.4.74-.86-.14-.62-.37-1.21-.66-1.76-.04-.03-.07-.05-.11-.07z"/>
+                 </svg>
+               </a>
+            </div>
+
+            {/* X Dugme dole - kao na slici za lakše zatvaranje, ili ostavimo gore. Da bi bilo sigurno stavljam X i gore desno i dole. */}
+            <button onClick={() => setShowIpsModal(null)} className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 p-2 rounded-full text-zinc-400 hover:text-white transition-all">
+               <X size={20} strokeWidth={3} />
+            </button>
+
           </div>
         </div>
       )}
+      {/* 🔥 KRAJ FUNKCIJE: NOVI IPS MODAL SA SLIKE 🔥 */}
 
     </div>
   );

@@ -60,24 +60,67 @@ export const extractSys = (desc) => { if (!desc) return { d: '', s: {} }; const 
 export const renderDescription = (text) => { if (!text) return null; const { d } = extractSys(text); return <div className="w-full text-left"><p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-6 whitespace-pre-wrap font-sans">{d}</p></div>; };
 export const getMediaThumbnail = (url) => { if (!url) return ''; if (url.match(/\.(mp4|webm|ogg|mov)$/i)) return `${url}#t=0.001`; return url; };
 
+// POČETAK FUNKCIJE: LiveSalesNotification
 export const LiveSalesNotification = ({ apps }) => {
   const [notif, setNotif] = React.useState(null);
+
   React.useEffect(() => {
     if (!apps || apps.length === 0) return;
-    const names = ['Michael', 'Alex', 'David', 'Sarah', 'James', 'Emma', 'Daniel', 'Chris', 'Sophia', 'John'];
-    const countries = ['USA', 'UK', 'Canada', 'Germany', 'Australia', 'France', 'Japan', 'Sweden'];
-    const times = ['Just now', '2 minutes ago', '5 minutes ago', '10 minutes ago', '15 minutes ago'];
-    const show = () => { const app = apps[Math.floor(Math.random() * apps.length)]; setNotif({ user: `${names[Math.floor(Math.random() * names.length)]} from ${countries[Math.floor(Math.random() * countries.length)]}`, action: 'purchased', item: app.name, time: times[Math.floor(Math.random() * times.length)] }); setTimeout(() => setNotif(null), 5000); setTimeout(show, Math.random() * 30000 + 15000); };
-    const t = setTimeout(show, 10000); return () => clearTimeout(t);
+    
+    // V8 Srpska imena
+    const names = ['Željka', 'Miloš', 'Zoran', 'Dragan', 'Marko', 'Jelena', 'Nikola', 'Ana', 'Stefan', 'Marija'];
+    
+    // V8 Srpski gradovi u padežu
+    const cities = ['Kruševca', 'Valjeva', 'Užica', 'Novog Sada', 'Subotice', 'Beograda', 'Niša', 'Kragujevca'];
+    
+    // V8 Vremenski intervali
+    const times = ['Upravo sada', 'Pre 2 minuta', 'Pre 5 minuta', 'Pre 10 minuta', 'Pre 15 minuta'];
+    
+    const show = () => { 
+      const app = apps[Math.floor(Math.random() * apps.length)]; 
+      setNotif({ 
+        user: `${names[Math.floor(Math.random() * names.length)]} iz ${cities[Math.floor(Math.random() * cities.length)]}`, 
+        action: 'je upravo kupio/la', 
+        item: app.name || app.naziv, 
+        time: times[Math.floor(Math.random() * times.length)] 
+      }); 
+      setTimeout(() => setNotif(null), 5000); 
+      setTimeout(show, Math.random() * 30000 + 15000); 
+    };
+    
+    const t = setTimeout(show, 10000); 
+    return () => clearTimeout(t);
   }, [apps]);
+
   if (!notif) return null;
+
   return (
-    <div className="fixed bottom-6 left-6 z-[9999] bg-[#0a0a0a] border border-blue-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(37,99,235,0.2)] flex items-center gap-4 animate-in slide-in-from-bottom-5 fade-in duration-500 font-sans max-w-sm">
-      <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center shrink-0 border border-blue-500/50 text-blue-500"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
-      <div className="text-left"><p className="text-[11px] font-medium text-zinc-300"><span className="text-white font-bold">{notif.user}</span> {notif.action}</p><p className="text-[13px] font-black text-blue-400 uppercase tracking-wide truncate max-w-[200px]">{notif.item}</p><p className="text-[9px] text-zinc-500 mt-0.5 font-bold uppercase">{notif.time}</p></div>
+    <div className="fixed bottom-6 left-6 z-[9999] bg-[#0a0a0a] border border-orange-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(234,88,12,0.2)] flex items-center gap-4 animate-in slide-in-from-bottom-5 fade-in duration-500 font-sans max-w-sm">
+      
+      <div className="w-10 h-10 rounded-full bg-orange-600/20 flex items-center justify-center shrink-0 border border-orange-500/50 text-orange-500">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      </div>
+      
+      <div className="text-left">
+        <p className="text-[11px] font-medium text-zinc-300">
+          <span className="text-white font-bold">{notif.user}</span> {notif.action}
+        </p>
+        <p className="text-[13px] font-black text-orange-400 uppercase tracking-wide truncate max-w-[200px]">
+          {notif.item}
+        </p>
+        <p className="text-[9px] text-zinc-500 mt-0.5 font-bold uppercase">
+          {notif.time}
+        </p>
+      </div>
+
     </div>
   );
 };
+// KRAJ FUNKCIJE: LiveSalesNotification
 
 export const FullScreenBoot = ({ onComplete }) => {
   const [step, setStep] = React.useState(0);
