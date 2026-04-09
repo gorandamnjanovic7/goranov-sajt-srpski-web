@@ -1061,7 +1061,7 @@ function HomePage({ apps = [] }) {
         </motion.div>
         
         {/* --- POČETAK FUNKCIJE: Rotirajući V8/Gemini Grid --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-10"> {/* Smanjen padding sa pb-32 na pb-10 */}
           {sortedApps.map((app, index) => (
             <div key={app.id} className="relative p-[2px] rounded-[2.1rem] overflow-hidden group transition-all duration-500 hover:scale-[1.02]">
               
@@ -1083,7 +1083,29 @@ function HomePage({ apps = [] }) {
         </div>
         {/* --- KRAJ FUNKCIJE: Rotirajući V8/Gemini Grid --- */}
 
+        {/* 🔥 POČETAK: PLAVI INFO BOX (BERZA SE ŠIRI) 🔥 */}
+        <div className="max-w-4xl mx-auto mt-6 px-4 mb-24">
+          <div className="bg-[#0a0a0a] border border-blue-500/30 rounded-3xl p-8 md:p-10 text-center shadow-[0_0_40px_rgba(59,130,246,0.15)] relative overflow-hidden group hover:border-blue-500/60 transition-all duration-500">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <Layers className="w-12 h-12 text-blue-500 mx-auto mb-5 animate-pulse drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+            
+            <h4 className="text-[18px] md:text-[24px] font-black text-white uppercase tracking-widest mb-4 italic">
+              V8 KOLEKCIJA SE <span className="text-blue-500">NEPRESTANO ŠIRI</span>
+            </h4>
+            
+            <p className="text-[10px] md:text-[12px] text-zinc-400 font-bold uppercase tracking-[0.2em] leading-relaxed">
+              Premium Prodavnica AI Sredstava se stalno unapređuje i dopunjuje novim digitalnim proizvodima.<br className="hidden md:block mt-1"/> 
+              <span className="text-blue-400 font-black drop-shadow-md">BUDITE U TOKU SA NAJNOVIJIM V8 IZDANJIMA!</span>
+            </p>
+          </div>
+        </div>
+        {/* 🔥 KRAJ: PLAVI INFO BOX 🔥 */}
+
       </div> {/* ZATVARA GLAVNI max-w-7xl KONTEJNER */}
+
+       {/* ZATVARA GLAVNI max-w-7xl KONTEJNER */}
 
       {/* MODAL ZA IPS UPLATU */}
       <AnimatePresence>
