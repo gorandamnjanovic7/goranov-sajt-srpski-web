@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users } from 'lucide-react';
+import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users, CheckCircle } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { db, auth } from './firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
@@ -8,145 +8,132 @@ import * as data from './data';
 
 // 🔥 OSNOVNE KATEGORIJE (NOVE PREMIUM BIZNIS + STARE ZBOG POSTOJEĆIH PAKETA) 🔥
 const KATEGORIJE = [
-  // V8 Premium Biznis (Nove)
-  "CEO, Direktori, Uprava",
-  "Cybersecurity i InfoSec",
-  "Software Inženjering i Data Science",
-  "Finansije, Kripto i Analitika",
-  "Marketing, PR i Kreativa",
-  "Ljudski Resursi (HR) i Kultura",
-  "Medicina, Farmacija i Biotech",
-  "Arhitektura, Inženjering i Nekretnine",
-  "Logistika, Supply Chain i E-commerce",
-  "Startup Founderi i Investitori",
-  
-  // Standardne i Stare (Zadržano da se ne bi obrisali tvoji dodati paketi)
-  "Prilagođen dizajn", "Viral", "Portretna Fotografija", "Modni Editorijal", 
+  // V8 Premium Biznis (Nove)
+  "CEO, Direktori, Uprava",
+  "Cybersecurity i InfoSec",
+  "Software Inženjering i Data Science",
+  "Finansije, Kripto i Analitika",
+  "Marketing, PR i Kreativa",
+  "Ljudski Resursi (HR) i Kultura",
+  "Medicina, Farmacija i Biotech",
+  "Arhitektura, Inženjering i Nekretnine",
+  "Logistika, Supply Chain i E-commerce",
+  "Startup Founderi i Investitori",
+  
+  // Standardne i Stare (Zadržano da se ne bi obrisali tvoji dodati paketi)
+  "Prilagođen dizajn", "Viral", "Portretna Fotografija", "Modni Editorijal", 
   "Luksuzni Lajfstajl", "Reklamiranje Proizvoda", "Nekretnine i Enterijeri", 
   "Hrana i Piće", "Arhitektura i Eksterijeri", "Automobili", 
-  "Superautomobili (Supercars)", "Pogled iz vazduha (Dron)", 
-  "Tehnologija i Gedžeti", "Lepota i Kozmetika", "Nakit i Satovi", 
-  "Podvodni Svet", "Priroda i Pejzaži", "Urbana Ulična Fotografija", 
-  "Filmski Kadrovi", "Istorijski Realizam", "Fantazijski Realizam", 
-  "Sci-Fi Realizam", "Makro i Detalji", "Minimalistički Studio", 
-  "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
+  "Superautomobili (Supercars)", "Pogled iz vazduha (Dron)", 
+  "Tehnologija i Gedžeti", "Lepota i Kozmetika", "Nakit i Satovi", 
+  "Podvodni Svet", "Priroda i Pejzaži", "Urbana Ulična Fotografija", 
+  "Filmski Kadrovi", "Istorijski Realizam", "Fantazijski Realizam", 
+  "Sci-Fi Realizam", "Makro i Detalji", "Minimalistički Studio", 
+  "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
 ];
 
 // 🔥 V8 PAMETNE PODKATEGORIJE (SVE PODKATEGORIJE) 🔥
 const PODKATEGORIJE = {
-  // 1. UPRAVA
-  "CEO, Direktori, Uprava": [
-    "Solo CEO portret u mračnoj kancelariji, Obsidian stil",
-    "Upravni odbor nazdravlja šampanjcem, neon plavi detalji",
-    "Direktor gleda kroz staklo na noćni cyberpunk grad",
-    "Potpisivanje milionskog ugovora, krupni kadar sata i olovke"
-  ],
-  // 2. CYBERSECURITY
-  "Cybersecurity i InfoSec": [
-    "Haker u tamnoj serverskoj sobi sa neon zelenim kodom na licu",
-    "Cyber analitičar pred holografskim ekranom, V8 plava svetlost",
-    "Server soba pod napadom, apstraktno crveno osvetljenje i senke",
-    "Enkripcija podataka, apstraktna 3D vizualizacija zaključavanja"
-  ],
-  // 3. SOFTWARE I DATA
-  "Software Inženjering i Data Science": [
-    "Programer kuca React kod na crnim monitorima, narandžasti odsjaj",
-    "AI Data naučnik analizira holografsku neuronsku mrežu",
-    "Apstraktni tokovi podataka u Obsidian praznini, plave linije",
-    "High-tech radna stanica sa V8 LED svetlima u mraku"
-  ],
-  // 4. FINANSIJE
-  "Finansije, Kripto i Analitika": [
-    "Kripto berza na tamnim ekranima sa neon narandžastim grafikonima",
-    "Zlatni Bitcoin novčić lebdi iznad staklenog stola, makro detalj",
-    "Wall Street bankar u senci sa premium pametnim satom",
-    "Apstraktni 3D blokčejn lanci, hladno plavo osvetljenje"
-  ],
-  // 5. MARKETING
-  "Marketing, PR i Kreativa": [
-    "Kreativni tim na brainstorming sesiji u tamnom studiju",
-    "Strategija kampanje na digitalnoj staklenoj tabli sa neon markerima",
-    "Influenser snima sadržaj sa profesionalnim svetlom, mračna pozadina",
-    "Apstraktni social media lajkovi i ikone u V8 bojama"
-  ],
-  // 6. HR
-  "Ljudski Resursi (HR) i Kultura": [
-    "Intervju za posao u modernoj staklenoj kancelariji, dramatične senke",
-    "Rukovanje novog zaposlenog i menadžera, oštar kontrast",
-    "Timski sastanak u luksuznoj lounge zoni, prigušeno svetlo",
-    "Apstraktna mreža talenata, svetleće tačke u tamnom prostoru"
-  ],
-  // 7. MEDICINA I BIOTECH
-  "Medicina, Farmacija i Biotech": [
-    "Naučnik gleda kroz mikroskop sa plavim pozadinskim svetlom",
-    "DNK lanac kao holografska 3D projekcija, narandžasti detalji",
-    "Hirurg u high-tech operacionoj sali, mračni kontrast i fokus",
-    "Apstraktne svetleće bio-ćelije u Obsidian tečnosti"
-  ],
-  // 8. ARHITEKTURA
-  "Arhitektura, Inženjering i Nekretnine": [
-    "Arhitekta gleda u svetleći holografski 3D model zgrade",
-    "Luksuzni penthouse, noćni render sa V8 neon akcentima",
-    "Inženjer sa pametnim tabletom na gradilištu u sumrak",
-    "Minimalistički enterijer sa crnim mermerom i skrivenim svetlom"
-  ],
-  // 9. LOGISTIKA
-  "Logistika, Supply Chain i E-commerce": [
-    "Ogromno skladište sa dronom koji skenira pakete, plavi laseri",
-    "Kontejnerski brod u noćnoj luci, cyberpunk atmosfersko svetlo",
-    "Apstraktna mreža globalne dostave, svetleće linije na mapi",
-    "Kurir u crnoj uniformi isporučuje premium crni paket"
-  ],
-  // 10. STARTUP
-  "Startup Founderi i Investitori": [
-    "Pitchovanje investitorima u high-tech sali, neon narandžasti ekran",
-    "Osnivač radi na MacBook-u u mračnom V8 okruženju",
-    "Investitor u odelu analizira podatke na crnom iPadu",
-    "Moderni startup hub sa V8 LED linijama i tamnim staklom"
-  ],
-// 5. PRIRODA I PEJZAŽI
-"Priroda i Pejzaži": [
-    "Crna peščana plaža na Islandu pod olujnim oblacima, dramatičan kontrast",
-    "Mračna borova šuma u gustoj magli, filmska atmosfera",
-    "Erupcija vulkana u noći, užarena V8 narandžasta lava",
-    "Bioluminiscentni okean u mraku, neon plavi talasi",
-    "Masivni planinski vrhovi pod zvezdanim nebom, astrofotografija"
-  ],
-  
-  // Stare Podkategorije (Netaknute zbog kompatibilnosti postojećih paketa)
-  "Luksuzni Lajfstajl": [
-    "Haute Horlogerie Tourbillon sat na tamnom opsidijanskom postolju",
-    "Verenički prsten obložen dijamantima koji reflektuje lasersku svetlost",
-    "Luksuzna Niche bočica parfema okružena lebdećim tečnim zlatom",
-    "High-End teglica kreme za negu kože na zaleđenoj površini",
-    "Premium kožna dizajnerska torbica u minimalističkom studiju",
-    "Ručno rađene italijanske kožne Oxford cipele, filmske senke",
-    "Platinasti hronograf sat sa odsjajem safirnog stakla",
-    "Ogrlica od smaragda i zlata koja počiva na crnom somotu",
-    "Kristalni dekanter za viski iz kog se toči ćilibarska tečnost",
-    "Luksuzni karmin sa metalik završnicom ogledala",
-    "Minimalistička mat crna kreditna kartica, dramatično osvetljenje ivica",
-    "Visoka moda sunčane naočare, sjajna tekstura, oštar kontrast",
-    "Zanatsko nalivpero koje piše po debelom pergamentu",
-    "Rubinske minđuše pod jakim reflektorom zlatare",
-    "Titanijumska dugmad za manžetne po meri na pozadini od brušenog čelika",
-    "Premium audio slušalice, detalji od eloksiranog aluminijuma",
-    "Luksuzna svilena marama koja se elegantno savija u vazduhu",
-    "High-End espreso aparat koji svetli u mračnom kafiću",
-    "Ekskluzivna vintage kutija za cigare, metalik tipografija",
-    "Moderni pametni sat sa svetlećim OLED interfejsom",
-    "Rose Gold narukvica prebačena preko bele mermerne kocke",
-    "Luksuzni organski sapun okružen lebdećim biljkama",
-    "Tekstura sakoa po meri, makro detalj tkanine",
-    "Izuzetna dijamantska tijara koja hvata oštre zrake svetlosti",
-    "Premium dizajnerske sunčane naočare na belom pesku sa oštrim senkama",
-    "High-end mehanička tastatura sa svetlećim RGB i okvirom od brušenog aluminijuma",
-    "Luksuzna svilena kravata graciozno prebačena preko minimalnog mermernog bloka",
-    "Izuzetan broš od safira i dijamanata osvetljen laserskim reflektorima",
-    "Zanatska kožna aktovka u mračnom, high-end izlogu butika",
-    "Kristalna bočica parfema koja reflektuje neonski cyberpunk grad",
-    "Premium slušalice za poništavanje buke koje lebde u gluvoj sobi"
-  ]
+  "CEO, Direktori, Uprava": [
+    "Solo CEO portret u mračnoj kancelariji, Obsidian stil",
+    "Upravni odbor nazdravlja šampanjcem, neon plavi detalji",
+    "Direktor gleda kroz staklo na noćni cyberpunk grad",
+    "Potpisivanje milionskog ugovora, krupni kadar sata i olovke"
+  ],
+  "Cybersecurity i InfoSec": [
+    "Haker u tamnoj serverskoj sobi sa neon zelenim kodom na licu",
+    "Cyber analitičar pred holografskim ekranom, V8 plava svetlost",
+    "Server soba pod napadom, apstraktno crveno osvetljenje i senke",
+    "Enkripcija podataka, apstraktna 3D vizualizacija zaključavanja"
+  ],
+  "Software Inženjering i Data Science": [
+    "Programer kuca React kod na crnim monitorima, narandžasti odsjaj",
+    "AI Data naučnik analizira holografsku neuronsku mrežu",
+    "Apstraktni tokovi podataka u Obsidian praznini, plave linije",
+    "High-tech radna stanica sa V8 LED svetlima u mraku"
+  ],
+  "Finansije, Kripto i Analitika": [
+    "Kripto berza na tamnim ekranima sa neon narandžastim grafikonima",
+    "Zlatni Bitcoin novčić lebdi iznad staklenog stola, makro detalj",
+    "Wall Street bankar u senci sa premium pametnim satom",
+    "Apstraktni 3D blokčejn lanci, hladno plavo osvetljenje"
+  ],
+  "Marketing, PR i Kreativa": [
+    "Kreativni tim na brainstorming sesiji u tamnom studiju",
+    "Strategija kampanje na digitalnoj staklenoj tabli sa neon markerima",
+    "Influenser snima sadržaj sa profesionalnim svetlom, mračna pozadina",
+    "Apstraktni social media lajkovi i ikone u V8 bojama"
+  ],
+  "Ljudski Resursi (HR) i Kultura": [
+    "Intervju za posao u modernoj staklenoj kancelariji, dramatične senke",
+    "Rukovanje novog zaposlenog i menadžera, oštar kontrast",
+    "Timski sastanak u luksuznoj lounge zoni, prigušeno svetlo",
+    "Apstraktna mreža talenata, svetleće tačke u tamnom prostoru"
+  ],
+  "Medicina, Farmacija i Biotech": [
+    "Naučnik gleda kroz mikroskop sa plavim pozadinskim svetlom",
+    "DNK lanac kao holografska 3D projekcija, narandžasti detalji",
+    "Hirurg u high-tech operacionoj sali, mračni kontrast i fokus",
+    "Apstraktne svetleće bio-ćelije u Obsidian tečnosti"
+  ],
+  "Arhitektura, Inženjering i Nekretnine": [
+    "Arhitekta gleda u svetleći holografski 3D model zgrade",
+    "Luksuzni penthouse, noćni render sa V8 neon akcentima",
+    "Inženjer sa pametnim tabletom na gradilištu u sumrak",
+    "Minimalistički enterijer sa crnim mermerom i skrivenim svetlom"
+  ],
+  "Logistika, Supply Chain i E-commerce": [
+    "Ogromno skladište sa dronom koji skenira pakete, plavi laseri",
+    "Kontejnerski brod u noćnoj luci, cyberpunk atmosfersko svetlo",
+    "Apstraktna mreža globalne dostave, svetleće linije na mapi",
+    "Kurir u crnoj uniformi isporučuje premium crni paket"
+  ],
+  "Startup Founderi i Investitori": [
+    "Pitchovanje investitorima u high-tech sali, neon narandžasti ekran",
+    "Osnivač radi na MacBook-u u mračnom V8 okruženju",
+    "Investitor u odelu analizira podatke na crnom iPadu",
+    "Moderni startup hub sa V8 LED linijama i tamnim staklom"
+  ],
+  "Priroda i Pejzaži": [
+    "Crna peščana plaža na Islandu pod olujnim oblacima, dramatičan kontrast",
+    "Mračna borova šuma u gustoj magli, filmska atmosfera",
+    "Erupcija vulkana u noći, užarena V8 narandžasta lava",
+    "Bioluminiscentni okean u mraku, neon plavi talasi",
+    "Masivni planinski vrhovi pod zvezdanim nebom, astrofotografija"
+  ],
+  "Luksuzni Lajfstajl": [
+    "Haute Horlogerie Tourbillon sat na tamnom opsidijanskom postolju",
+    "Verenički prsten obložen dijamantima koji reflektuje lasersku svetlost",
+    "Luksuzna Niche bočica parfema okružena lebdećim tečnim zlatom",
+    "High-End teglica kreme za negu kože na zaleđenoj površini",
+    "Premium kožna dizajnerska torbica u minimalističkom studiju",
+    "Ručno rađene italijanske kožne Oxford cipele, filmske senke",
+    "Platinasti hronograf sat sa odsjajem safirnog stakla",
+    "Ogrlica od smaragda i zlata koja počiva na crnom somotu",
+    "Kristalni dekanter za viski iz kog se toči ćilibarska tečnost",
+    "Luksuzni karmin sa metalik završnicom ogledala",
+    "Minimalistička mat crna kreditna kartica, dramatično osvetljenje ivica",
+    "Visoka moda sunčane naočare, sjajna tekstura, oštar kontrast",
+    "Zanatsko nalivpero koje piše po debelom pergamentu",
+    "Rubinske minđuše pod jakim reflektorom zlatare",
+    "Titanijumska dugmad za manžetne po meri na pozadini od brušenog čelika",
+    "Premium audio slušalice, detalji od eloksiranog aluminijuma",
+    "Luksuzna svilena marama koja se elegantno savija u vazduhu",
+    "High-End espreso aparat koji svetli u mračnom kafiću",
+    "Ekskluzivna vintage kutija za cigare, metalik tipografija",
+    "Moderni pametni sat sa svetlećim OLED interfejsom",
+    "Rose Gold narukvica prebačena preko bele mermerne kocke",
+    "Luksuzni organski sapun okružen lebdećim biljkama",
+    "Tekstura sakoa po meri, makro detalj tkanine",
+    "Izuzetna dijamantska tijara koja hvata oštre zrake svetlosti",
+    "Premium dizajnerske sunčane naočare na belom pesku sa oštrim senkama",
+    "High-end mehanička tastatura sa svetlećim RGB i okvirom od brušenog aluminijuma",
+    "Luksuzna svilena kravata graciozno prebačena preko minimalnog mermernog bloka",
+    "Izuzetan broš od safira i dijamanata osvetljen laserskim reflektorima",
+    "Zanatska kožna aktovka u mračnom, high-end izlogu butika",
+    "Kristalna bočica parfema koja reflektuje neonski cyberpunk grad",
+    "Premium slušalice za poništavanje buke koje lebde u gluvoj sobi"
+  ]
 };
 
 // POČETAK FUNKCIJE: FullScreenLightbox
@@ -181,14 +168,13 @@ const V8StockBerza = () => {
   const [novaPodkategorija, setNovaPodkategorija] = useState(''); 
   const [novaCena, setNovaCena] = useState('1999');
   const [noviTip, setNoviTip] = useState('Slika'); 
-  // 🔥 V8 ŠABLONI ZA OPIS PAKETA 🔥
-  const OPISI_SABLONI = [
-    "Sadržaj paketa: 20 Premium AI Vizuala u ultra-širokoj 16:9 rezoluciji. Idealno za web sajtove, YouTube thumbnail-ove i prezentacije. Vrednost studijske produkcije preko 30.000 RSD.",
-    "Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.",
-    "Sadržaj paketa: Ekskluzivni vertikalni 9:16 vizuali, optimizovani za Instagram Reels, TikTok i Story formate. Vrhunski kvalitet za premium brendove."
-  ];
+  const OPISI_SABLONI = [
+    "Sadržaj paketa: 20 Premium AI Vizuala u ultra-širokoj 16:9 rezoluciji. Idealno za web sajtove, YouTube thumbnail-ove i prezentacije. Vrednost studijske produkcije preko 30.000 RSD.",
+    "Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.",
+    "Sadržaj paketa: Ekskluzivni vertikalni 9:16 vizuali, optimizovani za Instagram Reels, TikTok i Story formate. Vrhunski kvalitet za premium brendove."
+  ];
 
-  const [noviOpis, setNoviOpis] = useState(OPISI_SABLONI[0]); // Po defaultu prva opcija
+  const [noviOpis, setNoviOpis] = useState(OPISI_SABLONI[0]); 
   const [previewUrl, setPreviewUrl] = useState('');
   const [zipLink, setZipLink] = useState('');
 
@@ -200,7 +186,8 @@ const V8StockBerza = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
           setCurrentUser(user);
-          if (user.email === "damnjanovicgoran7@gmail.com") setIsAdmin(true);
+          // 🔥 V8 UPDATE: Sada prepoznaje oba mejla kao Admina! 🔥
+          if (user.email === "damnjanovicgoran7@gmail.com" || user.email === "aitoolsprosmart@gmail.com") setIsAdmin(true);
           else setIsAdmin(false);
       } else {
           setCurrentUser(null);
@@ -235,38 +222,53 @@ const V8StockBerza = () => {
   };
   // KRAJ FUNKCIJE: fetchKlijenti
 
-  // POČETAK FUNKCIJE: prijavaIKupovina
-  const prijavaIKupovina = async (paket) => {
-      // V8 Google Ads Praćenje Konverzije
-      const okiniKonverziju = () => {
-          if (typeof window !== 'undefined' && window.gtag) {
-              window.gtag('event', 'conversion', {
-                  'send_to': 'AW-18075037332/-upyCP0kxpkcEJTD7KpD', 
-                  'value': parseFloat(paket.cena),
-                  'currency': 'RSD'
-              });
-          }
-      };
+  // POČETAK FUNKCIJE: otkljucajPaketDirektno
+  const otkljucajPaketDirektno = async (id) => {
+      try {
+          await updateDoc(doc(db, "v8_kupci", id), {
+              isPaid: true,
+              vremeOdobrenja: serverTimestamp()
+          });
+          alert("🔥 V8 TURBO: Paket je uspešno otključan klijentu!");
+          fetchKlijenti(); 
+      } catch (err) {
+          console.error("Greška pri otključavanju:", err);
+          alert("Greška na serveru prilikom otključavanja.");
+      }
+  };
+  // KRAJ FUNKCIJE: otkljucajPaketDirektno
 
-      if (currentUser) {
-          snimiKupcaUBazu(currentUser, paket);
-          setShowIpsModal(paket);
-          okiniKonverziju(); // Signalizira Google-u da je prodaja započeta
-      } else {
-          const provider = new GoogleAuthProvider();
-          try {
-              const result = await signInWithPopup(auth, provider);
-              const ulogovaniKorisnik = result.user;
-              await snimiKupcaUBazu(ulogovaniKorisnik, paket);
-              setShowIpsModal(paket); 
-              okiniKonverziju(); // Signalizira Google-u da je prodaja započeta
-          } catch (error) {
-              console.error("Prijava prekinuta", error);
-              alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
-          }
-      }
-  };
-  // KRAJ FUNKCIJE: prijavaIKupovina
+  // POČETAK FUNKCIJE: prijavaIKupovina
+  const prijavaIKupovina = async (paket) => {
+      const okiniKonverziju = () => {
+          if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'conversion', {
+                  'send_to': 'AW-18075037332/-upyCP0kxpkcEJTD7KpD', 
+                  'value': parseFloat(paket.cena),
+                  'currency': 'RSD'
+              });
+          }
+      };
+
+      if (currentUser) {
+          snimiKupcaUBazu(currentUser, paket);
+          setShowIpsModal(paket);
+          okiniKonverziju(); 
+      } else {
+          const provider = new GoogleAuthProvider();
+          try {
+              const result = await signInWithPopup(auth, provider);
+              const ulogovaniKorisnik = result.user;
+              await snimiKupcaUBazu(ulogovaniKorisnik, paket);
+              setShowIpsModal(paket); 
+              okiniKonverziju(); 
+          } catch (error) {
+              console.error("Prijava prekinuta", error);
+              alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
+          }
+      }
+  };
+  // KRAJ FUNKCIJE: prijavaIKupovina
 
   // POČETAK FUNKCIJE: snimiKupcaUBazu
   const snimiKupcaUBazu = async (user, paket) => {
@@ -277,7 +279,8 @@ const V8StockBerza = () => {
               uid: user.uid,
               zeliPaket: paket.naziv,
               cenaPaketa: paket.cena,
-              vreme: serverTimestamp()
+              vreme: serverTimestamp(),
+              isPaid: false
           });
       } catch (error) {
           console.error("Greška pri beleženju klijenta", error);
@@ -415,6 +418,7 @@ const V8StockBerza = () => {
     }
   };
   // KRAJ FUNKCIJE: obrisiPaket
+
  return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-24 px-6 font-sans text-white text-left">
       
@@ -498,7 +502,8 @@ const V8StockBerza = () => {
                                 <th className="p-4">Ime klijenta</th>
                                 <th className="p-4">Email adresa</th>
                                 <th className="p-4">Željeni Paket</th>
-                                <th className="p-4 text-right">Cena</th>
+                                <th className="p-4 text-center">Cena</th>
+                                <th className="p-4 text-right">Akcija</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -507,10 +512,24 @@ const V8StockBerza = () => {
                                     <td className="p-4 font-bold">{k.ime}</td>
                                     <td className="p-4 text-blue-400 select-all">{k.email}</td>
                                     <td className="p-4 text-orange-400 font-bold">{k.zeliPaket}</td>
-                                    <td className="p-4 text-right">{k.cenaPaketa} RSD</td>
+                                    <td className="p-4 text-center">{k.cenaPaketa} RSD</td>
+                                    <td className="p-4 text-right">
+                                        {!k.isPaid ? (
+                                            <button 
+                                                onClick={() => otkljucajPaketDirektno(k.id)} 
+                                                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(234,88,12,0.4)] transition-all hover:scale-105"
+                                            >
+                                                OTKLJUČAJ
+                                            </button>
+                                        ) : (
+                                            <span className="text-green-500 font-black text-[10px] uppercase flex items-center justify-end gap-1">
+                                                <CheckCircle size={14} /> Otključano
+                                            </span>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
-                            {klijenti.length === 0 && <tr><td colSpan="4" className="p-8 text-center text-zinc-500">Još uvek nema klijenata u bazi.</td></tr>}
+                            {klijenti.length === 0 && <tr><td colSpan="5" className="p-8 text-center text-zinc-500">Još uvek nema klijenata u bazi.</td></tr>}
                         </tbody>
                     </table>
                 </div>
@@ -533,26 +552,24 @@ const V8StockBerza = () => {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-{/* V8 BIRANJE OPISA */}
-            <div className="mb-4">
-              <select 
-                onChange={(e) => setNoviOpis(e.target.value)} 
-                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-zinc-400 w-full outline-none mb-2"
-              >
-                <option value={OPISI_SABLONI[0]}>📌 Opis 1: Samo 16:9 Wide format</option>
-                <option value={OPISI_SABLONI[1]}>📌 Opis 2: Sve 4 rezolucije (Premium)</option>
-                <option value={OPISI_SABLONI[2]}>📌 Opis 3: Samo Vertikalni 9:16 format</option>
-              </select>
-              {/* Ostavljamo i tekstualno polje da možeš ručno da prepraviš izabrani šablon */}
-              <textarea 
-                value={noviOpis} 
-                onChange={(e)=>setNoviOpis(e.target.value)} 
-                placeholder="Opis šta se dobija" 
-                rows={3}
-                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white w-full outline-none resize-none" 
-                required 
-              />
-            </div>
+            <div className="mb-4">
+              <select 
+                onChange={(e) => setNoviOpis(e.target.value)} 
+                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-zinc-400 w-full outline-none mb-2"
+              >
+                <option value={OPISI_SABLONI[0]}>📌 Opis 1: Samo 16:9 Wide format</option>
+                <option value={OPISI_SABLONI[1]}>📌 Opis 2: Sve 4 rezolucije (Premium)</option>
+                <option value={OPISI_SABLONI[2]}>📌 Opis 3: Samo Vertikalni 9:16 format</option>
+              </select>
+              <textarea 
+                value={noviOpis} 
+                onChange={(e)=>setNoviOpis(e.target.value)} 
+                placeholder="Opis šta se dobija" 
+                rows={3}
+                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white w-full outline-none resize-none" 
+                required 
+              />
+            </div>
               
               <select value={novaKategorija} onChange={handleKategorijaChange} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white outline-none">
                 {KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}
@@ -649,11 +666,23 @@ const V8StockBerza = () => {
                 <p className="text-zinc-500 text-[10px] uppercase font-bold mb-6 flex-1 leading-relaxed">{paket.opis}</p>
                 
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                    <span className="text-xl font-black text-white">{paket.cena} <span className="text-[10px] text-zinc-500">RSD</span></span>
-                    <button onClick={() => prijavaIKupovina(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2">
-                        Kupi <Zap className="w-3 h-3" />
-                    </button>
-                </div>
+    <span className="text-xl font-black text-white">{paket.cena} <span className="text-[10px] text-zinc-500">RSD</span></span>
+    
+    {isAdmin ? (
+        <a 
+            href={paket.zipLink} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-green-600 hover:bg-green-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all flex items-center gap-2"
+        >
+            PREUZMI (ADMIN) <Download className="w-3 h-3" />
+        </a>
+    ) : (
+        <button onClick={() => prijavaIKupovina(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2">
+            Kupi <Zap className="w-3 h-3" />
+        </button>
+    )}
+</div>
 
                 {isAdmin && (
                   <div className="mt-4 pt-3 border-t border-red-900/30 flex items-center gap-3">
@@ -674,18 +703,15 @@ const V8StockBerza = () => {
         <div className="mt-20 relative bg-[#0a0a0a] border-2 border-blue-600 rounded-[2rem] p-6 md:p-10 shadow-[0_0_50px_rgba(59,130,246,0.3)] flex flex-col md:flex-row items-center gap-8 md:gap-12 overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-transparent pointer-events-none" />
 
-          {/* Slike levo */}
           <div className="flex items-center gap-4 shrink-0 relative z-10">
             <div className="w-28 h-28 md:w-40 md:h-40 rounded-2xl overflow-hidden border-2 border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
               <img src="https://images.pexels.com/photos/266621/pexels-photo-266621.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Premium Custom 1" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
             </div>
-            {/* 🔥 OVDE JE SKLONJENA mt-6 MARGINA 🔥 */}
             <div className="w-28 h-28 md:w-40 md:h-40 rounded-2xl overflow-hidden border-2 border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
               <img src="https://images.pexels.com/photos/1961795/pexels-photo-1961795.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Premium Custom 2" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 delay-100" />
             </div>
           </div>
 
-          {/* Tekst desno */}
           <div className="flex-1 relative z-10 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">
               <Sparkles className="w-3 h-3" /> V8 Studio Produkcija
@@ -696,13 +722,12 @@ const V8StockBerza = () => {
             <p className="text-zinc-400 text-[11px] md:text-[13px] font-bold tracking-wide uppercase leading-relaxed mb-8">
               Kreiramo jedinstvene pakete vizuala po vašim pojedinačnim željama, hirurški prilagođene specifičnim potrebama, estetici i bojama vašeg biznisa. Ne nalazite na Berzi tačno ono što tražite? Naš V8 AI tim će izraditi ekskluzivnu kolekciju samo za vas.
             </p>
-            <a href="mailto:damnjanovicgoran7@gmail.com" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all">
-              📧 Kontaktirajte nas za ponudu na mail
+            {/* 🔥 V8 UPDATE: NOVI MAILTO ZA CUSTOM BANER 🔥 */}
+            <a href="mailto:aitoolsprosmart@gmail.com?subject=Upit%20za%20custom%20V8%20paket" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all">
+              📧 aitoolsprosmart@gmail.com
             </a>
           </div>
         </div>
-        {/* 🔥 KRAJ: CUSTOM DIZAJN BANER 🔥 */}
-
       </div>
 
       {/* 🔥 POČETAK FUNKCIJE: NOVI IPS MODAL SA SLIKE 🔥 */}
@@ -710,13 +735,11 @@ const V8StockBerza = () => {
         <div className="fixed inset-0 z-[9000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0f1522] rounded-xl max-w-[420px] w-full relative text-zinc-100 font-sans shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col items-center pt-8 pb-10 px-8 border border-white/5">
             
-            {/* Naslovi */}
             <h2 className="text-xl font-black uppercase tracking-widest mb-3 text-white">IPS UPLATA</h2>
             <p className="text-[12px] text-zinc-300 font-bold uppercase tracking-widest mb-6 text-center">PAKET: {showIpsModal.naziv}</p>
             
             <p className="text-[13px] text-zinc-300 mb-3 text-center">Konfirmacija uplate:</p>
             
-            {/* Plavi box za QR */}
             <div className="w-full border border-blue-500/60 rounded-xl p-6 flex flex-col items-center mb-6 bg-[#141b2d]">
               <p className="text-[12px] text-zinc-200 mb-5 text-center">Skenirajte QR kod za potvrdu uplate:</p>
               
@@ -732,19 +755,24 @@ const V8StockBerza = () => {
               </div>
             </div>
             
-            {/* Kontakt */}
             <p className="text-[13px] text-zinc-300 mb-5 text-center">Pošaljite potvrdu uplate na:</p>
             
-            <div className="flex items-center gap-6">
-               {/* Viber Ikona - Bulletproof SVG */}
-               <a href="viber://chat?number=%2B381648201496" className="w-12 h-12 bg-[#7360f2] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+            {/* 🔥 V8 UPDATE: VIBER I MAILTO DUGMIĆI 🔥 */}
+            <div className="flex items-center gap-6 justify-center">
+               <a href="viber://chat?number=%2B381648201496" className="w-12 h-12 bg-[#7360f2] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Pošalji na Viber">
                  <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
                    <path d="M21.05 6.64c-.38-1.5-1.12-2.82-2.13-3.83-1.01-1.01-2.33-1.75-3.83-2.13C13.63.31 12 0 12 0s-1.63.31-3.09.68c-1.5.38-2.82 1.12-3.83 2.13-1.01 1.01-1.75 2.33-2.13 3.83-.37 1.46-.68 3.09-.68 3.09s.31 1.63.68 3.09c.38 1.5 1.12 2.82 2.13 3.83 1.01 1.01 2.33 1.75 3.83 2.13C10.37 19.16 12 19.47 12 19.47v4.53s2.94-2.58 4.71-4.35c.18-.18.33-.37.49-.55.97-.24 1.89-.66 2.7-1.22l.06-.05c.89-.68 1.63-1.52 2.15-2.48.37-1.46.68-3.09.68-3.09s.32-1.63-.06-3.09h-.02a18.23 18.23 0 0 0-.01-.01c-.42-1.55-1.19-2.9-2.22-3.95zm-2.07 9.54c-.16.51-.51.9-.98 1.09-.81.33-1.99.11-3.23-.48-1.42-.69-3.05-1.92-4.52-3.39-1.47-1.47-2.7-3.1-3.39-4.52-.59-1.24-.81-2.42-.48-3.23.19-.47.58-.82 1.09-.98.44-.14 1.01-.13 1.43.14.3.19.49.52.61.85.19.55.33 1.12.39 1.69.05.41-.09.82-.39 1.12-.2.2-.42.38-.66.53-.13.08-.18.25-.11.39.54 1.11 1.34 2.11 2.33 2.95.84.72 1.84 1.3 2.95 1.69.14.05.3-.02.39-.14.15-.24.33-.46.53-.66.3-.3.71-.44 1.12-.39.57.06 1.14.2 1.69.39.33.12.66.31.85.61.27.42.28.99.14 1.43zM16.6 9.69a6.6 6.6 0 0 0-4.66-4.66c-.46-.12-.86.27-.86.74 0 .36.26.68.61.76 1.95.46 3.49 2 3.95 3.95.08.35.4.61.76.61.47 0 .86-.4.74-.86v-.01c-.13-.19-.32-.38-.54-.53zm1.88-.53c-.3-.49-.69-.94-1.14-1.34-.4-.36-.85-.68-1.34-.94-.55-.29-1.14-.52-1.76-.66-.46-.11-.86.27-.86.74 0 .36.26.68.61.75 1.1.25 2.14.77 2.99 1.54.77.85 1.29 1.89 1.54 2.99.07.35.39.61.75.61.47 0 .85-.4.74-.86-.14-.62-.37-1.21-.66-1.76-.04-.03-.07-.05-.11-.07z"/>
                  </svg>
                </a>
+
+               <a href={`mailto:aitoolsprosmart@gmail.com?subject=Potvrda uplate za paket: ${showIpsModal.naziv}`} className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Pošalji na Email">
+                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                 </svg>
+               </a>
             </div>
 
-            {/* X Dugme dole - kao na slici za lakše zatvaranje, ili ostavimo gore. Da bi bilo sigurno stavljam X i gore desno i dole. */}
             <button onClick={() => setShowIpsModal(null)} className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 p-2 rounded-full text-zinc-400 hover:text-white transition-all">
                <X size={20} strokeWidth={3} />
             </button>
@@ -752,11 +780,9 @@ const V8StockBerza = () => {
           </div>
         </div>
       )}
-      {/* 🔥 KRAJ FUNKCIJE: NOVI IPS MODAL SA SLIKE 🔥 */}
 
     </div>
   );
 };
-// KRAJ FUNKCIJE: V8StockBerza
 
 export default V8StockBerza;

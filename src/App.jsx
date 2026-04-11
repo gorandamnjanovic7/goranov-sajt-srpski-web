@@ -1,4 +1,4 @@
-
+import { V8_SOFTVER_REGISTAR } from './v8_config';
 import V8StockBerza from './V8StockBerza'; // 🔥 DODAJ OVO
 import V8Portfolio from './V8Portfolio';
 import V8Promo10xPage from './V8Promo10xPage';
@@ -1816,15 +1816,30 @@ return (
              <button type="submit" className="bg-green-600 text-white px-8 py-4 rounded-xl font-black text-[12px]"><Zap className="w-4 h-4 inline"/> OTKLJUČAJ PRISTUP</button>
            </div>
            <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-             <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-4 block">Štikliraj šta je kupac platio:</label>
+             
+             {/* 1. SVI TVOJI SAAS ALATI IZ MAGACINA */}
+             <label className="text-[11px] font-black text-orange-500 uppercase tracking-widest mb-3 block border-b border-white/10 pb-2">1. V8 Softverski Alati (SaaS):</label>
+             <div className="flex flex-wrap gap-3 mb-6">
+               {V8_SOFTVER_REGISTAR.map(alat => (
+                 <button type="button" key={alat.id} onClick={() => setSelectedApps(prev => prev.includes(alat.id) ? prev.filter(a => a !== alat.id) : [...prev, alat.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(alat.id) ? 'bg-orange-600 border-orange-500 text-white shadow-[0_0_15px_rgba(234,88,12,0.4)]' : 'bg-black border-white/10 text-zinc-500'}`}>
+                   {alat.naziv}
+                 </button>
+               ))}
+               <button type="button" onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]' : 'bg-black border-white/10 text-zinc-500'}`}>SVE OTKLJUČANO (V8 MASTER KLJUČ)</button>
+             </div>
+
+             {/* 2. BERZA / ZIP PAKETI (STARI KOD) */}
+             <label className="text-[11px] font-black text-blue-500 uppercase tracking-widest mb-3 block border-b border-white/10 pb-2">2. ZIP Paketi / Temapleti:</label>
              <div className="flex flex-wrap gap-3">
                {sortedAppsAdmin.map(app => (
-                 <button type="button" key={app.id} onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-orange-600 border-orange-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>{app.name}</button>
+                 <button type="button" key={app.id} onClick={() => setSelectedApps(prev => prev.includes(app.id) ? prev.filter(a => a !== app.id) : [...prev, app.id])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedApps.includes(app.id) ? 'bg-blue-600 border-blue-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>{app.name}</button>
                ))}
-               <button type="button" onClick={() => setSelectedApps(prev => prev.includes('FULL_ACCESS') ? prev.filter(a => a !== 'FULL_ACCESS') : [...prev, 'FULL_ACCESS'])} className={`px-4 py-2.5 rounded-lg text-[10px] font-black uppercase border transition-all ${selectedApps.includes('FULL_ACCESS') ? 'bg-red-600 border-red-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}>SVE OTKLJUČANO (V8 FULL)</button>
              </div>
+
            </div>
          </form>
+
+         {/* SPISAK KLIJENATA */}
          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar max-w-4xl">
            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aktivni Premium Korisnici ({vipList.length})</h3>
            {vipList.map(vip => (
@@ -1833,9 +1848,14 @@ return (
                  <div className="flex items-center gap-3"><span className="text-zinc-200 font-mono text-[14px]">{vip.id}</span></div>
                  <div className="flex flex-wrap gap-2 mt-1">
                    {vip.unlockedApps && vip.unlockedApps.map(appId => {
-                      if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 FULL ACCESS</span>;
+                      if(appId === 'FULL_ACCESS') return <span key="full" className="text-[9px] bg-red-900/40 border border-red-500/30 text-red-400 px-2 py-0.5 rounded-md uppercase font-black">V8 MASTER KLJUČ</span>;
+                      
+                      // TRAŽI IME IZ ZIP PAKETA ILI IZ V8 SOFTVERA
                       const foundApp = sortedAppsAdmin.find(a => a.id === appId);
-                      return <span key={appId} className="text-[9px] bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-md uppercase font-black">{foundApp ? foundApp.name : `ALAT ID: ${appId}`}</span>
+                      const foundSoftver = V8_SOFTVER_REGISTAR.find(a => a.id === appId);
+                      const ime = foundApp ? foundApp.name : (foundSoftver ? foundSoftver.naziv : `ID: ${appId}`);
+                      
+                      return <span key={appId} className={`text-[9px] px-2 py-0.5 rounded-md uppercase font-black border ${foundSoftver ? 'bg-orange-900/40 text-orange-400 border-orange-500/30' : 'bg-blue-900/40 text-blue-400 border-blue-500/30'}`}>{ime}</span>
                    })}
                  </div>
                </div>

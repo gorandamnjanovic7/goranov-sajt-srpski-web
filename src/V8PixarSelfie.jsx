@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Camera, Loader2, Zap, Download, PlayCircle, Brain, Diamond, Globe, Image as ImageIcon, ShieldCheck, Star, Palette, Moon, QrCode, Phone, MessageCircle, Copy, Lock, Info, Trophy, Clapperboard, Building, PenTool, Type } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { v8Toast } from './App';
+import { useV8Pristup } from './v8_helper';
 
 const BASE_BACKEND_URL = window.location.hostname === 'localhost' 
   ? "http://localhost:5000" 
@@ -10,6 +11,11 @@ const BASE_BACKEND_URL = window.location.hostname === 'localhost'
 
 // POČETAK FUNKCIJE: V8PixarStudioPage
 const V8PixarStudioPage = ({ isAdmin }) => {
+
+  // V8 SKENER: Da li klijent ima pristup ovom alatu u Firebase-u?
+  const { imaPristup, proveravam } = useV8Pristup('v8_pixar');
+  const isVipUser = isAdmin || imaPristup; 
+
   // ==========================================
   // APLIKACIJA 1 (3:4 Format - Film & Sport) STATE
   // ==========================================
@@ -36,15 +42,31 @@ const V8PixarStudioPage = ({ isAdmin }) => {
   // ==========================================
   // 1. APLIKACIJA 1 (3:4) PROMPTOVI
   // ==========================================
+ // ==========================================
+  // 1. APLIKACIJA 1 (3:4) PROMPTOVI - V8 TURBO KOREKCIJA
+  // ==========================================
+  
+  // 🔥 NOVI PROMPT ZA FILM: Maximus i ekipa u areni + ogledalo 🔥
   const bazniPromptFilm = (unosTekst, stilTokens) => {
-    return `Create a final-frame, ultra-premium, feature-film-quality 3D ensemble mirror-selfie render in a polished Disney/Pixar-inspired cinematic animation style, based on the iconic main cast of ${unosTekst}. Automatically identify and generate the most recognizable principal characters from ${unosTekst}, preserving their original actor-specific identity, signature visual traits, costume language, and unmistakable screen presence. The scene takes place in a slightly messy, believable bathroom and is viewed entirely through the mirror reflection, with the central protagonist holding a large retro camera toward the mirror while the rest of the ensemble crowds naturally into frame in a dynamic, playful, chaotic but visually controlled group selfie composition. Extreme anatomical accuracy for all faces grounded in real actors.
+    return `Create a final-frame, ultra-premium, feature-film-quality 3D cinematic mirror-selfie render in a polished Disney/Pixar-inspired animation style, explicitly based on the famous movie/franchise "${unosTekst}". 
+
+CRITICAL CHARACTER RULE: You MUST automatically identify the exact iconic main character (e.g., Maximus for Gladiator, Neo for Matrix) to be the one holding the camera/phone. Force exact recognizable pop-culture character likeness, signature original costumes, and iconic facial features of the original actor. 
+
+CRITICAL COMPOSITION RULE: The scene MUST be a MIRROR SELFIE. The central protagonist is holding a large retro camera toward a large ornate mirror. Behind them, the rest of the ensemble cast (the iconic supporting characters and villains from the movie) crowds naturally into the reflection in a dynamic, playful, chaotic group selfie composition.
+
+CRITICAL ENVIRONMENT RULE: The mirror MUST be placed in the iconic, canonical environment from the movie/series (e.g., a grand Roman arena, a spaceship, a historical battlefield), NOT a generic room or bathroom. The background reflected in the mirror must clearly show this epic movie environment. Extreme anatomical accuracy for all faces grounded in real actors.
 
 FINAL V10 STYLE BOOST:
 ${stilTokens}`;
   };
 
+  // 🔥 NOVI PROMPT ZA SPORT: Igrači na stadionu + ogledalo 🔥
   const bazniPromptSport = (unosTekst, stilTokens) => {
-    return `Create an ultra-premium, final-frame, feature-film-quality 3D animated CGI render in a polished Disney/Pixar-inspired cinematic style, showing the most iconic, instantly recognizable hero players from ${unosTekst} taking a chaotic bathroom mirror selfie in a vertical 3:4 composition. Automatically identify and generate the core star players associated with ${unosTekst}, selecting the most visually recognizable faces, hairstyles, tattoos, and signature personalities. Absolute identity lock for all faces grounded in real players wearing exact screen-accurate kits.
+    return `Create an ultra-premium, final-frame, feature-film-quality 3D animated CGI mirror-selfie render in a polished Disney/Pixar-inspired cinematic style, showing the most iconic, instantly recognizable hero players from "${unosTekst}". 
+
+CRITICAL COMPOSITION: The superstar player is holding a camera toward a mirror. Behind him, the core star teammates crowd into the reflection. 
+
+CRITICAL ENVIRONMENT: The mirror is located inside the actual team stadium or a high-tech locker room, NOT a house bathroom. Absolute identity lock for all faces grounded in real players wearing exact team-accurate kits.
 
 FINAL V10 STYLE BOOST:
 ${stilTokens}`;
@@ -218,7 +240,7 @@ Include the most iconic and instantly recognizable landmarks of ${city}, surroun
               {isGenerating ? ( <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500"><Loader2 className="w-12 h-12 text-orange-500 animate-spin" /><p className="text-orange-500 text-[10px] font-black uppercase tracking-widest animate-pulse text-center">Rekonstrukcija...</p></div>
               ) : slika ? ( <>
                 <motion.img initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} src={slika} alt="V8 Result 3:4" className="w-full h-full object-cover" />
-                {(!isAdmin && !isPaid) && (
+                {(!isVipUser && !isPaid) && (
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/70 backdrop-blur-[6px] p-4 animate-in fade-in duration-700">
                     <div className="bg-[#0a0a0a]/95 border border-orange-500/50 rounded-3xl p-5 flex flex-col items-center shadow-[0_0_40px_rgba(234,88,12,0.4)] w-full max-w-[280px]">
                       <div className="bg-white p-2 rounded-xl mb-3 w-full flex justify-center shadow-inner relative overflow-hidden"><QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD350,00|SF:289|S:V8 Cinematic Studio|RO:V8-CINEMA`} size={110} level={"M"} fgColor={"#000000"} bgColor={"#ffffff"} /></div>
@@ -229,7 +251,7 @@ Include the most iconic and instantly recognizable landmarks of ${city}, surroun
                     </div>
                   </div>
                 )}
-                {(isAdmin || isPaid) && ( <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"><button onClick={() => preuzmiSliku(slika, `V8_34_${unos}`)} className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"><Download className="w-4 h-4" /> PREUZMI 4K</button></div> )}
+                {(isVipUser || isPaid) && ( <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"><button onClick={() => preuzmiSliku(slika, `V8_34_${unos}`)} className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"><Download className="w-4 h-4" /> PREUZMI 4K</button></div> )}
               </> ) : ( <div className="flex flex-col items-center gap-3 opacity-30"><Camera className="w-12 h-12 text-zinc-500" /><p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest text-center px-4">Unesi podatke iznad</p></div> )}
             </div>
 
@@ -281,7 +303,7 @@ Include the most iconic and instantly recognizable landmarks of ${city}, surroun
                 {isGeneratingBespoke ? ( <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500"><Loader2 className="w-12 h-12 text-red-500 animate-spin" /><p className="text-red-500 text-[10px] font-black uppercase tracking-widest animate-pulse text-center">Bespokorno iscrtavanje...</p></div>
                 ) : slikaBespoke ? ( <>
                   <motion.img initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} src={slikaBespoke} alt="V8 Bespoke Result 16:9" className="w-full h-full object-cover" />
-                  {(!isAdmin && !isPaidBespoke) && (
+                  {(!isVipUser && !isPaidBespoke) && (
                     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 backdrop-blur-[6px] p-4 animate-in fade-in duration-700">
                       <div className="bg-[#0a0a0a]/95 border border-red-500/50 rounded-3xl p-5 flex flex-col items-center shadow-[0_0_40px_rgba(220,38,38,0.4)] w-full max-w-[280px]">
                         <div className="bg-white p-2 rounded-xl mb-3 w-full flex justify-center shadow-inner relative overflow-hidden"><QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD350,00|SF:289|S:V8 Cinematic Studio|RO:V8-CINEMA`} size={110} level={"M"} fgColor={"#000000"} bgColor={"#ffffff"} /></div>
@@ -292,7 +314,7 @@ Include the most iconic and instantly recognizable landmarks of ${city}, surroun
                       </div>
                     </div>
                   )}
-                  {(isAdmin || isPaidBespoke) && ( <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"><button onClick={() => preuzmiSliku(slikaBespoke, `V8_169_${unosBespoke}`)} className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"><Download className="w-4 h-4" /> PREUZMI 16:9 NASLOV</button></div> )}
+                  {(isVipUser || isPaidBespoke) && ( <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"><button onClick={() => preuzmiSliku(slikaBespoke, `V8_169_${unosBespoke}`)} className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"><Download className="w-4 h-4" /> PREUZMI 16:9 NASLOV</button></div> )}
                 </> ) : ( <div className="flex flex-col items-center gap-3 opacity-30"><PenTool className="w-12 h-12 text-zinc-500" /><p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest text-center px-4">Unesi podatke levo</p></div> )}
             </div>
 
