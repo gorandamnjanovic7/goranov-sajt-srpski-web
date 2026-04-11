@@ -6,57 +6,147 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import * as data from './data'; 
 
-// 🔥 OSNOVNE KATEGORIJE 🔥
+// 🔥 OSNOVNE KATEGORIJE (NOVE PREMIUM BIZNIS + STARE ZBOG POSTOJEĆIH PAKETA) 🔥
 const KATEGORIJE = [
-  "Prilagođen dizajn",
-  "Viral",
-  "Portretna Fotografija", "Modni Editorijal", "Luksuzni Lajfstajl", 
-  "Reklamiranje Proizvoda", "Nekretnine i Enterijeri", "Hrana i Piće",
-  "Arhitektura i Eksterijeri", "Automobili", 
-  "Superautomobili (Supercars)", 
-  "Pogled iz vazduha (Dron)", 
-  "Tehnologija i Gedžeti", "Lepota i Kozmetika", "Nakit i Satovi", 
-  "Podvodni Svet", "Priroda i Pejzaži", "Urbana Ulična Fotografija", 
-  "Filmski Kadrovi", "Istorijski Realizam", "Fantazijski Realizam", 
-  "Sci-Fi Realizam", "Makro i Detalji", "Minimalistički Studio", 
-  "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
+  // V8 Premium Biznis (Nove)
+  "CEO, Direktori, Uprava",
+  "Cybersecurity i InfoSec",
+  "Software Inženjering i Data Science",
+  "Finansije, Kripto i Analitika",
+  "Marketing, PR i Kreativa",
+  "Ljudski Resursi (HR) i Kultura",
+  "Medicina, Farmacija i Biotech",
+  "Arhitektura, Inženjering i Nekretnine",
+  "Logistika, Supply Chain i E-commerce",
+  "Startup Founderi i Investitori",
+  
+  // Standardne i Stare (Zadržano da se ne bi obrisali tvoji dodati paketi)
+  "Prilagođen dizajn", "Viral", "Portretna Fotografija", "Modni Editorijal", 
+  "Luksuzni Lajfstajl", "Reklamiranje Proizvoda", "Nekretnine i Enterijeri", 
+  "Hrana i Piće", "Arhitektura i Eksterijeri", "Automobili", 
+  "Superautomobili (Supercars)", "Pogled iz vazduha (Dron)", 
+  "Tehnologija i Gedžeti", "Lepota i Kozmetika", "Nakit i Satovi", 
+  "Podvodni Svet", "Priroda i Pejzaži", "Urbana Ulična Fotografija", 
+  "Filmski Kadrovi", "Istorijski Realizam", "Fantazijski Realizam", 
+  "Sci-Fi Realizam", "Makro i Detalji", "Minimalistički Studio", 
+  "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
 ];
 
-// 🔥 V8 PAMETNE PODKATEGORIJE 🔥
+// 🔥 V8 PAMETNE PODKATEGORIJE (SVE PODKATEGORIJE) 🔥
 const PODKATEGORIJE = {
-  "Luksuzni Lajfstajl": [
-    "Haute Horlogerie Tourbillon sat na tamnom opsidijanskom postolju",
-    "Verenički prsten obložen dijamantima koji reflektuje lasersku svetlost",
-    "Luksuzna Niche bočica parfema okružena lebdećim tečnim zlatom",
-    "High-End teglica kreme za negu kože na zaleđenoj površini",
-    "Premium kožna dizajnerska torbica u minimalističkom studiju",
-    "Ručno rađene italijanske kožne Oxford cipele, filmske senke",
-    "Platinasti hronograf sat sa odsjajem safirnog stakla",
-    "Ogrlica od smaragda i zlata koja počiva na crnom somotu",
-    "Kristalni dekanter za viski iz kog se toči ćilibarska tečnost",
-    "Luksuzni karmin sa metalik završnicom ogledala",
-    "Minimalistička mat crna kreditna kartica, dramatično osvetljenje ivica",
-    "Visoka moda sunčane naočare, sjajna tekstura, oštar kontrast",
-    "Zanatsko nalivpero koje piše po debelom pergamentu",
-    "Rubinske minđuše pod jakim reflektorom zlatare",
-    "Titanijumska dugmad za manžetne po meri na pozadini od brušenog čelika",
-    "Premium audio slušalice, detalji od eloksiranog aluminijuma",
-    "Luksuzna svilena marama koja se elegantno savija u vazduhu",
-    "High-End espreso aparat koji svetli u mračnom kafiću",
-    "Ekskluzivna vintage kutija za cigare, metalik tipografija",
-    "Moderni pametni sat sa svetlećim OLED interfejsom",
-    "Rose Gold narukvica prebačena preko bele mermerne kocke",
-    "Luksuzni organski sapun okružen lebdećim biljkama",
-    "Tekstura sakoa po meri, makro detalj tkanine",
-    "Izuzetna dijamantska tijara koja hvata oštre zrake svetlosti",
-    "Premium dizajnerske sunčane naočare na belom pesku sa oštrim senkama",
-    "High-end mehanička tastatura sa svetlećim RGB i okvirom od brušenog aluminijuma",
-    "Luksuzna svilena kravata graciozno prebačena preko minimalnog mermernog bloka",
-    "Izuzetan broš od safira i dijamanata osvetljen laserskim reflektorima",
-    "Zanatska kožna aktovka u mračnom, high-end izlogu butika",
-    "Kristalna bočica parfema koja reflektuje neonski cyberpunk grad",
-    "Premium slušalice za poništavanje buke koje lebde u gluvoj sobi"
-  ]
+  // 1. UPRAVA
+  "CEO, Direktori, Uprava": [
+    "Solo CEO portret u mračnoj kancelariji, Obsidian stil",
+    "Upravni odbor nazdravlja šampanjcem, neon plavi detalji",
+    "Direktor gleda kroz staklo na noćni cyberpunk grad",
+    "Potpisivanje milionskog ugovora, krupni kadar sata i olovke"
+  ],
+  // 2. CYBERSECURITY
+  "Cybersecurity i InfoSec": [
+    "Haker u tamnoj serverskoj sobi sa neon zelenim kodom na licu",
+    "Cyber analitičar pred holografskim ekranom, V8 plava svetlost",
+    "Server soba pod napadom, apstraktno crveno osvetljenje i senke",
+    "Enkripcija podataka, apstraktna 3D vizualizacija zaključavanja"
+  ],
+  // 3. SOFTWARE I DATA
+  "Software Inženjering i Data Science": [
+    "Programer kuca React kod na crnim monitorima, narandžasti odsjaj",
+    "AI Data naučnik analizira holografsku neuronsku mrežu",
+    "Apstraktni tokovi podataka u Obsidian praznini, plave linije",
+    "High-tech radna stanica sa V8 LED svetlima u mraku"
+  ],
+  // 4. FINANSIJE
+  "Finansije, Kripto i Analitika": [
+    "Kripto berza na tamnim ekranima sa neon narandžastim grafikonima",
+    "Zlatni Bitcoin novčić lebdi iznad staklenog stola, makro detalj",
+    "Wall Street bankar u senci sa premium pametnim satom",
+    "Apstraktni 3D blokčejn lanci, hladno plavo osvetljenje"
+  ],
+  // 5. MARKETING
+  "Marketing, PR i Kreativa": [
+    "Kreativni tim na brainstorming sesiji u tamnom studiju",
+    "Strategija kampanje na digitalnoj staklenoj tabli sa neon markerima",
+    "Influenser snima sadržaj sa profesionalnim svetlom, mračna pozadina",
+    "Apstraktni social media lajkovi i ikone u V8 bojama"
+  ],
+  // 6. HR
+  "Ljudski Resursi (HR) i Kultura": [
+    "Intervju za posao u modernoj staklenoj kancelariji, dramatične senke",
+    "Rukovanje novog zaposlenog i menadžera, oštar kontrast",
+    "Timski sastanak u luksuznoj lounge zoni, prigušeno svetlo",
+    "Apstraktna mreža talenata, svetleće tačke u tamnom prostoru"
+  ],
+  // 7. MEDICINA I BIOTECH
+  "Medicina, Farmacija i Biotech": [
+    "Naučnik gleda kroz mikroskop sa plavim pozadinskim svetlom",
+    "DNK lanac kao holografska 3D projekcija, narandžasti detalji",
+    "Hirurg u high-tech operacionoj sali, mračni kontrast i fokus",
+    "Apstraktne svetleće bio-ćelije u Obsidian tečnosti"
+  ],
+  // 8. ARHITEKTURA
+  "Arhitektura, Inženjering i Nekretnine": [
+    "Arhitekta gleda u svetleći holografski 3D model zgrade",
+    "Luksuzni penthouse, noćni render sa V8 neon akcentima",
+    "Inženjer sa pametnim tabletom na gradilištu u sumrak",
+    "Minimalistički enterijer sa crnim mermerom i skrivenim svetlom"
+  ],
+  // 9. LOGISTIKA
+  "Logistika, Supply Chain i E-commerce": [
+    "Ogromno skladište sa dronom koji skenira pakete, plavi laseri",
+    "Kontejnerski brod u noćnoj luci, cyberpunk atmosfersko svetlo",
+    "Apstraktna mreža globalne dostave, svetleće linije na mapi",
+    "Kurir u crnoj uniformi isporučuje premium crni paket"
+  ],
+  // 10. STARTUP
+  "Startup Founderi i Investitori": [
+    "Pitchovanje investitorima u high-tech sali, neon narandžasti ekran",
+    "Osnivač radi na MacBook-u u mračnom V8 okruženju",
+    "Investitor u odelu analizira podatke na crnom iPadu",
+    "Moderni startup hub sa V8 LED linijama i tamnim staklom"
+  ],
+// 5. PRIRODA I PEJZAŽI
+"Priroda i Pejzaži": [
+    "Crna peščana plaža na Islandu pod olujnim oblacima, dramatičan kontrast",
+    "Mračna borova šuma u gustoj magli, filmska atmosfera",
+    "Erupcija vulkana u noći, užarena V8 narandžasta lava",
+    "Bioluminiscentni okean u mraku, neon plavi talasi",
+    "Masivni planinski vrhovi pod zvezdanim nebom, astrofotografija"
+  ],
+  
+  // Stare Podkategorije (Netaknute zbog kompatibilnosti postojećih paketa)
+  "Luksuzni Lajfstajl": [
+    "Haute Horlogerie Tourbillon sat na tamnom opsidijanskom postolju",
+    "Verenički prsten obložen dijamantima koji reflektuje lasersku svetlost",
+    "Luksuzna Niche bočica parfema okružena lebdećim tečnim zlatom",
+    "High-End teglica kreme za negu kože na zaleđenoj površini",
+    "Premium kožna dizajnerska torbica u minimalističkom studiju",
+    "Ručno rađene italijanske kožne Oxford cipele, filmske senke",
+    "Platinasti hronograf sat sa odsjajem safirnog stakla",
+    "Ogrlica od smaragda i zlata koja počiva na crnom somotu",
+    "Kristalni dekanter za viski iz kog se toči ćilibarska tečnost",
+    "Luksuzni karmin sa metalik završnicom ogledala",
+    "Minimalistička mat crna kreditna kartica, dramatično osvetljenje ivica",
+    "Visoka moda sunčane naočare, sjajna tekstura, oštar kontrast",
+    "Zanatsko nalivpero koje piše po debelom pergamentu",
+    "Rubinske minđuše pod jakim reflektorom zlatare",
+    "Titanijumska dugmad za manžetne po meri na pozadini od brušenog čelika",
+    "Premium audio slušalice, detalji od eloksiranog aluminijuma",
+    "Luksuzna svilena marama koja se elegantno savija u vazduhu",
+    "High-End espreso aparat koji svetli u mračnom kafiću",
+    "Ekskluzivna vintage kutija za cigare, metalik tipografija",
+    "Moderni pametni sat sa svetlećim OLED interfejsom",
+    "Rose Gold narukvica prebačena preko bele mermerne kocke",
+    "Luksuzni organski sapun okružen lebdećim biljkama",
+    "Tekstura sakoa po meri, makro detalj tkanine",
+    "Izuzetna dijamantska tijara koja hvata oštre zrake svetlosti",
+    "Premium dizajnerske sunčane naočare na belom pesku sa oštrim senkama",
+    "High-end mehanička tastatura sa svetlećim RGB i okvirom od brušenog aluminijuma",
+    "Luksuzna svilena kravata graciozno prebačena preko minimalnog mermernog bloka",
+    "Izuzetan broš od safira i dijamanata osvetljen laserskim reflektorima",
+    "Zanatska kožna aktovka u mračnom, high-end izlogu butika",
+    "Kristalna bočica parfema koja reflektuje neonski cyberpunk grad",
+    "Premium slušalice za poništavanje buke koje lebde u gluvoj sobi"
+  ]
 };
 
 // POČETAK FUNKCIJE: FullScreenLightbox
@@ -91,7 +181,14 @@ const V8StockBerza = () => {
   const [novaPodkategorija, setNovaPodkategorija] = useState(''); 
   const [novaCena, setNovaCena] = useState('1999');
   const [noviTip, setNoviTip] = useState('Slika'); 
-  const [noviOpis, setNoviOpis] = useState('Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.');
+  // 🔥 V8 ŠABLONI ZA OPIS PAKETA 🔥
+  const OPISI_SABLONI = [
+    "Sadržaj paketa: 20 Premium AI Vizuala u ultra-širokoj 16:9 rezoluciji. Idealno za web sajtove, YouTube thumbnail-ove i prezentacije. Vrednost studijske produkcije preko 30.000 RSD.",
+    "Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.",
+    "Sadržaj paketa: Ekskluzivni vertikalni 9:16 vizuali, optimizovani za Instagram Reels, TikTok i Story formate. Vrhunski kvalitet za premium brendove."
+  ];
+
+  const [noviOpis, setNoviOpis] = useState(OPISI_SABLONI[0]); // Po defaultu prva opcija
   const [previewUrl, setPreviewUrl] = useState('');
   const [zipLink, setZipLink] = useState('');
 
@@ -139,24 +236,37 @@ const V8StockBerza = () => {
   // KRAJ FUNKCIJE: fetchKlijenti
 
   // POČETAK FUNKCIJE: prijavaIKupovina
-  const prijavaIKupovina = async (paket) => {
-      if (currentUser) {
-          snimiKupcaUBazu(currentUser, paket);
-          setShowIpsModal(paket);
-      } else {
-          const provider = new GoogleAuthProvider();
-          try {
-              const result = await signInWithPopup(auth, provider);
-              const ulogovaniKorisnik = result.user;
-              await snimiKupcaUBazu(ulogovaniKorisnik, paket);
-              setShowIpsModal(paket); 
-          } catch (error) {
-              console.error("Prijava prekinuta", error);
-              alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
-          }
-      }
-  };
-  // KRAJ FUNKCIJE: prijavaIKupovina
+  const prijavaIKupovina = async (paket) => {
+      // V8 Google Ads Praćenje Konverzije
+      const okiniKonverziju = () => {
+          if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'conversion', {
+                  'send_to': 'AW-18075037332/-upyCP0kxpkcEJTD7KpD', 
+                  'value': parseFloat(paket.cena),
+                  'currency': 'RSD'
+              });
+          }
+      };
+
+      if (currentUser) {
+          snimiKupcaUBazu(currentUser, paket);
+          setShowIpsModal(paket);
+          okiniKonverziju(); // Signalizira Google-u da je prodaja započeta
+      } else {
+          const provider = new GoogleAuthProvider();
+          try {
+              const result = await signInWithPopup(auth, provider);
+              const ulogovaniKorisnik = result.user;
+              await snimiKupcaUBazu(ulogovaniKorisnik, paket);
+              setShowIpsModal(paket); 
+              okiniKonverziju(); // Signalizira Google-u da je prodaja započeta
+          } catch (error) {
+              console.error("Prijava prekinuta", error);
+              alert("Za kupovinu premium paketa, molimo vas da se prijavite.");
+          }
+      }
+  };
+  // KRAJ FUNKCIJE: prijavaIKupovina
 
   // POČETAK FUNKCIJE: snimiKupcaUBazu
   const snimiKupcaUBazu = async (user, paket) => {
@@ -423,7 +533,26 @@ const V8StockBerza = () => {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <input type="text" value={noviNaziv} onChange={(e)=>setNoviNaziv(e.target.value)} placeholder="Naziv Paketa (npr. Zlatni Satovi)" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white" required />
+{/* V8 BIRANJE OPISA */}
+            <div className="mb-4">
+              <select 
+                onChange={(e) => setNoviOpis(e.target.value)} 
+                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-zinc-400 w-full outline-none mb-2"
+              >
+                <option value={OPISI_SABLONI[0]}>📌 Opis 1: Samo 16:9 Wide format</option>
+                <option value={OPISI_SABLONI[1]}>📌 Opis 2: Sve 4 rezolucije (Premium)</option>
+                <option value={OPISI_SABLONI[2]}>📌 Opis 3: Samo Vertikalni 9:16 format</option>
+              </select>
+              {/* Ostavljamo i tekstualno polje da možeš ručno da prepraviš izabrani šablon */}
+              <textarea 
+                value={noviOpis} 
+                onChange={(e)=>setNoviOpis(e.target.value)} 
+                placeholder="Opis šta se dobija" 
+                rows={3}
+                className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white w-full outline-none resize-none" 
+                required 
+              />
+            </div>
               
               <select value={novaKategorija} onChange={handleKategorijaChange} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] text-white outline-none">
                 {KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}

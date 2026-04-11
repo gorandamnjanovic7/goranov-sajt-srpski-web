@@ -18,20 +18,34 @@ const V8CustomStudio = () => {
     if (!opis || !email) return alert("Popunite email i opis vizije!");
     
     setIsSubmitting(true);
+
+    // --- V8 VIP BYPASS PROVERA ---
+    const adminEmailovi = ['damnjanovicgoran7@gmail.com', 'aitoolsprosmart@gmail.com'];
+    const unetEmail = email.toLowerCase().trim();
+    const jesteAdmin = adminEmailovi.includes(unetEmail);
+
     try {
       // Šaljemo narudžbinu u tvoju V8 bazu
       await addDoc(collection(db, "v8_narudzbine"), {
-        email: email,
+        email: unetEmail,
         opis: opis,
         format: format,
-        cena: cenaRsd,
-        status: "Ceka_Uplatu",
+        cena: jesteAdmin ? 0 : cenaRsd, // Adminu je 0 RSD
+        status: jesteAdmin ? "Admin_Odobreno" : "Ceka_Uplatu", // Odmah zeleno svetlo za tebe
         vreme: serverTimestamp(),
         klijentId: auth.currentUser ? auth.currentUser.uid : 'Gost'
       });
       
-      // Otvaramo IPS Modal za naplatu
-      setShowIpsModal(true);
+      if (jesteAdmin) {
+        // Ako je Admin, izbaci VIP poruku i očisti formu BEZ otvaranja naplate
+        alert("👑 V8 MASTER PREPOZNAT! Narudžbina je prosleđena u bazu bez naplate.");
+        setOpis('');
+        setEmail('');
+      } else {
+        // Običan korisnik - Otvaramo IPS Modal za naplatu
+        setShowIpsModal(true);
+      }
+      
     } catch (error) {
       console.error(error);
       alert("Greška pri slanju narudžbine.");
