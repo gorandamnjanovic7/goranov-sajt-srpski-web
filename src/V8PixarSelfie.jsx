@@ -39,39 +39,26 @@ const V8PixarStudioPage = ({ isAdmin }) => {
   const [vipEmailBespoke, setVipEmailBespoke] = useState('');
   const [proveraStatusBespoke, setProveraStatusBespoke] = useState('idle');
 
-  // ==========================================
-  // 1. APLIKACIJA 1 (3:4) PROMPTOVI
-  // ==========================================
  // ==========================================
-  // 1. APLIKACIJA 1 (3:4) PROMPTOVI - V8 TURBO KOREKCIJA
+  // 1. APLIKACIJA 1 (3:4) PROMPTOVI - V8 ULTIMATE IDENTITY EDITION
   // ==========================================
-  
-  // 🔥 NOVI PROMPT ZA FILM: Maximus i ekipa u areni + ogledalo 🔥
+ // 🔥 V8 ULTIMATE: PRAVO LICE + KUPATILO SELFIE (Viralna fora) 🔥
   const bazniPromptFilm = (unosTekst, stilTokens) => {
-    return `Create a final-frame, ultra-premium, feature-film-quality 3D cinematic mirror-selfie render in a polished Disney/Pixar-inspired animation style, explicitly based on the famous movie/franchise "${unosTekst}". 
-
-CRITICAL CHARACTER RULE: You MUST automatically identify the exact iconic main character (e.g., Maximus for Gladiator, Neo for Matrix) to be the one holding the camera/phone. Force exact recognizable pop-culture character likeness, signature original costumes, and iconic facial features of the original actor. 
-
-CRITICAL COMPOSITION RULE: The scene MUST be a MIRROR SELFIE. The central protagonist is holding a large retro camera toward a large ornate mirror. Behind them, the rest of the ensemble cast (the iconic supporting characters and villains from the movie) crowds naturally into the reflection in a dynamic, playful, chaotic group selfie composition.
-
-CRITICAL ENVIRONMENT RULE: The mirror MUST be placed in the iconic, canonical environment from the movie/series (e.g., a grand Roman arena, a spaceship, a historical battlefield), NOT a generic room or bathroom. The background reflected in the mirror must clearly show this epic movie environment. Extreme anatomical accuracy for all faces grounded in real actors.
-
-FINAL V10 STYLE BOOST:
-${stilTokens}`;
+    return `ACTION: Research and Identify the iconic cinematic subject from the user input: "${unosTekst}".
+    
+    1. IDENTITY IDENTIFICATION: You MUST identify the world-famous lead actor (e.g., if input is 'Gladiator', you MUST identify Russell Crowe as Maximus).
+    
+    2. VISUAL LIKENESS OVERRIDE: Render that EXACT person with 100% facial likeness. DO NOT make them look like a soft, friendly cartoon character. Retain the fierce, rugged, intense, and battle-hardened facial structure of the real actor. They MUST wear their iconic screen-accurate movie costume (e.g., Roman armor for Maximus).
+    
+    3. THEMATIC ENVIRONMENT (BATHROOM): The scene MUST take place in a messy bathroom! It is a bathroom mirror selfie. The hero is holding the retro camera toward the mirror. You must include bathroom elements like a sink, toothbrushes, soap, or tiles. The mirror reflection features bold text "${unosTekst}".
+    
+    4. COMPOSITION: A fun group mirror selfie. All major supporting characters and villains from that specific movie crowd into the bathroom reflection behind the hero, making playful or intense expressions.
+    
+    STYLE: Premium 3D Disney/Pixar CGI animation look, high-end studio lighting, vertical 3:4 frame, 8k resolution.
+    
+    FINAL V10 STYLE BOOST:
+    ${stilTokens}`;
   };
-
-  // 🔥 NOVI PROMPT ZA SPORT: Igrači na stadionu + ogledalo 🔥
-  const bazniPromptSport = (unosTekst, stilTokens) => {
-    return `Create an ultra-premium, final-frame, feature-film-quality 3D animated CGI mirror-selfie render in a polished Disney/Pixar-inspired cinematic style, showing the most iconic, instantly recognizable hero players from "${unosTekst}". 
-
-CRITICAL COMPOSITION: The superstar player is holding a camera toward a mirror. Behind him, the core star teammates crowd into the reflection. 
-
-CRITICAL ENVIRONMENT: The mirror is located inside the actual team stadium or a high-tech locker room, NOT a house bathroom. Absolute identity lock for all faces grounded in real players wearing exact team-accurate kits.
-
-FINAL V10 STYLE BOOST:
-${stilTokens}`;
-  };
-
   // ==========================================
   // 2. APLIKACIJA 2 (16:9) PROMPTOVI
   // ==========================================

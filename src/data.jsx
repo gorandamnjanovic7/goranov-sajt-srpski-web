@@ -1,4 +1,6 @@
 import React from 'react';
+
+// --- CLOUDINARY KONFIGURACIJA ---
 export const CLOUDINARY_CLOUD_NAME = "drllxycnh";
 export const CLOUDINARY_UPLOAD_PRESET = "uploads";
 
@@ -55,10 +57,23 @@ export const BANNER_DATA = [
     title: "HOLLYWOOD VSX KINEMATOGRAFSKI NIVO ", 
     subtitle: "Pristupi tajnim algoritmima za renderovanje koje koriste vrhunski vizuelni arhitekti." 
   }
-];export const formatExternalLink = (url) => { if (!url) return '#'; if (!url.startsWith('http://') && !url.startsWith('https://')) return `https://${url}`; return url; };
+];
+
+// POČETAK FUNKCIJE: formatExternalLink
+export const formatExternalLink = (url) => { if (!url) return '#'; if (!url.startsWith('http://') && !url.startsWith('https://')) return `https://${url}`; return url; };
+// KRAJ FUNKCIJE: formatExternalLink
+
+// POČETAK FUNKCIJE: extractSys
 export const extractSys = (desc) => { if (!desc) return { d: '', s: {} }; const m = desc.match(/\[SYS\]([\s\S]*?)\[\/SYS\]/i); if (!m) return { d: desc, s: {} }; try { return { d: desc.replace(m[0], '').trim(), s: JSON.parse(m[1]) }; } catch { return { d: desc, s: {} }; } };
+// KRAJ FUNKCIJE: extractSys
+
+// POČETAK FUNKCIJE: renderDescription
 export const renderDescription = (text) => { if (!text) return null; const { d } = extractSys(text); return <div className="w-full text-left"><p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-6 whitespace-pre-wrap font-sans">{d}</p></div>; };
+// KRAJ FUNKCIJE: renderDescription
+
+// POČETAK FUNKCIJE: getMediaThumbnail
 export const getMediaThumbnail = (url) => { if (!url) return ''; if (url.match(/\.(mp4|webm|ogg|mov)$/i)) return `${url}#t=0.001`; return url; };
+// KRAJ FUNKCIJE: getMediaThumbnail
 
 // POČETAK FUNKCIJE: LiveSalesNotification
 export const LiveSalesNotification = ({ apps }) => {
@@ -122,6 +137,7 @@ export const LiveSalesNotification = ({ apps }) => {
 };
 // KRAJ FUNKCIJE: LiveSalesNotification
 
+// POČETAK FUNKCIJE: FullScreenBoot
 export const FullScreenBoot = ({ onComplete }) => {
   const [step, setStep] = React.useState(0);
   React.useEffect(() => {
@@ -139,13 +155,17 @@ export const FullScreenBoot = ({ onComplete }) => {
     </div>
   );
 };
+// KRAJ FUNKCIJE: FullScreenBoot
 
+// POČETAK FUNKCIJE: TypewriterText
 export const TypewriterText = ({ text, speed = 20 }) => {
   const [displayed, setDisplayed] = React.useState('');
   React.useEffect(() => { setDisplayed(''); let i = 0; const t = setInterval(() => { if (i < text.length) { setDisplayed(prev => prev + text.charAt(i)); i++; } else { clearInterval(t); } }, speed); return () => clearInterval(t); }, [text, speed]);
   return <span>{displayed}<span className="animate-pulse opacity-50">_</span></span>;
 };
+// KRAJ FUNKCIJE: TypewriterText
 
+// POČETAK FUNKCIJE: UniversalVideoPlayer
 export const UniversalVideoPlayer = ({ url, isMuted = false }) => {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const videoRef = React.useRef(null);
@@ -158,7 +178,9 @@ export const UniversalVideoPlayer = ({ url, isMuted = false }) => {
     </div>
   );
 };
+// KRAJ FUNKCIJE: UniversalVideoPlayer
 
+// POČETAK FUNKCIJE: MatrixRain
 export const MatrixRain = () => {
   const canvasRef = React.useRef(null);
   React.useEffect(() => {
@@ -183,7 +205,9 @@ export const MatrixRain = () => {
   }, []);
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />;
 };
+// KRAJ FUNKCIJE: MatrixRain
 
+// POČETAK FUNKCIJE: TutorialCard
 export const TutorialCard = ({ vid }) => {
   const videoId = vid.url.includes('v=') ? vid.url.split('v=')[1].split('&')[0] : vid.url.split('/').pop();
   return (
@@ -197,11 +221,215 @@ export const TutorialCard = ({ vid }) => {
     </a>
   );
 };
+// KRAJ FUNKCIJE: TutorialCard
+
+// POČETAK FUNKCIJE: FormattedDescription (TVOJA ORIGINALNA SA LISTAMA I BOJAMA)
+export const FormattedDescription = ({ text }) => {
+  if (!text) return null;
+  const cleanText = text.replace(/\[SYS\][\s\S]*?\[\/SYS\]/gi, '');
+  const lines = cleanText.split('\n');
+
+  return (
+    <div className="w-full text-left space-y-3">
+      {lines.map((line, idx) => {
+        const t = line.trim();
+        if (!t) return <div key={idx} className="h-2"></div>;
+
+        if (t.toUpperCase().includes("VALUE MULTIPLIER")) {
+          return (
+            <p key={idx} className="text-orange-500 font-black text-[18px] md:text-[20px] uppercase tracking-widest mt-8 mb-6 leading-relaxed">
+              {t.replace(/\*\*/g, '')}
+            </p>
+          );
+        }
+
+        const isTitle = (t === t.toUpperCase() && /[A-Z]/.test(t) && !t.startsWith('-') && !t.startsWith('*')) || (t.startsWith('**') && t.endsWith('**'));
+        const cleanTitle = t.replace(/\*\*/g, ''); 
+
+        if (isTitle) {
+          return (
+            <h3 key={idx} className="text-[22px] md:text-[28px] font-black text-white uppercase tracking-widest mb-6 mt-12 border-l-[5px] border-orange-500 pl-5 italic text-left leading-tight">
+              {cleanTitle}
+            </h3>
+          );
+        }
+
+        if (t.startsWith('-') || t.startsWith('*') || t.startsWith('•') || t.startsWith('✓')) {
+          const bulletText = t.substring(1).trim().replace(/\*\*/g, ''); 
+          return (
+            <div key={idx} className="flex items-start gap-4 mb-4">
+              <div className="bg-orange-500 rounded-full w-6 h-6 mt-0.5 shrink-0 flex items-center justify-center shadow-[0_0_12px_rgba(249,115,22,0.6)] border-2 border-orange-400">
+                <svg className="w-3.5 h-3.5 text-white font-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <p className="text-white font-bold text-[16px] md:text-[18px] leading-relaxed flex-1 m-0 tracking-wide">
+                {bulletText}
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="text-white font-bold text-[16px] md:text-[18px] leading-relaxed mb-6 tracking-wide">
+            {t.replace(/\*\*/g, '')}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+// KRAJ FUNKCIJE: FormattedDescription
+
+
+// ============================================================================
+// V8 BERZA PODACI I PREVODI
+// ============================================================================
+export const KATEGORIJE = [
+  "CEO, Direktori, Uprava", "Cybersecurity i InfoSec", "Software Inženjering i Data Science",
+"Satovi",
+  "Finansije, Kripto i Analitika", "Marketing, PR i Kreativa", "Ljudski Resursi (HR) i Kultura",
+  "Medicina, Farmacija i Biotech", "Arhitektura, Inženjering i Nekretnine",
+  "Logistika, Supply Chain i E-commerce", "Startup Founderi i Investitori",
+  "Prilagođen dizajn", "Viral", "Portretna Fotografija", "Modni Editorijal", 
+  "Luksuzni Lajfstajl", "Reklamiranje Proizvoda", "Nekretnine i Enterijeri", 
+  "Hrana i Piće", "Arhitektura i Eksterijeri", "Automobili", 
+  "Superautomobili (Supercars)", "Pogled iz vazduha (Dron)", 
+  "Tehnologija i Gedžeti", "Lepota i Kozmetika", "Nakit i Satovi", 
+  "Podvodni Svet", "Priroda i Pejzaži", "Urbana Ulična Fotografija", 
+  "Filmski Kadrovi", "Istorijski Realizam", "Fantazijski Realizam", 
+  "Sci-Fi Realizam", "Makro i Detalji", "Minimalistički Studio", 
+  "Konceptualna Umetnost", "AI Umetnost", "Prilagođeni Stilovi"
+];
+
+export const PODKATEGORIJE = {
+  "CEO, Direktori, Uprava": ["Solo CEO portret u mračnoj kancelariji, Obsidian stil", "Upravni odbor nazdravlja šampanjcem", "Direktor gleda kroz staklo na cyberpunk grad"],
+  "Medicina, Farmacija i Biotech": ["DNA lanac kao holografska 3D projekcija, narandžasti detalji"],
+  "Finansije, Kripto i Analitika": ["Wall Street bankar u senci sa premium pametnim satom"],
+  "Marketing, PR i Kreativa": ["Strategija kampanje na digitalnoj staklenoj tabli sa neon markerima"],
+  "Startup Founderi i Investitori": ["Pitchovanje investitorima u high-tech sali, neon narandžasti ekran"]
+};
+
+export const OPISI_SABLONI = [
+  "Sadržaj paketa: 20 Premium AI Vizuala u ultra-širokoj 16:9 rezoluciji. Idealno za web sajtove, YouTube thumbnail-ove i prezentacije. Vrednost studijske produkcije preko 30.000 RSD.",
+  "Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.",
+  "Sadržaj paketa: Ekskluzivni vertikalni 9:16 vizuali, optimizovani za Instagram Reels, TikTok i Story formate. Vrhunski kvalitet za premium brendove."
+];
+
+export const V8_TRANSLATIONS = {
+    "Svi Formati Uključeni": "All Formats Included",
+"LUKZUNA HRANA I PIĆE": "LUXURY FOOD & DRINKS",
+    "LUKSUZNA DESNINACIJE": "LUXURY DESTINATIONS",
+    "CEO, Direktori, Uprava": "CEO, Directors & Board",
+    "Cybersecurity i InfoSec": "Cybersecurity & InfoSec",
+    "Software Inženjering i Data Science": "Software Eng. & Data Science",
+    "Finansije, Kripto i Analitika": "Finance, Crypto & Analytics",
+    "Marketing, PR i Kreativa": "Marketing, PR & Creative",
+    "Ljudski Resursi (HR) i Kultura": "Human Resources (HR)",
+    "Medicina, Farmacija i Biotech": "Medicine, Pharma & Biotech",
+    "Arhitektura, Inženjering i Nekretnine": "Architecture & Real Estate",
+    "Logistika, Supply Chain i E-commerce": "Logistics, Supply Chain & E-com",
+    "Startup Founderi i Investitori": "Startup Founders & Investors",
+    "Sadržaj paketa: 20 Premium AI Vizuala u ultra-širokoj 16:9 rezoluciji. Idealno za web sajtove, YouTube thumbnail-ove i prezentacije. Vrednost studijske produkcije preko 30.000 RSD.": "Package contents: 20 Premium AI Visuals in ultra-wide 16:9. Perfect for websites and YT. Value over €250.",
+    "Sadržaj paketa: 20 Premium AI Vizuala. Svaki dolazi u 4 rezolucije (Post, Story, Web, Wide). Ukupno 80 fajlova spremnih za upload. Vrednost studijskog fotkanja je preko 50.000 RSD.": "Package contents: 20 Premium AI Visuals in 4 resolutions. 80 files total. Value over €400.",
+    "Sadržaj paketa: Ekskluzivni vertikalni 9:16 vizuali, optimizovani za Instagram Reels, TikTok i Story formate. Vrhunski kvalitet za premium brendove.": "Package contents: Exclusive vertical 9:16 visuals, optimized for Reels and Stories.",
+    "Wall Street bankar u senci sa premium pametnim satom": "Shadowy Wall Street banker with a premium smartwatch",
+    "DNA lanac kao holografska 3D projekcija, narandžasti detalji": "DNA strand as holographic 3D projection, orange details",
+    "DNA Lanac kao holografska 3D projekcija, narandžasti detalji": "DNA strand as holographic 3D projection, orange details",
+    "Strategija kampanje na digitalnoj staklenoj tabli sa neon markerima": "Campaign strategy on digital glass board with neon markers",
+    "Solo CEO portret u mračnoj kancelariji, Obsidian stil": "Solo CEO portrait in a dark office, Obsidian style"
+};
+
+// ============================================================================
+// HELPER FUNKCIJE ZA PERFEKTNO PISANJE PROMPTOVA I V8 ENGINE
+// ============================================================================
+
+export const getRandomTokens = (tokensArray, count) => {
+  if (!tokensArray || !Array.isArray(tokensArray) || tokensArray.length === 0) return "";
+  const shuffled = [...tokensArray].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count).join(", ");
+};
+
+const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+// POČETAK FUNKCIJE: generateDetailedPrompts
+export const generateDetailedPrompts = (subject, aspect_ratio) => {
+    if (!subject || subject.trim() === "") return { abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
+    const cleanSubject = subject.trim();
+
+    const getRand = (arr, count = 1) => {
+        if (!arr || arr.length === 0) return "";
+        const shuffled = [...arr].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count).join(", ");
+    };
+
+    const absCombo = getRand(ABSTRACT_AI_IMAGE_COMBINATIONS, 1);
+    const absMeta = getRand(ABSTRACT_META_TOKENS, 4);
+    const absRender = getRand(AI_RENDER_TOKENS, 2);
+    const absLight = getRand(LIGHTING_TOKENS, 2);
+    const absMod = getRand(MODIFIER_TOKENS, 2);
+    const abstract_composition = `${cleanSubject}. A breathtaking, surreal abstract masterpiece. Built upon: ${absCombo}. Visual structure defined by: ${absMeta}. Illumination: ${absLight}. Rendered with: ${absRender}. ${absMod}. Pure fluid geometric perfection, intricate multi-layered refraction. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
+
+    const cinCombo = getRand(CINEMATIC_COMBINATIONS, 1);
+    const cinMeta = getRand(CINEMATIC_TOKENS, 3);
+    const cinLight = getRand(LIGHTING_TOKENS, 2);
+    const cinEnv = getRand(ENV_TOKENS, 1);
+    const cinOptics = getRand(OPTICS_TOKENS, 2);
+    const cinMod = getRand(MODIFIER_TOKENS, 2);
+    const cinematic_composition = `A high-octane Hollywood blockbuster cinematic frame capturing ${cleanSubject} frozen in the middle of a highly dynamic, intense action sequence, set against a ${cinEnv}. Master camera setup: ${cinCombo}. Illumination: ${cinLight}. Cinematic protocol: ${cinMeta}. Lens optics: ${cinOptics}. ${cinMod}. Perfect storytelling framing, dramatic tension, kinetic energy, hyper-detailed. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
+
+    const photoCombo = getRand(PHOTOREAL_COMBINATIONS, 1);
+    const physTokens = getRand(PHYSICS_TOKENS, 3);
+    const optTokens = getRand(OPTICS_TOKENS, 2);
+    const realTokens = getRand(REALISM_TOKENS, 3);
+    const photoRender = getRand(AI_RENDER_TOKENS, 2);
+    const photoMod = getRand(MODIFIER_TOKENS, 2);
+    const photoreal_composition = `${cleanSubject}. Flawless next-gen photorealistic render. Capture system: ${photoCombo}. Physical properties: ${physTokens}. Optics: ${optTokens}. Surface realism: ${realTokens}. Render engine: ${photoRender}. ${photoMod}. Uncompromising photographic fidelity, true-to-life material response, real-world texture depth. Absolutely no CGI artifacts, no text. [Aspect Ratio: ${aspect_ratio}]`;
+
+    const uniqCombo = getRand(UNIQUE_PHOTOREAL_COMBOS, 1);
+    const uniqMeta = getRand(THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 6);
+    const uniqAdd = getRand(ADDITIONAL_REALISM_TOKENS, 4);
+    const uniqEnv = getRand(ENV_TOKENS, 3);
+    const uniqPhys = getRand(PHYSICS_TOKENS, 5);
+    const uniqOptics = getRand(OPTICS_TOKENS, 4);
+    const uniqAbs = getRand(ABSTRACT_META_TOKENS, 4);
+    const uniqRender = getRand(AI_RENDER_TOKENS, 4);
+    const uniqLight = getRand(LIGHTING_TOKENS, 4);
+    const uniqMod = getRand(MODIFIER_TOKENS, 5);
+    const uniqCamera = getRand(CAMERA_TOKENS, 1);
+    const uniqLens = getRand(LENS_TOKENS, 1);
+
+    const unique_composition = `/// V8 MAXIMUM OVERRIDE PROTOCOL INITIATED /// A staggering, unprecedented, one-of-a-kind visual paradox that redefines the boundaries of digital art. CORE SUBJECT: ${cleanSubject}. The subject exists in a hyper-detailed, mind-bending surreal juxtaposition, bridging multiple dimensional realities. PRIMARY ENVIRONMENT SCAPE: A seamlessly blended, impossible multi-environment featuring ${uniqEnv}. MASTER CAPTURE SETUP: ${uniqCombo}, additionally reinforced by ${uniqCamera} paired with ${uniqLens}. ILLUMINATION & ATMOSPHERIC PHYSICS: ${uniqLight}, strictly governed by hyper-accurate physical light transport algorithms including ${uniqPhys}. ADVANCED OPTICAL ENGINE: ${uniqOptics}, achieving impossible spatial depth and micro-contrast. CONCEPTUAL ABSTRACTION BLEND: Fusing raw, unfiltered photographic truth with impossible geometric concepts like ${uniqAbs}. NEXT-GEN RENDER PIPELINE: Powered by ${uniqRender}. EXTREME REALISM MODIFIERS: ${uniqMeta}, ${uniqAdd}, ${uniqMod}. This masterpiece must break the boundaries of human imagination while maintaining absolute, uncompromising photographic fidelity, molecular-level texture mapping, and retina-display clarity. Raw unedited aesthetic, true-to-life material response, insanely detailed. Zero CGI artifacts, absolutely no text, no signatures, no watermarks, flawless perfection. [Aspect Ratio: ${aspect_ratio}]`;
+
+    return {
+        abstract: abstract_composition,
+        cinematic: cinematic_composition,
+        photoreal: photoreal_composition,
+        uniquePhoto: unique_composition
+    };
+};
+// KRAJ FUNKCIJE: generateDetailedPrompts
+
+// POČETAK FUNKCIJE: generatePrompts
+export const generatePrompts = (customerPrompt, demoPrompt, quality, ar) => {
+  const subject = (customerPrompt || demoPrompt || "").trim();
+  if (!subject) return { single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
+  
+  const qToken = quality === '4x' ? 'masterpiece, 8k resolution, ultra-detailed' : quality === '2x' ? 'high quality, 4k, detailed' : 'good quality';
+  const baseAR = `${ar.replace(':', ':')} aspect ratio`; 
+
+  const singlePremium = `**CORE SUBJECT:** ${subject}\n**AESTHETIC PROTOCOL:** ${r(['Hyper-Realistic', 'Cinematic Dark', 'Neon Cyberpunk', 'Ethereal Dreamscape'])}\n**CAMERA SYSTEM:** ${r(["Sony A7R V", "Hasselblad H6D-100c", "Canon EOS R5", "Nikon Z9"])} + ${r(["50mm f/1.2", "85mm f/1.4", "35mm f/1.4"])}\n**LIGHTING ENGINE:** ${r(["volumetric lighting", "cinematic lighting", "chiaroscuro"])}\n**RENDER PIPELINE:** V8 Engine Protocol + ${qToken}\n**FORMAT:** ${baseAR}`;
+
+  return { single: singlePremium, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
+};
+// KRAJ FUNKCIJE: generatePrompts
 
 
 // ============================================================================
 // GIGANTSKI NIZOVI PODATAKA (NETAKNUTI)
 // ============================================================================
+
+export const getRandomDicePrompt = () => DICE_PROMPTS[Math.floor(Math.random() * DICE_PROMPTS.length)];
 
 export const DICE_PROMPTS = [
   "A neon glowing samurai sword in a dark rainy cyberpunk city", 
@@ -1424,7 +1652,7 @@ export const DICE_PROMPTS = [
   "A wild horse running across prairie",
   "A seal diving into cold water",
   "A sea otter floating on ocean waves",
-  "A walrus standing on ice shelf",
+  "A walrus standing on ice cliff",
   "A whale swimming through blue ocean",
   "A dolphin jumping across waves",
   "A shark gliding silently underwater",
@@ -1720,951 +1948,3 @@ export const DICE_PROMPTS = [
   "A glowing jellyfish drifting through dark waters",
   "A massive humpback whale gliding beneath waves"
 ];
-
-export const ABSTRACT_AI_IMAGE_COMBINATIONS = [
-  "Sony A1 + 50mm f/1.2 × quantum_glow_render × liquid fractal bloom × volumetric_light_diffusion × infinite mist chamber",
-  "Sony A1 + 35mm f/1.4 × spectral_diffusion_field × prism ribbon vortex × chromatic_aberration_layers × vapor basin horizon",
-  "Sony A1 + 85mm f/1.4 × ultra_chromatic_bloom × molten color spirals × micro_particle_refraction × glass fractal valley",
-  "Sony A1 + 24mm f/1.8 × prism_light_cascade × luminous particle ocean × spectral_color_scattering × cosmic gradient atmosphere",
-  "Sony A1 + 16mm f/2.8 × holographic_diffusion × floating spectrum clouds × optical_wave_distortion × aurora cloud field",
-  "Canon EOS R5 + 85mm f/1.2 × hyper_color_fusion × molten geometry field × fluid_simulation_render × crystal dome environment",
-  "Canon EOS R5 + 50mm f/1.2 × nano_glow_particles × liquid mirror waves × reflective_surface_mapping × prism cavern chamber",
-  "Canon EOS R5 + 35mm f/1.4 × prism_diffraction_engine × pigment splash currents × multi_layer_reflection × chromatic void basin",
-  "Canon EOS R5 + 24mm f/1.8 × spectral_diffusion_fog × flowing ribbon currents × optical_depth_blending × vapor plateau field",
-  "Canon EOS R5 + 16mm f/2.8 × fractal_bloom_expansion × spiral geometry currents × volumetric_color_field × mineral mist valley",
-  "Nikon Z9 + 105mm f/1.4 × nano_crystal_diffusion × glowing fiber mesh × micro_light_refraction × crystal cloud atmosphere",
-  "Nikon Z9 + 85mm f/1.4 × ultra_depth_fractal × liquid nebula folds × multi_spectrum_render × cosmic crystal basin",
-  "Nikon Z9 + 50mm f/1.2 × hyper_light_trails × radiant geometry burst × light_wave_interference × infinite gradient expanse",
-  "Nikon Z9 + 35mm f/1.4 × spectral_energy_swirl × pigment particle rain × volumetric_particle_field × abstract storm plateau",
-  "Nikon Z9 + 24mm f/1.8 × holographic_plasma × spectrum wave currents × optical_wave_layering × glowing horizon fog",
-  "Leica SL2-S + Summilux 50mm × ultra_micro_glow × liquid color ribbons × reflective_glass_render × chromatic glass fog",
-  "Leica SL2-S + Summilux 35mm × spectral_prism_flow × vortex bloom currents × spectral_dispersion_render × prism mist valley",
-  "Leica SL2-S + Summilux 75mm × chromatic_light_burst × infinite fractal mesh × optical_field_layering × cosmic light ocean",
-  "Leica SL2-S + APO 90mm × nano_reflection_grid × luminous wave storm × reflective_particle_engine × atmospheric vapor sky",
-  "Leica SL2-S + Elmarit 28mm × prism_flare_diffusion × abstract fog currents × light_dispersion_matrix × horizon glow chamber",
-  "Hasselblad X2D 100C + 80mm × ultra_detail_fractal × molten color spirals × micro_structure_render × prism chamber field",
-  "Hasselblad X2D 100C + 55mm × spectral_diffusion_bloom × radiant crystal mist × volumetric_scattering_model × glass valley basin",
-  "Hasselblad X2D 100C + 90mm × hyper_glow_reflections × liquid prism folds × reflective_surface_simulation × mineral chamber void",
-  "Hasselblad X2D 100C + 38mm × chromatic_plasma_swirl × luminous geometry rain × multi_wave_interference × fluid ocean field",
-  "Hasselblad X2D 100C + 21mm × holographic_bloom_engine × fractal storm currents × volumetric_light_engine × cosmic prism mist",
-  "RED V-Raptor 8K + 50mm cine × cinematic_fractal_motion × glowing energy vortex × temporal_light_blending × mist dome field",
-  "RED V-Raptor 8K + 35mm cine × ultra_plasma_diffusion × radiant wave collapse × volumetric_particle_interference × atmospheric storm basin",
-  "RED V-Raptor 8K + 24mm cine × spectral_lens_energy × particle burst cluster × optical_energy_mapping × cosmic vapor clouds",
-  "RED V-Raptor 8K + 85mm cine × hyper_prism_distortion × liquid galaxy bloom × reflective_fluid_engine × chromatic plasma sky",
-  "RED V-Raptor 8K + 16mm cine × chromatic_vortex_engine × abstract light storm × volumetric_wave_field × infinite prism expanse",
-  "ARRI Alexa 35 + Master Prime 50mm × filmic_glow_diffusion × cosmic ribbon flow × cinematic_particle_field × gradient mist basin",
-  "ARRI Alexa 35 + Master Prime 35mm × spectral_flare_bloom × molten glass waves × reflective_glass_diffusion × chromatic energy sea",
-  "ARRI Alexa 35 + Master Prime 85mm × ultra_depth_prism × fractal color vortex × volumetric_depth_render × prism valley horizon",
-  "ARRI Alexa 35 + Master Prime 24mm × cinematic_particle_diffusion × fractal mist currents × layered_light_scattering × abstract light ocean",
-  "ARRI Alexa 35 + Master Prime 16mm × chromatic_energy_burst × radiant abstract storm × energy_wave_interference × vapor dome field",
-  "Blackmagic 6K Pro + Sigma 35mm × hyper_bloom_diffusion × liquid fractal ribbons × multi_layer_refraction × cloud chamber void",
-  "Blackmagic 6K Pro + Sigma 50mm × spectral_wave_distortion × particle rain field × volumetric_particle_render × spectrum sky basin",
-  "Blackmagic 6K Pro + Sigma 85mm × prism_vortex_engine × molten geometry layers × reflective_geometry_engine × fractal mist plateau",
-  "Blackmagic 6K Pro + Sigma 24mm × holographic_particle_flow × swirling fluid currents × fluid_simulation_render × gradient plasma fog",
-  "Blackmagic 6K Pro + Sigma 16mm × chromatic_plasma_burst × infinite fractal space × optical_wave_interference × color horizon field",
-  "Sony A7R V + 50mm GM × nano_glow_fractals × luminous abstract currents × volumetric_particle_light × plasma valley basin",
-  "Sony A7R V + 35mm GM × spectral_light_ribbons × glass prism vortex × reflective_prism_render × chromatic light ocean",
-  "Sony A7R V + 85mm GM × hyper_color_explosion × liquid nebula storm × fluid_particle_simulation × cosmic spectrum mist",
-  "Sony A7R V + 24mm GM × ultra_prism_bloom × radiant particle ocean × spectral_light_dispersion × vapor field horizon",
-  "Sony A7R V + 16mm GM × chromatic_fractal_engine × floating spectrum clouds × volumetric_wave_model × mist layer plateau",
-  "Panavision DXL2 + Primo 50mm × cinematic_spectral_bloom × radiant vortex layers × filmic_light_scatter × plasma dome environment",
-  "Panavision DXL2 + Primo 35mm × ultra_glow_fractal_mesh × cosmic light rain × reflective_particle_dispersion × prism horizon basin",
-  "Panavision DXL2 + Primo 75mm × prism_distortion_waves × molten color ribbons × fluid_wave_render × gradient expanse field",
-  "Panavision DXL2 + Primo 24mm × chromatic_particle_storm × holographic fractal fog × volumetric_light_blending × cosmic chamber basin",
-  "Panavision DXL2 + Primo 14mm × hyper_diffusion_engine × abstract energy storm × optical_energy_dispersion × atmospheric sky field",
-  "Phase One XF IQ4 + 80mm × ultra_detail_prism_bloom × glass nebula ribbons × micro_reflection_render × void horizon plateau",
-  "Phase One XF IQ4 + 55mm × spectral_glow_particles × luminous vortex storm × volumetric_particle_engine × plasma chamber basin",
-  "Phase One XF IQ4 + 110mm × hyper_color_diffusion × fractal mirror waves × reflective_surface_model × spectrum valley field",
-  "Phase One XF IQ4 + 35mm × chromatic_liquid_geometry × fluid cloud structures × fluid_render_engine × gradient dome plateau",
-  "Phase One XF IQ4 + 28mm × holographic_spectrum_mesh × radiant fractal rain × spectral_particle_simulation × prism sky basin",
-  "Fujifilm GFX100 II + 80mm × nano_prism_diffusion × glowing fractal bloom × volumetric_light_dispersion × chromatic light field",
-  "Fujifilm GFX100 II + 63mm × spectral_energy_waves × geometry storm currents × optical_wave_field × vapor cloud horizon",
-  "Fujifilm GFX100 II + 110mm × hyper_chromatic_glow × molten abstract ribbons × reflective_fluid_mapping × prism valley plateau",
-  "Fujifilm GFX100 II + 45mm × holographic_diffusion_field × cosmic prism fog × volumetric_light_layering × energy horizon basin",
-  "Fujifilm GFX100 II + 32mm × prism_particle_explosion × infinite fractal vortex × multi_wave_particle_render × plasma mist plateau",
-  "DJI Inspire 3 + Zenmuse X9 × aerial_fractal_diffusion × glowing color vortex × atmospheric_light_scattering × cosmic sky chamber",
-  "DJI Inspire 3 + Zenmuse X9 × spectral_cloud_formations × holographic energy waves × volumetric_cloud_render × gradient horizon field",
-  "DJI Inspire 3 + Zenmuse X9 × hyper_prism_glow × abstract particle storm × optical_particle_dispersion × vapor ocean basin",
-  "DJI Inspire 3 + Zenmuse X9 × chromatic_plasma_ribbons × infinite color spiral × wave_interference_render × prism sky plateau",
-  "DJI Inspire 3 + Zenmuse X9 × luminous_geometry_rain × cosmic fractal bloom × volumetric_light_matrix × mist dome environment"
-];
-
-export const ABSTRACT_META_TOKENS = [
-  "surreal fluid art", 
-  "vivid masterpiece",
-  "abstract_visual_structure",
-  "abstract_form_language",
-  "abstract_composition_flow",
-  "abstract_spatial_geometry",
-  "abstract_visual_balance",
-  "fluid_abstract_forms",
-  "organic_abstract_shapes",
-  "dynamic_abstract_patterns",
-  "generative_abstract_geometry",
-  "fractured_abstract_planes",
-  "geometric_abstraction",
-  "sacred_geometry_patterns",
-  "polygonal_structure",
-  "crystalline_geometry",
-  "symmetrical_geometry",
-  "asymmetrical_composition",
-  "chaotic_structure",
-  "randomized_form_patterns",
-  "fragmented_geometry",
-  "layered_geometric_planes",
-  "flowing_energy_patterns",
-  "liquid_abstract_motion",
-  "fluid_particle_flow",
-  "dynamic_wave_forms",
-  "abstract_energy_stream",
-  "vortex_energy_field",
-  "spiral_structure",
-  "swirling_visual_flow",
-  "rotational_energy_patterns",
-  "concentric_wave_forms",
-  "fractal_patterns",
-  "recursive_geometry",
-  "infinite_pattern_structures",
-  "fractal_energy_field",
-  "self_similar_geometry",
-  "prismatic_light_patterns",
-  "color_wave_patterns",
-  "chromatic_energy_flow",
-  "spectral_color_fields",
-  "gradient_color_planes",
-  "iridescent_surface_forms",
-  "holographic_color_fields",
-  "prismatic_reflection_patterns",
-  "light_diffraction_patterns",
-  "optical_interference_fields",
-  "glowing_energy_forms",
-  "radiant_energy_core",
-  "luminous_particle_cloud",
-  "ambient_energy_field",
-  "light_emission_patterns",
-  "particle_swarm_geometry",
-  "floating_particle_clusters",
-  "micro_particle_streams",
-  "particle_wave_patterns",
-  "particle_field_structure",
-  "cosmic_abstract_forms",
-  "nebula_like_structures",
-  "cosmic_energy_stream",
-  "stellar_particle_flow",
-  "galactic_wave_patterns",
-  "dimensional_layering",
-  "multi_layered_structure",
-  "depth_layer_abstraction",
-  "spatial_dimension_shift",
-  "visual_dimension_overlap",
-  "temporal_flow_abstraction",
-  "motion_trail_patterns",
-  "energy_wave_distortion",
-  "time_distortion_visuals",
-  "dynamic_spatial_flow",
-  "minimalist_abstraction",
-  "clean_geometric_planes",
-  "balanced_visual_void",
-  "negative_space_structure",
-  "minimal_form_language",
-  "surreal_abstract_forms",
-  "dreamlike_structure",
-  "impossible_geometry",
-  "non_euclidean_shapes",
-  "conceptual_visual_forms",
-  "experimental_visual_forms",
-  "avant_garde_structure",
-  "conceptual_art_forms",
-  "visual_thought_patterns",
-  "imaginative_geometry",
-  "generative_ai_abstraction",
-  "algorithmic_form_generation",
-  "procedural_pattern_fields",
-  "computational_geometry",
-  "synthetic_visual_forms",
-  "ultra_abstract_complexity",
-  "hyper_abstract_structure",
-  "extreme_geometric_detail",
-  "maximum_pattern_density",
-  "abstract_master_composition"
-];
-  
-export const ENV_TOKENS = [
-  "ancient_forest",
-  "misty_pine_valley",
-  "snow_covered_mountains",
-  "foggy_highland_ridge",
-  "desert_dune_ocean",
-  "volcanic_lava_field",
-  "lush_rainforest_floor",
-  "emerald_jungle_canopy",
-  "rocky_canyon_depths",
-  "hidden_waterfall_gorge",
-  "tropical_island_coast",
-  "stormy_ocean_cliffs",
-  "crystal_lake_reflection",
-  "glacial_ice_plain",
-  "vast_savanna_field",
-  "golden_hour_meadow",
-  "morning_mountain_mist",
-  "twilight_valley_glow",
-  "moonlit_forest_path",
-  "aurora_skylandscape",
-  "soft_sunbeam_forest",
-  "cloud_sea_over_peaks",
-  "heavy_thunderstorm_sky",
-  "wind_swept_highlands",
-  "rain_drenched_jungle",
-  "deep_ocean_abyss",
-  "coral_reef_garden",
-  "sunlit_shallow_lagoon",
-  "underwater_cave_system",
-  "submerged_shipwreck",
-  "kelp_forest_depths",
-  "bioluminescent_ocean",
-  "abyssal_trench_void",
-  "underwater_ruins",
-  "floating_plankton_field",
-  "modern_city_skyline",
-  "busy_downtown_street",
-  "abandoned_industrial_zone",
-  "rooftop_city_view",
-  "night_market_district",
-  "urban_subway_platform",
-  "highrise_office_district",
-  "old_european_street",
-  "city_bridge_crossing",
-  "harbor_dockyard",
-  "luxury_marble_hall",
-  "grand_palace_corridor",
-  "vintage_library_room",
-  "old_oxford_study",
-  "underground_bunker_room",
-  "industrial_factory_floor",
-  "abandoned_warehouse",
-  "futuristic_control_room",
-  "museum_exhibition_hall",
-  "dimly_lit_corridor",
-  "arctic_blizzard_field",
-  "sandstorm_desert",
-  "lava_river_cavern",
-  "frozen_glacier_crack",
-  "high_altitude_peak",
-  "toxic_swamp_marsh",
-  "dust_storm_wasteland",
-  "ash_filled_volcanic_air",
-  "polar_night_landscape"
-];export const CINEMATIC_TOKENS = [
-  "Cinematic_master_frame",
-  "Epic_scale_visual",
-  "Grand_visual_composition",
-  "Ultra_cinematic_depth",
-  "Wide_storytelling_frame",
-  "Dramatic_scene_balance",
-  "Narrative_visual_focus",
-  "Cinematic_tone_control",
-  "Epic_background_layers",
-  "Deep_scene_perspective",
-  "Film_scene_composition",
-  "Hollywood_visual_balance",
-  "Cinematic_frame_priority",
-  "Epic_environment_scale",
-  "Ultra_storytelling_frame",
-  "Cinematic_scene_weight",
-  "Visual_layer_story",
-  "Scene_focus_direction",
-  "Cinematic_mood_structure",
-  "Epic_visual_flow",
-  "Film_contrast_balance",
-  "Cinematic_highlight_rolloff",
-  "Deep_shadow_cinema",
-  "Rim_light_cinematic",
-  "Volumetric_scene_lighting",
-  "Ambient_cinema_light",
-  "Atmospheric_scene_depth",
-  "Cinematic_color_grading",
-  "Analog_film_texture",
-  "Organic_film_grain",
-  "Film_density_balance",
-  "Cinema_dynamic_range",
-  "Film_visual_structure",
-  "Cinematic_scene_atmosphere",
-  "Epic_scene_mood",
-  "Narrative_visual_layers",
-  "Cinematic_scene_texture",
-  "Film_light_diffusion",
-  "Cinematic_scene_energy",
-  "Epic_visual_intensity",
-  "Wide_frame_perspective",
-  "Deep_visual_layers",
-  "Cinema_frame_structure",
-  "Scene_visual_weight",
-  "Film_highlight_response",
-  "Cinematic_color_balance",
-  "Film_tone_mapping",
-  "Epic_story_frame",
-  "Cinema_visual_identity",
-  "Dramatic_light_structure",
-  "Cinematic_shadow_depth",
-  "Wide_environment_frame",
-  "Epic_composition_scale",
-  "Film_scene_hierarchy",
-  "Cinema_light_balance",
-  "Narrative_visual_priority",
-  "Atmospheric_light_layers",
-  "Cinematic_light_behavior",
-  "Film_scene_presence",
-  "Cinematic_visual_depth"
-];
-export const PHYSICS_TOKENS = [
-  "Global_illumination_bounce",
-  "Indirect_light_scatter",
-  "Physically_correct_reflection",
-  "Light_energy_balance",
-  "Surface_light_response",
-  "Photon_bounce_simulation",
-  "Radiance_transfer_model",
-  "Energy_conserving_lighting",
-  "Material_light_interaction",
-  "Light_transport_accuracy",
-  "Volumetric_light_rays",
-  "Atmospheric_light_scatter",
-  "Air_particle_scatter",
-  "Mist_light_diffusion",
-  "Fog_light_interaction",
-  "Atmospheric_depth_layers",
-  "Dust_light_particles",
-  "Air_density_lighting",
-  "Light_beam_diffusion",
-  "Atmospheric_energy_balance",
-  "True_reflection_physics",
-  "Specular_reflection_model",
-  "Surface_reflectance_balance",
-  "Reflective_energy_response",
-  "Material_photon_response",
-  "Surface_energy_transfer",
-  "Light_surface_interaction",
-  "Reflective_surface_physics",
-  "Material_reflection_model",
-  "Surface_photon_behavior",
-  "Subsurface_scattering_skin",
-  "Organic_light_penetration",
-  "Skin_light_diffusion",
-  "Bio_surface_scatter",
-  "Light_penetration_depth",
-  "Subdermal_light_layers",
-  "Organic_surface_diffusion",
-  "Biological_light_response",
-  "Translucent_material_physics",
-  "Skin_photon_transport",
-  "Fluid_light_interaction",
-  "Water_surface_reflection",
-  "Liquid_refraction_behavior",
-  "Fluid_particle_scatter",
-  "Surface_wave_physics",
-  "Liquid_depth_transparency",
-  "Fluid_energy_response",
-  "Water_light_diffusion",
-  "Surface_wave_refraction",
-  "Liquid_photon_interaction",
-  "Surface_energy_distribution",
-  "Real_world_light_physics",
-  "Material_radiance_balance",
-  "Surface_reflection_accuracy",
-  "Light_scatter_distribution",
-  "Natural_light_diffusion",
-  "Surface_optical_behavior",
-  "Physical_light_decay",
-  "True_environment_light",
-  "Natural_photon_response"
-];
-export const OPTICS_TOKENS = [
-  "Lens_signature_depth",
-  "Ultra_optical_clarity",
-  "Precision_lens_render",
-  "True_optical_character",
-  "Lens_micro_contrast",
-  "Edge_sharpness_profile",
-  "Optical_field_balance",
-  "Lens_depth_signature",
-  "Optical_focus_precision",
-  "True_lens_response",
-  "Chromatic_aberration_controlled",
-  "Lens_dispersion_effect",
-  "Optical_edge_falloff",
-  "Subtle_color_fringe",
-  "Lens_glass_behavior",
-  "Edge_light_diffusion",
-  "Optical_refraction_detail",
-  "Glass_surface_response",
-  "Lens_dispersion_real",
-  "Optical_color_split",
-  "Lens_breathing_effect",
-  "Focus_transition_curve",
-  "Depth_transition_soft",
-  "Lens_focus_signature",
-  "True_focus_shift",
-  "Focus_field_gradient",
-  "Focus_plane_precision",
-  "Optical_depth_control",
-  "Focus_rolloff_profile",
-  "Lens_focus_behavior",
-  "Wide_angle_distortion",
-  "Barrel_distortion_signature",
-  "Perspective_stretch_subtle",
-  "Wide_lens_geometry",
-  "Ultra_wide_spatial_curve",
-  "Lens_geometry_profile",
-  "Perspective_depth_expansion",
-  "Wide_scene_projection",
-  "Optical_space_curve",
-  "Lens_projection_behavior",
-  "Telephoto_compression",
-  "Spatial_depth_flattening",
-  "Tele_lens_visual_stack",
-  "Distance_compression_effect",
-  "Perspective_layer_stack",
-  "Tele_depth_structure",
-  "Lens_compression_profile",
-  "Spatial_layer_merge",
-  "Depth_layer_compaction",
-  "Tele_visual_density",
-  "Optical_precision_render",
-  "Lens_surface_accuracy",
-  "True_camera_perspective",
-  "Optical_render_balance",
-  "Lens_projection_accuracy",
-  "Focus_plane_behavior",
-  "Optical_signal_precision",
-  "Lens_response_curve",
-  "Optical_visual_depth",
-  "True_lens_geometry"
-];
-export const REALISM_TOKENS = [
-  "Hyperreal_surface_microtexture",
-  "Nano_surface_detail",
-  "Ultra_texture_resolution",
-  "Micro_geometry_variation",
-  "Organic_surface_imperfection",
-  "True_material_structure",
-  "Surface_micro_variation",
-  "Real_world_texture_depth",
-  "Natural_skin_microdetail",
-  "Subsurface_skin_scatter",
-  "Micro_pore_visibility",
-  "Skin_reflectance_balance",
-  "Dermal_light_diffusion",
-  "Micro_shadow_detail",
-  "Fine_surface_grain",
-  "Dust_particle_presence",
-  "Environmental_particle_layer",
-  "Floating_micro_debris",
-  "Airborne_particle_visibility",
-  "Natural_surface_aging",
-  "Edge_wear_detail",
-  "Material_weathering_pattern",
-  "Real_world_surface_wear",
-  "Surface_time_signature",
-  "Natural_object_weight",
-  "Mass_distribution_physics",
-  "Gravity_response_detail",
-  "Structural_balance_physics",
-  "True_material_density",
-  "Object_physical_presence",
-  "Surface_micro_scratches",
-  "Natural_texture_noise",
-  "Organic_pattern_variation",
-  "Realistic_surface_scatter",
-  "Material_micro_roughness",
-  "Ambient_surface_particles",
-  "Fine_detail_render",
-  "Micro_surface_shadowing",
-  "Natural_material_layering",
-  "Realistic_object_structure",
-  "Surface_detail_precision",
-  "Physical_material_behavior",
-  "True_environment_interaction",
-  "Realistic_depth_layers",
-  "Natural_visual_variation",
-  "Microstructure_detail",
-  "Material_surface_complexity",
-  "Natural_texture_irregularity",
-  "Surface_density_detail",
-  "True_visual_microdepth",
-  "Organic_texture_balance",
-  "Realistic_surface_detail",
-  "Natural_material_behavior",
-  "Surface_microcontrast",
-  "True_real_world_detail",
-  "Material_surface_response",
-  "Micro_detail_layering",
-  "Natural_surface_complexity",
-  "Object_material_accuracy",
-  "Realistic_visual_presence"
-];
-export const AI_RENDER_TOKENS = [
-  "NanoDetail_8K",
-  "UltraRender_Engine_v5",
-  "AI_HyperResolution",
-  "DeepPixel_Reconstruction",
-  "NeuralDetail_Enhancer",
-  "AI_Texture_Amplifier",
-  "AI_SuperSampling",
-  "NeuralStructure_Preservation",
-  "AI_Sharpness_Boost",
-  "DeepDetail_Reconstruction",
-  "HDR_vision_fusion_v5",
-  "UltraDynamicRange_AI",
-  "AdaptiveExposure_AI",
-  "HighlightRecovery_AI",
-  "ShadowDetailEnhancer",
-  "NeuralDynamicBalance",
-  "HDR_PixelFusion",
-  "AI_LuminanceOptimizer",
-  "HighDynamicTone",
-  "NeuralHighlightControl",
-  "RAW_grain_lite",
-  "SensorNoise_Simulation",
-  "AnalogSensor_Profile",
-  "DigitalSensor_Response",
-  "AI_NoisePattern_Control",
-  "SensorReadout_Emulation",
-  "NoiseTexture_Realism",
-  "CameraSensorSignature",
-  "DigitalGrainSimulation",
-  "SensorDynamicNoise",
-  "ACEScg_color_pipeline",
-  "CinemaColor_Grading",
-  "TrueColor_Spectrum",
-  "AI_ColorPrecision",
-  "SpectralColorMapping",
-  "DeepColorProfile",
-  "CinemaGrade_ColorScience",
-  "AI_ColorBalanceMaster",
-  "SpectralLightMapping",
-  "TrueColorDynamics",
-  "AI_Physics_Render",
-  "NeuralLightTransport",
-  "AI_GlobalIllumination",
-  "DeepSceneSimulation",
-  "NeuralMaterialResponse",
-  "AI_PhotonTracing",
-  "AI_SurfaceModel",
-  "NeuralOpticsRender",
-  "AI_RealitySimulation",
-  "DeepVisualPhysics",
-  "AI_RenderPipeline",
-  "NeuralRenderBalance",
-  "AI_TextureStability",
-  "DeepImageRefinement",
-  "AI_DetailConsistency",
-  "NeuralFrameEnhancer",
-  "AI_RenderStabilization",
-  "DeepSceneOptimizer",
-  "AI_ImagePrecision",
-  "NeuralVisualEnhancement"
-];
-
-export const CAMERA_TOKENS = [
-  "Canon EOS R5", "Sony A7R IV", "ARRI Alexa 65", "RED Monstro 8K", "Fujifilm GFX 100", "Nikon Z9",
-  "Hasselblad X2D 100C", "Phase One XF IQ4 150MP", "Leica M11", "Sony Venice 2 8K", 
-  "Panavision DXL2", "RED V-Raptor XL 8K VV", "IMAX MSM 9802", "Blackmagic URSA Mini Pro 12K", 
-  "DJI Inspire 3", "Leica SL2-S"
-];
-
-export const LENS_TOKENS = [
-  "50mm f/1.2", "85mm f/1.4", "35mm f/1.4", "100mm Macro", "24mm f/1.4", "14mm f/2.8",
-  "Zeiss Master Prime 50mm T1.3", "Cooke S7/i 75mm T2.0", "Leica Noctilux-M 50mm f/0.95", 
-  "Canon RF 85mm f/1.2L USM", "Nikon Z 58mm f/0.95 S Noct", "Panavision Primo 70", 
-  "Hasselblad XCD 80mm f/1.9", "Sigma Cine 24mm T1.5", "Angenieux Optimo Prime"
-];
-
-export const LIGHTING_TOKENS = [
-  "volumetric lighting", "cinematic lighting", "chiaroscuro", "neon glow", "bioluminescent", "soft softbox lighting",
-  "rembrandt lighting", "three-point studio lighting", "golden hour backlight", "blue hour ambient", 
-  "cyberpunk neon rim light", "harsh chiaroscuro", "diffused window softbox", "tungsten practicals", 
-  "HMI fresnel spot", "cinematic teal and orange", "dramatic key light"
-];
-
-export const MODIFIER_TOKENS = [
-  "8k resolution", "hyper-detailed", "photorealistic", "masterpiece", "award-winning", "intricate details", "sharp focus",
-  "16k resolution", "unreal engine 5.3", "megascans", "path-traced", "global illumination", 
-  "subsurface scattering", "pbr textures", "aces color space", "micro-detail", "flawless optics", 
-  "cinematic depth of field", "natural bokeh", "photogrammetry", "zero cgi artifacts"
-];
-
-export const UNIQUE_PHOTOREAL_COMBOS = [
-  "ARRI Alexa 35 + Zeiss Supreme Prime 35mm f/1.5 × UltraDepth_Field • NanoDetail_8K • RAW_grain_lite × atmospheric micro-particles, tactile realism, cinematic optical depth",
-  "RED Raptor V + Leica Summilux-C 50mm T1.4 × SensorBloom_v2 • SkinMicroTexture_v5 • HDR_vision_fusion × hyper-real pores, organic skin scattering, optical contrast",
-  "Sony Venice 2 + Cooke S7/i 75mm T2 × ColorScience_CinemaCore • VolumetricRayTrace • UltraFineShadowMap × luminous dust particles, volumetric air depth",
-  "IMAX MSM 9802 + Panavision C-Series 40mm T2.3 × FilmGrain_TrueIMAX • SpectralLightCapture × colossal cinematic scale, natural optical falloff",
-  "ARRI Alexa Mini LF + Zeiss Master Prime 100mm T1.3 × MicroContrast_Boost • OpticalBokehSignature × crystalline highlights, hyper-real reflections",
-  "RED V-Raptor XL + Sigma Cine FF 24mm T1.5 × UltraSharp_GlobalDetail • EdgeFalloffNatural × spatial realism, lens breathing authenticity",
-  "Sony FX3 + Sony G Master 85mm f/1.4 × SkinPoreAmplifier • DepthCompression_v3 × natural facial microstructure, photonic skin scattering",
-  "Leica SL2-S + Leica APO-Summicron 50mm f/2 × LeicaMicroContrast • OpticalPrecisionDepth × clinical realism, glass-perfect optics",
-  "Canon EOS R5 + RF 28-70mm f/2 × HDRDynamicStack • ColorDepth16bit × ultra clean highlights, natural tonal rolloff",
-  "Nikon Z9 + Nikkor Z 58mm f/0.95 Noct × UltraCreamBokeh • PhotonBloom × ethereal subject isolation",
-  "Phase One XF IQ4 150MP + Schneider Kreuznach 80mm LS × MediumFormatHyperDetail • PixelPrecision × microscopic texture realism",
-  "Hasselblad X2D 100C + XCD 90mm f/2.5 × NordicColorScience × ultra clean medium-format rendering",
-  "Fujifilm GFX100 II + GF 110mm f/2 × FilmSim_NaturalPro × analog tonal softness",
-  "Blackmagic URSA Mini Pro 12K + Zeiss Supreme 65mm × CinemaRAWTexture × high dynamic micro-detail",
-  "Panasonic Lumix S1H + Leica DG Vario-Summilux 25-50mm × NaturalSkinTones_v3 × cinematic color separation",
-  "ARRI Alexa 35 + Cooke Panchro/i Classic 50mm × VintageGlassCharacter × organic lens personality",
-  "RED Komodo X + Laowa 24mm Probe Lens × MacroRealityCapture × hyper-detailed environmental textures",
-  "Sony A1 + Sony 135mm GM × UltraOpticalCompression × perfect subject depth layering",
-  "Canon EOS R3 + RF 85mm f/1.2L × PortraitRealismStack × lifelike skin translucency",
-  "Nikon D850 + Sigma Art 40mm f/1.4 × PrecisionOpticsMode × clinical sharpness",
-  "ARRI Alexa LF + Panavision Primo 70mm × PanavisionColorSignature × cinematic highlight bloom",
-  "RED Raptor V + Zeiss Supreme 21mm × SpatialDepthAnalyzer × immersive environmental realism",
-  "Sony Venice + Fujinon Premista 28-100mm × NaturalLensBreathing × cinematic zoom realism",
-  "Leica M11 + Noctilux 50mm f/0.95 × LeicaGlowSignature × dreamy photoreal light halos",
-  "Hasselblad H6D-400c + HC 100mm × UltraResolutionStack × hyper-micro detail",
-  "DJI Inspire 3 + Zenmuse X9 DL 35mm × AerialScaleCapture × monumental landscape depth",
-  "DJI Mavic 3 Pro + Hasselblad 24mm × AeroSharpness × aerial cinematic realism",
-  "GoPro Hero 12 + Max Lens Mod × ActionDistortionPhysics × immersive POV realism",
-  "RED Raptor XL + Angenieux Optimo 24-290mm × CinemaZoomPrecision × professional zoom optics",
-  "ARRI Alexa 35 + Zeiss Ultra Prime 85mm × UltraDepthCompression × intense portrait depth",
-  "Sony FX6 + Sony G Master 50mm × NaturalMotionRealism × documentary authenticity",
-  "Canon C500 Mark II + CN-E 85mm × CineColorBalance × neutral cinematic palette",
-  "Blackmagic 6K Pro + Sigma Cine 35mm × RAWTextureLayer × high fidelity detail",
-  "Fujifilm X-H2S + XF 56mm f/1.2 × PortraitFilmLook × organic skin tones",
-  "Panasonic GH6 + Leica 42.5mm × HybridCinematicLook × rich contrast",
-  "ARRI Alexa Mini + Master Macro 100mm × MacroHyperReality × extreme surface detail",
-  "RED Helium 8K + Zeiss Supreme 50mm × NanoDetail_8K × photonic realism",
-  "Sony A7S III + Sony 35mm GM × LowLightPhotonCapture × night realism",
-  "Canon EOS R6 + RF 50mm f/1.2 × SkinReflectanceModel × true skin physics",
-  "Nikon Z7 II + Nikkor Z 85mm × MicroContrastEngine × sculpted light",
-  "Leica SL2 + APO-Summicron 75mm × OpticalClarityBoost × clinical image clarity",
-  "Hasselblad X1D II + XCD 80mm × MediumFormatDepth × elegant tonal rendering",
-  "Phase One IQ3 + Schneider 110mm × HyperResolutionCapture × microscopic realism",
-  "DJI Mavic Air 3 + 70mm Tele × AerialDepthCompression × cinematic drone look",
-  "RED Komodo + Sigma Cine 24mm × WideSpatialRealism × immersive perspective",
-  "Sony Venice 2 + Cooke Anamorphic/i 50mm × AnamorphicBloom × horizontal flare signature",
-  "ARRI Alexa LF + Hawk Anamorphic 65mm × CinematicFlarePhysics × epic lens flare",
-  "RED V-Raptor + Atlas Orion 40mm × AnamorphicStretch × filmic distortion realism",
-  "Sony FX9 + Zeiss CP3 85mm × CinematicPortraitMode × hyper natural lighting",
-  "Canon C70 + RF 35mm × DocumentaryNaturalism × realistic lighting physics",
-  "Blackmagic Pocket 4K + Olympus 25mm × IndieFilmTexture × raw organic feel",
-  "Fujifilm GFX50S II + GF 120mm Macro × MacroSkinDetail × tactile textures",
-  "Panasonic S5 II + Sigma 85mm × UltraSkinToneMap × warm portrait realism",
-  "ARRI Alexa 65 + Panavision System 65 50mm × EpicScaleDepth × massive cinematic scale",
-  "RED Monstro 8K + Sigma Cine 50mm × UltraClarityEngine × crystal sharp rendering",
-  "Sony A9 III + Sony 24mm GM × SpeedCaptureReality × frozen motion realism",
-  "Canon 5D Mark IV + EF 50mm × ClassicPhotoRealism × timeless photography",
-  "Nikon D6 + Nikkor 70-200mm × TeleCompressionLook × subject isolation",
-  "Leica Q3 + Summilux 28mm × LeicaStreetRealism × candid photographic authenticity",
-  "Hasselblad H5D + HC 80mm × NordicTonalBalance × elegant color science",
-  "Phase One XF + Schneider 55mm × PixelIntegrityEngine × ultra clean resolution",
-  "DJI Inspire 2 + X7 50mm × AerialFilmLook × cinematic aerial storytelling",
-  "GoPro Hero 11 + UltraWide × ImmersivePOVReality × dynamic environmental depth",
-  "RED Dragon 6K + Zeiss CP2 35mm × CinemaTextureStack × natural film grain",
-  "Sony A7R V + 90mm Macro × MicroTextureAmplifier × extreme surface realism",
-  "Canon EOS R5C + RF 24mm × CinemaHybridMode × high dynamic range detail",
-  "Nikon Z8 + Nikkor Z 50mm × PrecisionColorScience × ultra balanced tones",
-  "Leica M10-R + Summicron 35mm × StreetAuthenticityMode × documentary realism",
-  "ARRI Alexa 35 + Cooke S4 32mm × CookeLookSignature × warm cinematic softness",
-  "RED V-Raptor + Leica Summilux-C 75mm × UltraLensCharacter × organic bokeh",
-  "Sony Venice + Zeiss Supreme 65mm × SpectralHighlightControl × luminous highlights",
-  "Canon C300 Mark III + CN-E 50mm × CineDynamicRange × rich shadow detail",
-  "Blackmagic 12K + Zeiss CP3 21mm × WideCinemaRealism × spatial depth",
-  "Fujifilm X-T5 + XF 33mm × FilmSimulationDepth × nostalgic color tones",
-  "Panasonic GH5 II + Leica 25mm × HybridCinemaLook × crisp cinematic realism",
-  "ARRI Alexa Mini LF + Panavision Primo 50mm × CinematicShadowRoll × elegant lighting",
-  "RED Komodo X + Atlas Mercury 36mm × AnamorphicCinematicMode × stretched cinematic look",
-  "Sony FX3 + Sony 24mm GM × NightPhotonBoost × atmospheric night realism",
-  "Canon EOS R8 + RF 85mm × PortraitLightBalance × studio realism",
-  "Nikon Zf + Voigtländer 50mm × VintageOpticsSignature × analog aesthetic",
-  "Leica SL3 + APO-Summicron 90mm × PrecisionOpticalStack × hyper clean detail",
-  "Hasselblad X2D + XCD 65mm × NordicNaturalColor × refined tones",
-  "Phase One XF IQ4 + Schneider 80mm × PixelDepthEngine × extreme clarity",
-  "DJI Mavic 3 Pro Cine + Hasselblad 24mm × AerialHDRCapture × cinematic skies",
-  "GoPro Hero 12 + Linear Lens × ActionRealismEngine • DynamicMotionPerspective × immersive realism × cinematic_action_frame • motion_energy_blur × mountain_bike_trail",
-  "ARRI Alexa 35 + Zeiss Supreme 50mm × UltraRealismStack × evidence-grade detail",
-  "RED Raptor XL + Cooke S7/i 50mm × CinematicTextureDepth × cinematic realism",
-  "Sony Venice 2 + Panavision Primo 65mm × EpicPortraitMode × monumental portrait realism",
-  "IMAX MSM 9802 + IMAX 80mm × UltraEpicCapture × giant format realism",
-  "ARRI Alexa LF + Zeiss Master Prime 50mm × OpticalPerfectionStack × cinematic clarity",
-  "RED V-Raptor + Sigma Cine 85mm × PortraitHyperDetail × intense subject realism",
-  "Sony A1 + Sony 50mm GM × CrystalSharpnessMode × ultra optical precision",
-  "Canon R5 + RF 85mm f/1.2 × SkinToneSpectralMap × lifelike portrait",
-  "Nikon Z9 + Noct 58mm × PhotonGlowCapture × luminous highlights",
-  "Leica M11 + APO-Summicron 50mm × LeicaPrecisionRender × pure optical realism",
-  "Hasselblad X2D + XCD 90mm × MediumFormatCinematicDepth × elegant depth rendering",
-  "Phase One XF + Schneider 120mm × MacroUltraDetail × tactile realism",
-  "ARRI Alexa 35 + Cooke S7/i 100mm × CinematicPortraitDepth × ultra cinematic realism"
-];
-
-export const THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS = [
-  "perfect optical physics", "subsurface scattering", "micro-texture mapping", 
-  "insane levels of realism", "world-record level of clarity", "path tracing", 
-  "global illumination", "multi-layer refraction", "hyper-detailed geometry",
-  "photographic truth", "physical based rendering", "raw unedited aesthetic", 
-  "ultra-sharp focus", "hyper-realistic textures", "8K-16K resolution", "flawless details",
-  "cinematic depth of field", "unreal engine 5 render", "octane render", "V-Ray", 
-  "volumetric light diffusion", "ray-traced reflections", "hyper-maximalist", 
-  "intricate micro-details", "pore-level skin texture", "retina-display clarity", 
-  "photogrammetry", "nano-level sharpness", "crystalline clarity", "zero CGI artifacts", 
-  "true-to-life lighting", "breathtaking lighting physics", "next-gen realism", 
-  "absolute photographic fidelity", "hyper-focus", "lens flare physics", "chromatic aberration accuracy",
-  "maximum visual fidelity", "beyond real", "god-tier photography", "unprecedented resolution"
-];
-
-export const ADDITIONAL_REALISM_TOKENS = [
-  "National Geographic award winner", "Pulitzer Prize photography", "masterclass in lighting", 
-  "32k uncompressed RAW", "museum-grade print", "breathtaking visual fidelity", 
-  "insanely detailed", "optical perfection", "hyper-maximalist", "true-to-life physics"
-];
-
-export const CINEMATIC_COMBINATIONS = [
-  "ARRI Alexa 35 + Zeiss Supreme Prime 35mm × UltraDepth_Field • NanoDetail_8K × cinematic optical depth × anamorphic_bloom • cinematic_light_wrap × foggy_mountain_pass",
-  "ARRI Alexa 35 + Cooke S7/i 50mm × MicroContrast_Boost • RAW_grain_lite × tactile realism × cinematic_shadow_roll • filmic_motion_blur × ancient_stone_ruins",
-  "RED V-Raptor XL + Leica Summilux-C 75mm × HDR_vision_fusion • SpectralHighlightControl × dramatic contrast × epic_scale_perspective • cinematic_color_grade × desert_canyon_valley",
-  "Sony Venice 2 + Fujinon Premista 28-100mm × ColorScience_CinemaCore • UltraFineShadowMap × atmospheric depth × volumetric_light_rays • cinematic_haze_layer × misty_forest",
-  "IMAX MSM 9802 + Panavision C-Series 40mm × FilmGrain_TrueIMAX • UltraDepthCompression × monumental scale × epic_frame_composition • giant_format_render × frozen_glacier_field",
-  "ARRI Alexa Mini LF + Zeiss Master Prime 100mm × OpticalBokehSignature • NanoSurfaceDetail × cinematic texture × lens_flare_physics • filmic_glow_highlights × moonlit_coastal_cliffs",
-  "RED Raptor V + Sigma Cine 24mm × UltraSharp_GlobalDetail • EdgeFalloffNatural × spatial realism × dynamic_camera_motion • cinematic_light_wrap × urban_rooftop_cityscape",
-  "Sony FX3 + Sony GM 85mm × SkinMicroTexture_v5 • DepthCompression_v3 × portrait realism × cinematic_skin_tone_map • subtle_film_grain × neon_free_night_street",
-  "Leica SL3 + APO-Summicron 50mm × LeicaMicroContrast • OpticalPrecisionDepth × glass-sharp detail × cinematic_soft_highlights • natural_light_balance × marble_palace_hall",
-  "Canon EOS R5C + RF 85mm × SkinReflectanceModel • UltraFineShadowMap × hyper realistic portrait × cinematic_portrait_depth • rim_light_accent × royal_throne_room",
-  "Nikon Z9 + Nikkor Noct 58mm × PhotonBloom • SpectralHighlightControl × glowing highlights × cinematic_night_render • atmospheric_light_scatter × aurora_arctic_plain",
-  "Hasselblad X2D + XCD 90mm × NordicColorScience • MediumFormatDepth × tonal elegance × cinematic_tonal_rolloff • epic_scale_perspective × snow_mountain_peak",
-  "Phase One XF IQ4 + Schneider 80mm × PixelPrecision • MediumFormatHyperDetail × microscopic realism × cinematic_macro_depth • cinematic_light_wrap × crystal_cave",
-  "DJI Inspire 3 + Zenmuse X9 DL 35mm × AerialScaleCapture • AeroSharpness × monumental landscape × epic_aerial_perspective • cinematic_cloud_layers × jungle_valley",
-  "DJI Mavic 3 Pro + Hasselblad 24mm × AeroHDRCapture • HorizonSharpness × panoramic realism × cinematic_aerial_depth • dynamic_cloud_shadows × tropical_island_chain",
-  "ARRI Alexa LF + Panavision Primo 70mm × PanavisionColorSignature • CinematicShadowRoll × filmic contrast × cinematic_master_grade • dramatic_light_direction × medieval_castle_courtyard",
-  "RED Komodo X + Laowa Probe 24mm × MacroRealityCapture • NanoSurfaceDetail × extreme close realism × cinematic_macro_lighting • shallow_focus_plane × mossy_forest_floor",
-  "Sony A7R V + Sony 135mm GM × UltraOpticalCompression • PortraitRealismStack × depth compression × cinematic_portrait_focus • rim_light_highlight × rainy_city_alley",
-  "Canon C500 Mark II + CN-E 50mm × CineDynamicRange • HDRDynamicStack × tonal range × cinematic_dynamic_grade • volumetric_light_rays × cathedral_interior",
-  "Blackmagic URSA 12K + Zeiss Supreme 65mm × CinemaRAWTexture • UltraFineShadowMap × filmic realism × cinematic_light_scatter • atmospheric_depth_layers × canyon_cliff_edge",
-  "Fujifilm GFX100 II + GF 110mm × FilmSim_NaturalPro • DynamicRangeBoost × analog realism × cinematic_color_curve • natural_light_wrap × alpine_lake",
-  "Panasonic Lumix S1H + Leica Summilux 25mm × NaturalSkinTones_v3 • SpectralHighlightControl × realistic skin physics × cinematic_portrait_grade • soft_film_grain × royal_garden",
-  "GoPro Hero 12 + Max Lens Mod × ActionDistortionPhysics • ImmersivePOVReality × immersive action × cinematic_motion_energy • dynamic_motion_blur × waterfall_cliff_edge",
-  "ARRI Alexa 65 + Panavision System 65 50mm × EpicScaleDepth • SpectralLightCapture × ultra epic realism × cinematic_epic_frame • grand_light_beams × colossal_statue_valley",
-  "RED Monstro 8K + Sigma Cine 50mm × UltraClarityEngine • NanoDetail_8K × crystal precision × cinematic_texture_render • subtle_film_grain × ancient_temple_ruins",
-  "Sony A9 III + Sony 24mm GM × SpeedCaptureReality • MotionFreezeStack × frozen action realism × cinematic_dynamic_frame • cinematic_light_wrap × glacier_edge",
-  "Canon 5D Mark IV + EF 50mm × ClassicPhotoRealism • NaturalColorScience × timeless photography × cinematic_color_grade • subtle_lens_flare × cobblestone_street",
-  "Nikon D850 + Sigma Art 40mm × PrecisionOpticsMode • MicroContrast_Boost × crisp clarity × cinematic_shadow_depth • atmospheric_light_scatter × rocky_mountain_pass",
-  "Leica M11 + Summilux 35mm × LeicaStreetRealism • DocumentaryLightBalance × candid realism × cinematic_street_frame • natural_light_wrap × european_city_square",
-  "Hasselblad H6D + HC 100mm × UltraResolutionStack • PixelIntegrityEngine × extreme detail × cinematic_precision_depth • cinematic_light_wrap × frozen_waterfall",
-  "Phase One IQ3 + Schneider 110mm × HyperResolutionCapture • PixelPrecision × hyper clarity × cinematic_tonal_depth • atmospheric_light_haze × ancient_library_hall",
-  "DJI Inspire 2 + X7 50mm × AerialFilmLook • HorizonSharpness × cinematic drone realism × epic_aerial_scale • cinematic_cloud_layers × desert_oasis",
-  "GoPro Hero 11 + UltraWide × ImmersivePOVReality • DynamicMotionPerspective × action immersion × cinematic_energy_frame • motion_blur_depth × cliffside_path",
-  "ARRI Alexa Mini LF + Panavision Primo 50mm × CinematicShadowRoll • UltraFineShadowMap × elegant lighting × cinematic_master_grade • volumetric_light_rays × cathedral_ruins",
-  "RED V-Raptor + Atlas Mercury 36mm × AnamorphicCinematicMode • CinematicFlarePhysics × anamorphic glow × cinematic_frame_composition • horizontal_flare_signature × foggy_bridge",
-  "Sony FX3 + Sony 24mm GM × NightPhotonBoost • SpectralHighlightControl × atmospheric night realism × cinematic_night_render • atmospheric_light_scatter × lantern_forest",
-  "Canon EOS R8 + RF 85mm × PortraitLightBalance • SkinReflectanceModel × studio realism × cinematic_portrait_focus • rim_light_highlight × palace_balcony",
-  "Nikon Zf + Voigtländer 50mm × VintageOpticsSignature • AnalogFilmTexture × vintage realism × cinematic_retro_grade • subtle_film_grain × retro_train_station",
-  "Leica SL3 + APO-Summicron 90mm × PrecisionOpticalStack • OpticalClarityBoost × hyper clean realism × cinematic_portrait_depth • cinematic_light_wrap × marble_hall",
-  "Hasselblad X2D + XCD 65mm × NordicNaturalColor • MediumFormatDepth × refined tones × cinematic_color_curve • soft_light_direction × snowy_forest",
-  "Phase One XF IQ4 + Schneider 120mm × MacroUltraDetail • PixelPrecision × tactile realism × cinematic_macro_lighting • shallow_focus_plane × dew_on_leaves",
-  "DJI Mavic 3 Pro Cine + Hasselblad 24mm × AerialHDRCapture • AeroSharpness × cinematic sky realism × photoreal_sky_texture • atmospheric_cloud_light × fjord_landscape",
-  "GoPro Hero 12 + Linear Lens × ActionRealismEngine • DynamicMotionPerspective × immersive realism × cinematic_action_frame • motion_energy_blur × mountain_bike_trail",
-  "ARRI Alexa 35 + Cooke S7/i 100mm × CinematicPortraitDepth • UltraDepth_Field × portrait cinematic realism × cinematic_skin_tone_map • rim_light_highlight × palace_chamber",
-  "RED Raptor XL + Cooke S7/i 50mm × CinematicTextureDepth • SpectralHighlightControl × cinematic realism × cinematic_master_grade • volumetric_light_rays × canyon_overlook",
-  "Sony Venice 2 + Panavision Primo 65mm × EpicPortraitMode • OpticalPerfectionStack × monumental portrait realism × cinematic_frame_composition • dramatic_light_direction × throne_hall",
-  "IMAX MSM 9802 + IMAX 80mm × UltraEpicCapture • SpectralLightCapture × giant-format realism × cinematic_epic_frame • grand_light_beams × glacier_valley"
-];
-
-export const PHOTOREAL_COMBINATIONS = [
-  "ARRI Alexa 35 + Zeiss Supreme Prime 35mm × NanoDetail_8K • MicroContrast_Boost × tactile surface realism × photoreal_micro_texture • natural_light_physics × snowy_forest",
-  "ARRI Alexa 35 + Zeiss Supreme Prime 50mm × UltraDepth_Field • RAW_grain_lite × optical depth realism × photoreal_skin_detail • sensor_color_accuracy × urban_street",
-  "ARRI Alexa Mini LF + Zeiss Master Prime 100mm × OpticalBokehSignature • NanoSurfaceDetail × extreme texture fidelity × photoreal_fur_render • organic_light_scatter × rocky_mountain_pass",
-  "RED V-Raptor XL + Sigma Cine 24mm × UltraSharp_GlobalDetail • EdgeFalloffNatural × spatial realism × photoreal_shadow_accuracy • atmospheric_particle_detail × desert_dunes",
-  "RED Raptor V + Leica Summilux-C 50mm × HDR_vision_fusion • SkinMicroTexture_v5 × lifelike skin pores × photoreal_skin_reflectance • subsurface_light_scatter × indoor_portrait_room",
-  "Sony Venice 2 + Cooke S7/i 75mm × ColorScience_CinemaCore • UltraFineShadowMap × natural tonal depth × photoreal_color_response • real_world_dynamic_range × misty_forest",
-  "Sony FX3 + Sony GM 85mm × DepthCompression_v3 • SkinMicroTexture_v5 × portrait realism × photoreal_face_geometry • natural_eye_reflection × modern_city_rooftop",
-  "Leica SL3 + APO-Summicron 50mm × LeicaMicroContrast • OpticalPrecisionDepth × glass sharp detail × photoreal_sensor_clarity • natural_tonal_balance × marble_hall",
-  "Canon EOS R5 + RF 85mm f/1.2 × SkinReflectanceModel • HDRDynamicStack × hyper realistic skin × photoreal_light_behavior • accurate_skin_color × royal_garden",
-  "Nikon Z9 + Noct 58mm × PhotonBloom • SpectralHighlightControl × luminous highlights × photoreal_highlight_rolloff • realistic_glass_reflection × aurora_arctic_plain",
-  "Hasselblad X2D 100C + XCD 90mm × NordicColorScience • MediumFormatDepth × tonal elegance × photoreal_medium_format_texture • natural_color_gradation × snow_mountain_peak",
-  "Phase One XF IQ4 150MP + Schneider 80mm × PixelPrecision • MediumFormatHyperDetail × microscopic detail × photoreal_surface_grain • ultra_resolution_render × crystal_cave",
-  "Fujifilm GFX100 II + GF 110mm × FilmSim_NaturalPro • DynamicRangeBoost × analog realism × photoreal_color_transition • natural_shadow_softness × alpine_lake",
-  "Blackmagic URSA 12K + Zeiss Supreme 65mm × CinemaRAWTexture • UltraFineShadowMap × natural film texture × photoreal_shadow_gradation • accurate_light_falloff × canyon_edge",
-  "Panasonic Lumix S1H + Leica 42.5mm × NaturalSkinTones_v3 • SpectralHighlightControl × realistic skin tone × photoreal_color_science • natural_portrait_light × garden_path",
-  "ARRI Alexa LF + Panavision Primo 70mm × PanavisionColorSignature • CinematicShadowRoll × natural cinematic contrast × photoreal_shadow_depth • realistic_light_direction × medieval_castle_courtyard",
-  "RED Komodo X + Laowa Probe 24mm × MacroRealityCapture • NanoSurfaceDetail × macro realism × photoreal_macro_texture • natural_surface_reflection × mossy_forest_floor",
-  "Sony A7R V + Sony 135mm GM × UltraOpticalCompression • PortraitRealismStack × compressed depth realism × photoreal_portrait_skin • natural_depth_transition × rainy_city_alley",
-  "Canon C500 Mark II + CN-E 50mm × CineDynamicRange • HDRDynamicStack × tonal fidelity × photoreal_dynamic_range • realistic_light_balance × cathedral_interior",
-  "Blackmagic Pocket 6K Pro + Sigma Cine 35mm × RAWTextureLayer • MicroContrast_Boost × organic texture × photoreal_sensor_noise • natural_color_render × canyon_cliff",
-  "Fujifilm X-H2S + XF 56mm × PortraitFilmLook • FilmSim_NaturalPro × natural portrait tone × photoreal_skin_detail • organic_light_response × palace_balcony",
-  "Panasonic GH6 + Leica 25mm × HybridCinemaLook • UltraFineShadowMap × crisp realism × photoreal_color_depth • accurate_light_scatter × stone_bridge",
-  "GoPro Hero 12 + Max Lens Mod × ActionDistortionPhysics • ImmersivePOVReality × immersive realism × photoreal_motion_perspective • environmental_light_response × waterfall_cliff",
-  "ARRI Alexa 65 + Panavision System 65 50mm × EpicScaleDepth • SpectralLightCapture × ultra realistic scale × photoreal_environment_depth • natural_light_direction × glacier_valley",
-  "RED Monstro 8K + Sigma Cine 50mm × UltraClarityEngine • NanoDetail_8K × crystal sharp realism × photoreal_texture_accuracy • natural_shadow_softness × ancient_ruins",
-  "Sony A9 III + Sony 24mm GM × SpeedCaptureReality • MotionFreezeStack × frozen motion realism × photoreal_motion_capture • natural_light_motion × glacier_edge",
-  "Canon 5D Mark IV + EF 50mm × ClassicPhotoRealism • NaturalColorScience × timeless photography × photoreal_color_accuracy • realistic_skin_color × cobblestone_street",
-  "Nikon D850 + Sigma Art 40mm × PrecisionOpticsMode • MicroContrast_Boost × crisp clarity × photoreal_surface_detail • natural_light_diffusion × rocky_mountain_pass",
-  "Leica M11 + Summilux 35mm × LeicaStreetRealism • DocumentaryLightBalance × candid realism × photoreal_street_texture • environmental_light_balance × european_square",
-  "Hasselblad H6D + HC 100mm × UltraResolutionStack • PixelIntegrityEngine × extreme detail × photoreal_texture_resolution • realistic_light_depth × frozen_waterfall",
-  "Phase One IQ3 + Schneider 110mm × HyperResolutionCapture • PixelPrecision × hyper clarity × photoreal_resolution_depth • natural_shadow_gradient × ancient_library",
-  "DJI Inspire 3 + Zenmuse X9 DL 35mm × AerialScaleCapture • AeroSharpness × aerial realism × photoreal_landscape_scale • atmospheric_light_scatter × jungle_valley",
-  "DJI Mavic 3 Pro + Hasselblad 24mm × AeroHDRCapture • HorizonSharpness × panoramic realism × photoreal_sky_depth • natural_cloud_shadow × tropical_islands",
-  "GoPro Hero 11 + UltraWide × ImmersivePOVReality • DynamicMotionPerspective × action immersion × photoreal_motion_view • environmental_light_response × cliffside_path",
-  "ARRI Alexa Mini LF + Panavision Primo 50mm × CinematicShadowRoll • UltraFineShadowMap × elegant lighting realism × photoreal_light_gradient • natural_shadow_balance × cathedral_ruins",
-  "RED V-Raptor + Atlas Mercury 36mm × AnamorphicCinematicMode • CinematicFlarePhysics × anamorphic realism × photoreal_light_streaks • environmental_light_diffusion × foggy_bridge",
-  "Sony FX3 + Sony 24mm GM × NightPhotonBoost • SpectralHighlightControl × atmospheric night realism × photoreal_night_light • natural_shadow_depth × lantern_forest",
-  "Canon EOS R8 + RF 85mm × PortraitLightBalance • SkinReflectanceModel × studio realism × photoreal_portrait_light • accurate_skin_reflection × palace_balcony",
-  "Nikon Zf + Voigtländer 50mm × VintageOpticsSignature • AnalogFilmTexture × vintage realism × photoreal_film_texture • natural_light_balance × retro_station",
-  "Leica SL3 + APO-Summicron 90mm × PrecisionOpticalStack • OpticalClarityBoost × hyper clean realism × photoreal_sensor_detail • natural_color_balance × marble_hall",
-  "Hasselblad X2D + XCD 65mm × NordicNaturalColor • MediumFormatDepth × refined tones × photoreal_medium_format_color • natural_light_falloff × snowy_forest",
-  "Phase One XF IQ4 + Schneider 120mm × MacroUltraDetail • PixelPrecision × tactile realism × photoreal_macro_surface • natural_light_reflection × dew_leaves",
-  "DJI Mavic 3 Pro Cine + Hasselblad 24mm × AerialHDRCapture • AeroSharpness × cinematic sky realism × photoreal_sky_texture • atmospheric_cloud_light × fjord_landscape",
-  "GoPro Hero 12 + Linear Lens × ActionRealismEngine • DynamicMotionPerspective × immersive realism × photoreal_motion_perspective • environmental_light_behavior × mountain_trail",
-  "ARRI Alexa 35 + Cooke S7/i 100mm × CinematicPortraitDepth • UltraDepth_Field × portrait realism × photoreal_skin_depth • natural_light_wrap × palace_chamber",
-  "RED Raptor XL + Cooke S7/i 50mm × CinematicTextureDepth • SpectralHighlightControl × cinematic realism × photoreal_surface_texture • environmental_light_depth × canyon_overlook",
-  "Sony Venice 2 + Panavision Primo 65mm × EpicPortraitMode • OpticalPerfectionStack × monumental portrait realism × photoreal_face_detail • natural_light_shadow × throne_hall",
-  "IMAX MSM 9802 + IMAX 80mm × UltraEpicCapture • SpectralLightCapture × giant format realism × photoreal_scale_render • environmental_light_depth × glacier_valley"
-];
-
-const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-// ============================================================================
-// HELPER FUNKCIJE ZA PERFEKTNO PISANJE PROMPTOVA I V8 ENGINE
-// ============================================================================
-
-export const getRandomTokens = (tokensArray, count) => {
-  if (!tokensArray || !Array.isArray(tokensArray) || tokensArray.length === 0) return "";
-  const shuffled = [...tokensArray].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count).join(", ");
-};
-
-// ============================================================================
-// V8 DESCRIPTIVE PROMPT ENGINE v3.0 - UNIVERZALNO I DETALJNO
-// ============================================================================
-export const generateDetailedPrompts = (subject, aspect_ratio) => {
-    if (!subject || subject.trim() === "") return { abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
-    const cleanSubject = subject.trim();
-
-    // Pametna helper funkcija za precizno čupanje niza
-    const getRand = (arr, count = 1) => {
-        if (!arr || arr.length === 0) return "";
-        const shuffled = [...arr].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count).join(", ");
-    };
-
-    // 1. VRHUNSKO APSTRAKTNO REMEK-DELO
-    const absCombo = getRand(ABSTRACT_AI_IMAGE_COMBINATIONS, 1);
-    const absMeta = getRand(ABSTRACT_META_TOKENS, 4);
-    const absRender = getRand(AI_RENDER_TOKENS, 2);
-    const absLight = getRand(LIGHTING_TOKENS, 2);
-    const absMod = getRand(MODIFIER_TOKENS, 2);
-    const abstract_composition = `${cleanSubject}. A breathtaking, surreal abstract masterpiece. Built upon: ${absCombo}. Visual structure defined by: ${absMeta}. Illumination: ${absLight}. Rendered with: ${absRender}. ${absMod}. Pure fluid geometric perfection, intricate multi-layered refraction. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
-
-    // 2. EPSKI HOLIVUDSKI KINEMATOGRAFSKI KADAR
-    const cinCombo = getRand(CINEMATIC_COMBINATIONS, 1);
-    const cinMeta = getRand(CINEMATIC_TOKENS, 3);
-    const cinLight = getRand(LIGHTING_TOKENS, 2);
-    const cinEnv = getRand(ENV_TOKENS, 1);
-    const cinOptics = getRand(OPTICS_TOKENS, 2);
-    const cinMod = getRand(MODIFIER_TOKENS, 2);
-    const cinematic_composition = `A high-octane Hollywood blockbuster cinematic frame capturing ${cleanSubject} frozen in the middle of a highly dynamic, intense action sequence, set against a ${cinEnv}. Master camera setup: ${cinCombo}. Illumination: ${cinLight}. Cinematic protocol: ${cinMeta}. Lens optics: ${cinOptics}. ${cinMod}. Perfect storytelling framing, dramatic tension, kinetic energy, hyper-detailed. Absolutely no text, no watermarks. [Aspect Ratio: ${aspect_ratio}]`;
-
-    // 3. BESPREKORAN NEXT-GEN FOTOREALISTIČNI RENDER
-    const photoCombo = getRand(PHOTOREAL_COMBINATIONS, 1);
-    const physTokens = getRand(PHYSICS_TOKENS, 3);
-    const optTokens = getRand(OPTICS_TOKENS, 2);
-    const realTokens = getRand(REALISM_TOKENS, 3);
-    const photoRender = getRand(AI_RENDER_TOKENS, 2);
-    const photoMod = getRand(MODIFIER_TOKENS, 2);
-    const photoreal_composition = `${cleanSubject}. Flawless next-gen photorealistic render. Capture system: ${photoCombo}. Physical properties: ${physTokens}. Optics: ${optTokens}. Surface realism: ${realTokens}. Render engine: ${photoRender}. ${photoMod}. Uncompromising photographic fidelity, true-to-life material response, real-world texture depth. Absolutely no CGI artifacts, no text. [Aspect Ratio: ${aspect_ratio}]`;
-
-    // 4. NAJUNIKATNIJA FOTOREALISTIČNA SLIKA IKADA
-    // OVO JE SADA APSOLUTNI GIGANT OD PROMPTA (V8 MAXIMUM OVERRIDE PROTOCOL)
-    const uniqCombo = getRand(UNIQUE_PHOTOREAL_COMBOS, 1);
-    const uniqMeta = getRand(THE_MOST_UNIQUE_PHOTOREALISTIC_TOKENS, 6);
-    const uniqAdd = getRand(ADDITIONAL_REALISM_TOKENS, 4);
-    const uniqEnv = getRand(ENV_TOKENS, 3);
-    const uniqPhys = getRand(PHYSICS_TOKENS, 5);
-    const uniqOptics = getRand(OPTICS_TOKENS, 4);
-    const uniqAbs = getRand(ABSTRACT_META_TOKENS, 4);
-    const uniqRender = getRand(AI_RENDER_TOKENS, 4);
-    const uniqLight = getRand(LIGHTING_TOKENS, 4);
-    const uniqMod = getRand(MODIFIER_TOKENS, 5);
-    const uniqCamera = getRand(CAMERA_TOKENS, 1);
-    const uniqLens = getRand(LENS_TOKENS, 1);
-
-    const unique_composition = `/// V8 MAXIMUM OVERRIDE PROTOCOL INITIATED /// A staggering, unprecedented, one-of-a-kind visual paradox that redefines the boundaries of digital art. CORE SUBJECT: ${cleanSubject}. The subject exists in a hyper-detailed, mind-bending surreal juxtaposition, bridging multiple dimensional realities. PRIMARY ENVIRONMENT SCAPE: A seamlessly blended, impossible multi-environment featuring ${uniqEnv}. MASTER CAPTURE SETUP: ${uniqCombo}, additionally reinforced by ${uniqCamera} paired with ${uniqLens}. ILLUMINATION & ATMOSPHERIC PHYSICS: ${uniqLight}, strictly governed by hyper-accurate physical light transport algorithms including ${uniqPhys}. ADVANCED OPTICAL ENGINE: ${uniqOptics}, achieving impossible spatial depth and micro-contrast. CONCEPTUAL ABSTRACTION BLEND: Fusing raw, unfiltered photographic truth with impossible geometric concepts like ${uniqAbs}. NEXT-GEN RENDER PIPELINE: Powered by ${uniqRender}. EXTREME REALISM MODIFIERS: ${uniqMeta}, ${uniqAdd}, ${uniqMod}. This masterpiece must break the boundaries of human imagination while maintaining absolute, uncompromising photographic fidelity, molecular-level texture mapping, and retina-display clarity. Raw unedited aesthetic, true-to-life material response, insanely detailed. Zero CGI artifacts, absolutely no text, no signatures, no watermarks, flawless perfection. [Aspect Ratio: ${aspect_ratio}]`;
-
-    return {
-        abstract: abstract_composition,
-        cinematic: cinematic_composition,
-        photoreal: photoreal_composition,
-        uniquePhoto: unique_composition
-    };
-};
-
-// ============================================================================
-// MAIN GENERATOR
-// ============================================================================
-export const generatePrompts = (customerPrompt, demoPrompt, quality, ar) => {
-  const subject = (customerPrompt || demoPrompt || "").trim();
-  if (!subject) return { single: '', abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
-  
-  const qToken = quality === '4x' ? 'masterpiece, 8k resolution, ultra-detailed' : quality === '2x' ? 'high quality, 4k, detailed' : 'good quality';
-  const baseAR = `${ar.replace(':', ':')} aspect ratio`; 
-
-  const singlePremium = `**CORE SUBJECT:** ${subject}\n**AESTHETIC PROTOCOL:** ${r(['Hyper-Realistic', 'Cinematic Dark', 'Neon Cyberpunk', 'Ethereal Dreamscape'])}\n**CAMERA SYSTEM:** ${r(["Sony A7R V", "Hasselblad H6D-100c", "Canon EOS R5", "Nikon Z9"])} + ${r(["50mm f/1.2", "85mm f/1.4", "35mm f/1.4"])}\n**LIGHTING ENGINE:** ${r(["volumetric lighting", "cinematic lighting", "chiaroscuro"])}\n**RENDER PIPELINE:** V8 Engine Protocol + ${qToken}\n**FORMAT:** ${baseAR}`;
-
-  return { single: singlePremium, abstract: '', cinematic: '', photoreal: '', uniquePhoto: '' };
-};
-
-// ============================================================================
-// PAMETNI TEKST PARSER ZA SINGLE PRODUCT PAGE OPIS
-// ============================================================================
-export const FormattedDescription = ({ text }) => {
-  if (!text) return null;
-  const cleanText = text.replace(/\[SYS\][\s\S]*?\[\/SYS\]/gi, '');
-  const lines = cleanText.split('\n');
-
-  return (
-    <div className="w-full text-left space-y-3">
-      {lines.map((line, idx) => {
-        const t = line.trim();
-        if (!t) return <div key={idx} className="h-2"></div>;
-
-        if (t.toUpperCase().includes("VALUE MULTIPLIER")) {
-          return (
-            <p key={idx} className="text-orange-500 font-black text-[18px] md:text-[20px] uppercase tracking-widest mt-8 mb-6 leading-relaxed">
-              {t.replace(/\*\*/g, '')}
-            </p>
-          );
-        }
-
-        const isTitle = (t === t.toUpperCase() && /[A-Z]/.test(t) && !t.startsWith('-') && !t.startsWith('*')) || (t.startsWith('**') && t.endsWith('**'));
-        const cleanTitle = t.replace(/\*\*/g, ''); 
-
-        if (isTitle) {
-          return (
-            <h3 key={idx} className="text-[22px] md:text-[28px] font-black text-white uppercase tracking-widest mb-6 mt-12 border-l-[5px] border-orange-500 pl-5 italic text-left leading-tight">
-              {cleanTitle}
-            </h3>
-          );
-        }
-
-        if (t.startsWith('-') || t.startsWith('*') || t.startsWith('•') || t.startsWith('✓')) {
-          const bulletText = t.substring(1).trim().replace(/\*\*/g, ''); 
-          return (
-            <div key={idx} className="flex items-start gap-4 mb-4">
-              <div className="bg-orange-500 rounded-full w-6 h-6 mt-0.5 shrink-0 flex items-center justify-center shadow-[0_0_12px_rgba(249,115,22,0.6)] border-2 border-orange-400">
-                <svg className="w-3.5 h-3.5 text-white font-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <p className="text-white font-bold text-[16px] md:text-[18px] leading-relaxed flex-1 m-0 tracking-wide">
-                {bulletText}
-              </p>
-            </div>
-          );
-        }
-
-        return (
-          <p key={idx} className="text-white font-bold text-[16px] md:text-[18px] leading-relaxed mb-6 tracking-wide">
-            {t.replace(/\*\*/g, '')}
-          </p>
-        );
-      })}
-    </div>
-  );
-};
-
-export const getRandomDicePrompt = () => DICE_PROMPTS[Math.floor(Math.random() * DICE_PROMPTS.length)];

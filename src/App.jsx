@@ -28,7 +28,7 @@ import { useGSAP } from '@gsap/react';
 // FIREBASE
 import { db, auth, provider } from './firebase';
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, getDoc, query, orderBy, limit, addDoc, deleteDoc, doc, setDoc, serverTimestamp, arrayUnion,increment } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, serverTimestamp, query, orderBy, getDocs, where } from 'firebase/firestore';
 import * as data from './data';
 import { UniversalVideoPlayer, MatrixRain, TutorialCard, FormattedDescription, TypewriterText } from './data';
 import mojBaner from './moj-baner.png'; 
@@ -1958,36 +1958,42 @@ const VisitorCounter = () => {
   const [visitorCount, setVisitorCount] = useState(0);
 
   useEffect(() => {
-    const trackVisitor = async () => {
+  const trackVisitor = async () => {
+      // 1. ZID ZA LOCALHOST: Sprečava bilo kakvo trošenje Firebase baze dok kodiraš
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          console.log("V8 Skener: Radimo u lokalu, preskačem brojanje i štedim bazu.");
+          return; // Prekida se sve odmah!
+      }
+
       try {
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipResponse.json();
         const userIP = ipData.ip;
-        
+
         const docRef = doc(db, 'v8_stats', 'visitors');
         const docSnap = await getDoc(docRef);
         let currentCount = 0;
-        
+
         if (docSnap.exists()) {
-          currentCount = docSnap.data().count;
+            currentCount = docSnap.data().count;
         } else {
-          await setDoc(docRef, { count: 0 });
+            await setDoc(docRef, { count: 0 });
         }
 
         const hasCounted = sessionStorage.getItem('v8_counted');
-        
-        // V8 Filter: Ignorišemo tvoj IP (213.196.99.10)
+
+        // 2. TVOJ ZID ZA LIVE SAJT: Ignoriše tvoj IP čak i kad je sajt na pravom domenu
         if (userIP !== '213.196.99.10' && !hasCounted) {
-          await updateDoc(docRef, { count: increment(1) });
-          setVisitorCount(currentCount + 1);
-          sessionStorage.setItem('v8_counted', 'true');
+            await updateDoc(docRef, { count: increment(1) });
+            setVisitorCount(currentCount + 1);
+            sessionStorage.setItem('v8_counted', 'true');
         } else {
-          setVisitorCount(currentCount);
+            setVisitorCount(currentCount);
         }
       } catch (error) {
-        console.error("V8 Skener Greška:", error);
+          console.error("V8 Skener Greška:", error);
       }
-    };
+  };
     trackVisitor();
   }, []);
 
