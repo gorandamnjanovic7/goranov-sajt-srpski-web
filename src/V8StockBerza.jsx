@@ -34,7 +34,7 @@ const V8StockBerza = () => {
   const [noviNaziv, setNoviNaziv] = useState('');
   const [noviNazivEn, setNoviNazivEn] = useState('');
   const [noviVolume, setNoviVolume] = useState('');
-  const [noviFormat, setNoviFormat] = useState('16:9 (20 SLIKA)'); // VRATIO: POLJE ZA FORMAT
+  const [noviFormat, setNoviFormat] = useState('16:9 (20 SLIKA)');
   const [novaKategorija, setNovaKategorija] = useState(KATEGORIJE[0]);
   const [novaPodkategorija, setNovaPodkategorija] = useState(''); 
   const [novaCena, setNovaCena] = useState('1999');
@@ -60,6 +60,15 @@ const V8StockBerza = () => {
     fetchPaketi();
   }, []);
 
+  // 👇 V8 AUTOMATSKI OPIS 👇
+  useEffect(() => {
+    if (noviFormat === '16:9 (20 SLIKA)') {
+      setNoviOpis("20 PREMIUM AI VIZUALA U ULTRA-ŠIROKOJ 16:9 REZOLUCIJI. Savršeno za desktop prezentacije, Hero sekcije sajtova i video produkciju. V8 kvalitet bez kompromisa.");
+    } else if (noviFormat === 'SVI FORMATI (80 SLIKA)') {
+      setNoviOpis("80 PREMIUM AI VIZUALA U 4 REZOLUCIJE (16:9, 9:16, 1:1, 21:9). Kompletan paket za sve platforme: od Instagram i TikTok Reels-a do premium web dizajna. Ultimativna V8 kolekcija.");
+    }
+  }, [noviFormat]);
+
   const fetchPaketi = async () => {
     try {
       const q = query(collection(db, "v8_stock_paketi"), orderBy("createdAt", "desc"));
@@ -84,19 +93,24 @@ const V8StockBerza = () => {
       } catch (err) { console.error(err); }
   };
 
-  const prijavaIKupovina = async (paket) => {
-      if (currentUser) {
-          snimiKupcaUBazu(currentUser, paket);
-          setShowIpsModal(paket);
-      } else {
-          const provider = new GoogleAuthProvider();
-          try {
-              const result = await signInWithPopup(auth, provider);
-              await snimiKupcaUBazu(result.user, paket);
-              setShowIpsModal(paket); 
-          } catch (error) { alert("Prijava je neophodna za kupovinu."); }
-      }
-  };
+  // --- POČETAK FUNKCIJE: prijavaIKupovina ---
+const prijavaIKupovina = async (paket) => {
+    if (currentUser) {
+        snimiKupcaUBazu(currentUser, paket);
+        setShowIpsModal(paket);
+    } else {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await snimiKupcaUBazu(result.user, paket);
+            setShowIpsModal(paket); 
+        } catch (error) { 
+            // V8 Alert: Prilagođava se jeziku (Engleski za Global, Srpski za Srbiju)
+            alert(isGlobal ? "LOGIN REQUIRED: Please log in with your Gmail account to proceed." : "Prijava preko Gmail-a je neophodna za kupovinu."); 
+        }
+    }
+};
+// --- KRAJ FUNKCIJE: prijavaIKupovina ---
 
   const snimiKupcaUBazu = async (user, paket) => {
       try {
@@ -144,7 +158,7 @@ const V8StockBerza = () => {
         naziv: noviNaziv, 
         nazivEn: noviNazivEn, 
         volume: noviVolume,
-        format: noviFormat, // VRATIO: ČUVANJE FORMATA U BAZU
+        format: noviFormat, 
         kategorija: novaKategorija, podkategorija: novaPodkategorija, 
         cena: novaCena, tip: noviTip, opis: noviOpis, previewUrl: previewUrl,
         zipLink: zipLink, primeri: primeriUrls, updatedAt: serverTimestamp() 
@@ -166,7 +180,7 @@ const V8StockBerza = () => {
     setNoviNaziv(paket.naziv || ''); 
     setNoviNazivEn(paket.nazivEn || ''); 
     setNoviVolume(paket.volume || '');
-    setNoviFormat(paket.format || '16:9 (20 SLIKA)'); // POVLAČENJE FORMATA
+    setNoviFormat(paket.format || '16:9 (20 SLIKA)'); 
     setNovaKategorija(paket.kategorija);
     setNovaPodkategorija(paket.podkategorija || ''); setNovaCena(paket.cena); setNoviTip(paket.tip);
     setNoviOpis(paket.opis); setPreviewUrl(paket.previewUrl); setZipLink(paket.zipLink);
@@ -188,6 +202,17 @@ const V8StockBerza = () => {
 
   const translateV8 = (text) => { if (!isGlobal || !text) return text; return V8_TRANSLATIONS[text] || V8_TRANSLATIONS[text.toUpperCase()] || text; };
 
+  // 👇 V8 HELPER ZA PREVOD OPISA 👇
+  const prevodOpisa = (opis) => {
+    if (!isGlobal || !opis) return opis;
+    const recnik = {
+        "20 PREMIUM AI VIZUALA U ULTRA-ŠIROKOJ 16:9 REZOLUCIJI. Savršeno za desktop prezentacije, Hero sekcije sajtova i video produkciju. V8 kvalitet bez kompromisa.": "PACKAGE CONTENTS: 20 PREMIUM AI VISUALS IN ULTRA-WIDE 16:9. PERFECT FOR WEBSITES AND YT. VALUE OVER €250.",
+        "80 PREMIUM AI VIZUALA U 4 REZOLUCIJE (16:9, 9:16, 1:1, 21:9). Kompletan paket za sve platforme: od Instagram i TikTok Reels-a do premium web dizajna. Ultimativna V8 kolekcija.": "PACKAGE CONTENTS: 80 PREMIUM AI VISUALS IN 4 RESOLUTIONS (16:9, 9:16, 1:1, 21:9). COMPLETE PACKAGE FOR ALL PLATFORMS. THE ULTIMATE V8 COLLECTION."
+    };
+    if (recnik[opis]) return recnik[opis];
+    return translateV8(opis);
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-24 px-6 font-sans text-white text-left">
       <style>{`
@@ -202,19 +227,72 @@ const V8StockBerza = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-center mb-16 mt-4">
             <div className="bg-[#0a0a0a] border border-white/10 p-2 rounded-full flex items-center relative shadow-[0_0_40px_rgba(0,0,0,0.8)]">
-                
-                {/* SRBIJA DUGME */}
                 <button onClick={() => setIsGlobal(false)} className={`px-8 py-3.5 rounded-full font-black text-[11px] uppercase transition-all flex items-center gap-2 z-10 ${!isGlobal ? 'bg-[#FF8C00] text-black shadow-[0_0_20px_rgba(255,140,0,0.6)] scale-105' : 'text-zinc-500 hover:text-white'}`}>
                     <MapPin size={16} /> SRBIJA
                 </button>
-
-                {/* GLOBAL DUGME */}
                 <button onClick={() => setIsGlobal(true)} className={`px-10 py-3.5 rounded-full font-black text-[13px] uppercase tracking-widest transition-all duration-300 flex items-center gap-2 relative overflow-hidden border-2 z-10 ml-2 ${isGlobal ? 'bg-blue-600 text-white border-blue-400 shadow-[0_0_40px_rgba(59,130,246,0.8)] scale-110' : 'bg-blue-900/30 text-blue-400 border-blue-500/50 hover:bg-blue-600 hover:text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] animate-pulse hover:animate-none hover:scale-105'}`}>
                     <Globe size={18} className={isGlobal ? "animate-bounce" : ""} /> GLOBAL (EN) EUR
                 </button>
-                
             </div>
         </div>
+
+        {/* --- POČETAK: V8 ADMIN KOMANDNA TABLA ZA ODOBRENJA --- */}
+        {isAdmin && (
+            <div className="flex justify-center mb-8">
+                <button
+                    onClick={() => {
+                        setShowKlijentiPanel(!showKlijentiPanel);
+                        if (!showKlijentiPanel) fetchKlijenti();
+                    }}
+                    className="bg-zinc-900 border border-[#FF8C00]/50 hover:bg-[#FF8C00] text-[#FF8C00] hover:text-black transition-all px-8 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center gap-2 shadow-[0_0_20px_rgba(255,140,0,0.2)]"
+                >
+                    <Users size={18} />
+                    {showKlijentiPanel ? "ZATVORI ODOBRENJA (NAZAD NA FORMU)" : "KLIJENTI I ODOBRENJA"}
+                </button>
+            </div>
+        )}
+
+        {isAdmin && showKlijentiPanel && (
+            <div className="bg-[#0a0a0a] border-2 border-[#FF8C00] rounded-[2.5rem] p-8 mb-16 shadow-[0_0_40px_rgba(255,140,0,0.15)] max-w-4xl mx-auto">
+                <h2 className="text-xl font-black text-[#FF8C00] uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <ShieldCheck className="w-6 h-6" /> KONTROLA UPLATA
+                </h2>
+                
+                <div className="flex flex-col gap-3">
+                    {klijenti.length === 0 ? (
+                        <div className="text-center py-10 bg-black rounded-2xl border border-white/5">
+                            <p className="text-zinc-500 font-bold uppercase text-sm tracking-widest">Trenutno nema narudžbina u redu čekanja.</p>
+                        </div>
+                    ) : (
+                        klijenti.map(klijent => (
+                            <div key={klijent.id} className="bg-black border border-white/10 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all hover:border-[#FF8C00]/50 hover:shadow-[0_0_15px_rgba(255,140,0,0.2)]">
+                                <div>
+                                    <p className="text-white font-black text-[15px]">{klijent.email}</p>
+                                    <p className="text-zinc-400 text-[11px] uppercase font-bold tracking-wider mt-1">
+                                        Traženi paket: <span className="text-[#FF8C00] ml-1">{klijent.zeliPaket}</span>
+                                    </p>
+                                    <p className="text-zinc-600 text-[10px] font-mono mt-2 font-bold uppercase tracking-widest">
+                                        Datum: {klijent.vreme?.toDate().toLocaleString("sr-RS")}
+                                    </p>
+                                </div>
+                                <div>
+                                    {klijent.isPaid ? (
+                                        <div className="bg-green-900/20 border border-green-500/30 text-green-500 px-6 py-3 rounded-xl font-black text-[11px] uppercase flex items-center gap-2">
+                                            <CheckCircle size={16} /> ODOBRENO
+                                        </div>
+                                    ) : (
+                                        <button onClick={() => otkljucajPaketDirektno(klijent.id)} className="bg-[#FF8C00] hover:bg-orange-500 text-black px-8 py-3 rounded-xl font-black text-[11px] uppercase shadow-[0_0_20px_rgba(255,140,0,0.4)] transition-all flex items-center gap-2 hover:scale-105">
+                                            <Zap size={16} /> KLIKNI DA ODOBRIŠ
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        )}
+        {/* --- KRAJ: V8 ADMIN KOMANDNA TABLA --- */}
 
         {isAdmin && !showKlijentiPanel && (
           <form onSubmit={dodajPaket} className="bg-[#0a0a0a] border-2 border-[#FF8C00]/50 rounded-[2.5rem] p-8 mb-16 shadow-[0_0_30px_rgba(255,140,0,0.1)]">
@@ -233,7 +311,6 @@ const V8StockBerza = () => {
               <input type="text" value={novaCena} onChange={(e)=>setNovaCena(e.target.value)} placeholder="Cena RSD" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white" />
             </div>
 
-            {/* SELEKCIJA FORMATA 20 vs 80 SLIKA */}
             <div className="mb-4 flex flex-col gap-2">
                 <label className="text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">Format Paketa (Rezolucije)</label>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -248,7 +325,6 @@ const V8StockBerza = () => {
                 </div>
             </div>
 
-            {/* VOLUME INPUT */}
             {novaKategorija && (
               <div className="mb-4 flex flex-col gap-2">
                 <label className="text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">Kolekcija (Volume)</label>
@@ -258,7 +334,6 @@ const V8StockBerza = () => {
 
             <input type="url" value={zipLink} onChange={(e)=>setZipLink(e.target.value)} placeholder="Google Drive ZIP Link" className="bg-black border border-blue-500/50 p-4 rounded-xl text-[13px] text-white w-full mb-4 outline-none font-bold" required />
             
-            {/* VIZUELNI PREGLED I DUGMIĆI ZA UPLOAD */}
             <div className="flex flex-col gap-4">
               {(previewUrl || primeriUrls.length > 0) && (
                 <div className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/10 mt-2 mb-2">
@@ -298,23 +373,17 @@ const V8StockBerza = () => {
             <div key={paket.id} className="v8-premium-card group transition-all duration-500 hover:scale-[1.02] shadow-[0_0_30px_rgba(255,140,0,0.15)] flex flex-col">
               <div className="v8-card-content p-5 md:p-6">
                 
-                {/* SLIKA SA V8 RIBONIMA (BEDŽEVIMA) */}
                 <div className="aspect-video relative rounded-2xl overflow-hidden mb-4 bg-black border border-white/5 shadow-inner">
-                  
-                  {/* BEDŽ ZA VOLUME (GORE LEVO) */}
                   {paket.volume && (
                       <div className="absolute top-0 left-0 bg-[#FF8C00] text-black px-3 py-1.5 rounded-br-xl rounded-tl-2xl font-black text-[10px] uppercase tracking-widest z-20 shadow-lg border-b border-r border-[#FF8C00]/50">
                           {paket.volume}
                       </div>
                   )}
-
-                  {/* BEDŽ ZA FORMAT (GORE DESNO) */}
                   {paket.format && (
                       <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md border border-[#FF8C00]/50 text-[#FF8C00] px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-wider z-20">
                           {paket.format}
                       </div>
                   )}
-
                   {paket.previewUrl && paket.previewUrl.match(/\.(mp4|webm|mov)$/i) ? (
                     <video preload="none" src={`${paket.previewUrl}#t=0.001`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-500" muted loop playsInline onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
                   ) : (
@@ -339,15 +408,17 @@ const V8StockBerza = () => {
                   </h3>
                 </div>
                 
-                <p className="text-zinc-400 text-[11px] uppercase font-black mb-6 flex-1 leading-relaxed tracking-wider">
-                    {translateV8(paket.opis)}
+                <p className="text-zinc-400 text-[11px] uppercase font-black mb-6 flex-1 leading-relaxed tracking-wider whitespace-pre-wrap">
+                    {prevodOpisa(paket.opis)}
                 </p>
                 
                 <div className="flex items-center justify-between mt-auto pt-5 border-t border-[#FF8C00]/30">
                   <span className="text-2xl font-black text-white">{isGlobal ? `€${getGlobalCena(paket.cena)}` : `${paket.cena} RSD`}</span>
                   {isAdmin ? (
-                      <a href={paket.zipLink} target="_blank" rel="noopener noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2">PREUZMI <Download className="w-4 h-4" /></a>
-                  ) : (
+    <a href={paket.zipLink} target="_blank" rel="noopener noreferrer" className="bg-green-600 hover:bg-green-500 text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2">
+        {isGlobal ? "DOWNLOAD" : "PREUZMI"} <Download className="w-4 h-4" />
+    </a>
+) : (
                       <button onClick={() => prijavaIKupovina(paket)} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2">{isGlobal ? "BUY NOW" : "Kupi"} <Zap className="w-4 h-4" /></button>
                   )}
                 </div>
@@ -365,23 +436,71 @@ const V8StockBerza = () => {
       </div>
 
       {showIpsModal && (
-        <div className="fixed inset-0 z-[9000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0f1522] rounded-xl max-w-[420px] w-full relative pt-8 pb-10 px-8 border border-white/5 shadow-2xl flex flex-col items-center">
-            <h2 className="text-xl font-black uppercase tracking-widest mb-3 text-white">{isGlobal ? "INTERNATIONAL WIRE" : "IPS UPLATA"}</h2>
-            <p className="text-[12px] text-zinc-300 font-bold uppercase tracking-widest mb-6 text-center">{showIpsModal.naziv}</p>
-            <div className="w-full border border-blue-500/60 rounded-xl p-6 mb-6 bg-[#141b2d] flex flex-col items-center">
+        <div className="fixed inset-0 z-[9000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#050505] rounded-3xl max-w-[420px] w-full relative pt-8 pb-10 px-8 border-2 border-[#FF8C00] shadow-[0_0_50px_rgba(255,140,0,0.2)] flex flex-col items-center">
+            
+            <h2 className="text-2xl font-black uppercase tracking-widest mb-2 text-[#FF8C00]">
+              {isGlobal ? "INTERNATIONAL WIRE" : "IPS UPLATA"}
+            </h2>
+            
+            {/* OVO SADA PIŠE "WATCHES VOL 1" NA ENGLESKOM, A "SATOVI VOL 1" NA SRPSKOM */}
+            <p className="text-[11px] text-zinc-400 font-black uppercase tracking-widest mb-6 text-center">
+              {isGlobal && showIpsModal.nazivEn ? showIpsModal.nazivEn : showIpsModal.naziv} {showIpsModal.volume ? showIpsModal.volume : ''}
+            </p>
+            
+            {/* --- V8 EMAIL UPUTSTVO (JEDAN KOMAD) --- */}
+            {isGlobal && (
+              <div className="w-full mb-6 p-4 bg-[#FF8C00]/10 border border-[#FF8C00]/50 rounded-xl text-center">
+                  <p className="text-[10px] text-zinc-300 font-black uppercase tracking-widest mb-1">
+                      ⚠️ IMPORTANT
+                  </p>
+                  <p className="text-[12px] text-white font-bold mb-1">
+                      Send proof of payment to:
+                  </p>
+                  <p className="text-[16px] text-[#FF8C00] font-black uppercase tracking-wider">
+                      aitoolsprosmart@gmail.com
+                  </p>
+              </div>
+            )}
+            {/* --- KRAJ EMAIL UPUTSTVA --- */}
+           
+            <div className="w-full border border-white/10 rounded-2xl p-6 mb-6 bg-[#0a0a0a] flex flex-col items-center shadow-inner relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FF8C00] to-transparent opacity-50"></div>
+              
               {!isGlobal ? (
-                <div className="bg-white p-2 rounded-lg"><QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${showIpsModal.cena},00|SF:289|S:V8 Paket-${(showIpsModal.naziv || "").substring(0,10)}|RO:V8-PAKET`} size={180} /></div>
+                <div className="bg-white p-3 rounded-xl shadow-[0_0_20px_rgba(255,140,0,0.3)]">
+                  <QRCodeCanvas value={`K:PR|V:01|C:1|R:265000000653577083|N:Goran Damnjanovic|I:RSD${showIpsModal.cena},00|SF:289|S:V8 Paket-${(showIpsModal.naziv || "").substring(0,10)}|RO:V8-PAKET`} size={180} />
+                </div>
               ) : (
-                <div className="w-full text-left text-[11px] uppercase tracking-wider text-zinc-300 space-y-4 font-mono">
-                    <div className="pb-3 border-b border-white/10"><span className="text-zinc-500 block text-[9px] mb-1">RECEIVER</span><strong className="text-white">GORAN DAMNJANOVIĆ</strong></div>
-                    <div className="pb-3 border-b border-white/10"><span className="text-zinc-500 block text-[9px] mb-1">SWIFT</span><strong className="text-blue-400">KOBBRSBG</strong></div>
-                    <div className="pb-3 border-b border-white/10"><span className="text-zinc-500 block text-[9px] mb-1">IBAN</span><strong className="text-blue-400 select-all">RS35205903102884947363</strong></div>
-                    <div className="pt-2 flex justify-between items-center"><span className="text-zinc-500">TOTAL:</span><strong className="text-[#FF8C00] text-[20px]">€{getGlobalCena(showIpsModal.cena)}</strong></div>
+                <div className="w-full text-left text-[12px] uppercase tracking-wider text-zinc-300 space-y-4 font-mono">
+                    <div className="pb-3 border-b border-white/5">
+                        <span className="text-zinc-600 block text-[9px] mb-1 font-sans font-black">BENEFICIARY</span>
+                        <strong className="text-white text-[13px]">GORAN DAMNJANOVIĆ</strong>
+                    </div>
+                    <div className="pb-3 border-b border-white/5">
+                        <span className="text-zinc-600 block text-[9px] mb-1 font-sans font-black">BANK</span>
+                        <strong className="text-zinc-400">KOMERCIJALNA BANKA AD BEOGRAD</strong>
+                    </div>
+                    <div className="pb-3 border-b border-white/5">
+                        <span className="text-zinc-600 block text-[9px] mb-1 font-sans font-black">SWIFT / BIC</span>
+                        <strong className="text-[#FF8C00]">KOBBRSBG</strong>
+                    </div>
+                    <div className="pb-3 border-b border-white/5">
+                        <span className="text-zinc-600 block text-[9px] mb-1 font-sans font-black">IBAN</span>
+                        <strong className="text-[#FF8C00] select-all tracking-widest text-[14px]">RS35205903102884947363</strong>
+                    </div>
+                    <div className="pt-2 flex justify-between items-end">
+                        <span className="text-zinc-600 font-sans font-black text-[10px]">TOTAL:</span>
+                        <strong className="text-white text-[24px] leading-none">€{getGlobalCena(showIpsModal.cena)}</strong>
+                    </div>
                 </div>
               )}
             </div>
-            <button onClick={() => setShowIpsModal(null)} className="absolute top-4 right-4 bg-white/10 p-2 rounded-full text-zinc-400 hover:text-white"><X size={20} /></button>
+            
+            <button onClick={() => setShowIpsModal(null)} className="absolute top-4 right-4 bg-white/5 p-2 rounded-full text-zinc-500 hover:text-[#FF8C00] hover:bg-[#FF8C00]/10 transition-all">
+              <X size={20} strokeWidth={3} />
+            </button>
+            
           </div>
         </div>
       )}
