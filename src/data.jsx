@@ -1948,3 +1948,48 @@ export const DICE_PROMPTS = [
   "A glowing jellyfish drifting through dark waters",
   "A massive humpback whale gliding beneath waves"
 ];
+// OVO IDE U data.jsx
+
+
+
+// KOMPLETAN V8 REČNIK ZA data.jsx (Svih 38 kategorija)
+export const KATEGORIJE_PREVOD = {
+    "CEO, Direktori, Uprava": "CEO, Directors & Board",
+    "Cybersecurity i InfoSec": "Cybersecurity & InfoSec",
+    "Software Inženjering i Data Science": "Software Engineering & Data Science",
+    "Satovi": "Luxury Watches",
+    "Finansije, Kripto i Analitika": "Finance, Crypto & Analytics",
+    "Marketing, PR i Kreativa": "Marketing, PR & Creative",
+    "Ljudski Resursi (HR) i Kultura": "Human Resources & Culture",
+    "Medicina, Farmacija i Biotech": "Medicine, Pharma & Biotech",
+    "Arhitektura, Inženjering i Nekretnine": "Architecture & Real Estate",
+    "Logistika, Supply Chain i E-commerce": "Logistics & E-commerce",
+    "Startup Founderi i Investitori": "Founders & Investors",
+    "Prilagođen dizajn": "Custom Design",
+    "Viral": "Viral Content",
+    "Portretna Fotografija": "Portrait Photography",
+    "Modni Editorijal": "Fashion Editorial",
+    "Luksuzni Lajfstajl": "Luxury Lifestyle",
+    "Reklamiranje Proizvoda": "Product Advertising",
+    "Nekretnine i Enterijeri": "Real Estate & Interiors",
+    "Hrana i Piće": "Food & Drinks",
+    "Arhitektura i Eksterijeri": "Architecture & Exteriors",
+    "Automobili": "Cars & Vehicles",
+    "Superautomobili (Supercars)": "Supercars",
+    "Pogled iz vazduha (Dron)": "Aerial (Drone) View",
+    "Tehnologija i Gedžeti": "Tech & Gadgets",
+    "Lepota i Kozmetika": "Beauty & Cosmetics",
+    "Nakit i Satovi": "Jewelry & Watches",
+    "Podvodni Svet": "Underwater World",
+    "Priroda i Pejzaži": "Nature & Landscapes",
+    "Urbana Ulična Fotografija": "Urban Street Photography",
+    "Filmski Kadrovi": "Cinematic Frames",
+    "Istorijski Realizam": "Historical Realism",
+    "Fantazijski Realizam": "Fantasy Realism",
+    "Sci-Fi Realizam": "Sci-Fi Realism",
+    "Makro i Detalji": "Macro & Details",
+    "Minimalistički Studio": "Minimalist Studio",
+    "Konceptualna Umetnost": "Conceptual Art",
+    "AI Umetnost": "AI Art",
+    "Prilagođeni Stilovi": "Custom Styles"
+};

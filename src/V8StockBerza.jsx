@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users, CheckCircle, Globe, MapPin } from 'lucide-react';
+import { KATEGORIJE, PODKATEGORIJE, OPISI_SABLONI, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_CLOUD_NAME, V8_TRANSLATIONS, KATEGORIJE_PREVOD } from './data';
+import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users, CheckCircle, Globe, MapPin, Type, FileText, Wallet, MonitorPlay, Link, Images } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { db, auth } from './firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { KATEGORIJE, PODKATEGORIJE, OPISI_SABLONI, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_CLOUD_NAME, V8_TRANSLATIONS } from './data'; 
+
 
 const FullScreenLightbox = ({ imageUrl, onClose }) => {
     if (!imageUrl) return null;
@@ -36,6 +37,7 @@ const V8StockBerza = () => {
   const [noviVolume, setNoviVolume] = useState('');
   const [noviFormat, setNoviFormat] = useState('16:9 (20 SLIKA)');
   const [novaKategorija, setNovaKategorija] = useState(KATEGORIJE[0]);
+  const [novaKategorijaEn, setNovaKategorijaEn] = useState(''); // ENG Kategorija
   const [novaPodkategorija, setNovaPodkategorija] = useState(''); 
   const [novaCena, setNovaCena] = useState('1999');
   const [noviTip, setNoviTip] = useState('Slika'); 
@@ -68,7 +70,17 @@ const V8StockBerza = () => {
       setNoviOpis("80 PREMIUM AI VIZUALA U 4 REZOLUCIJE (16:9, 9:16, 1:1, 21:9). Kompletan paket za sve platforme: od Instagram i TikTok Reels-a do premium web dizajna. Ultimativna V8 kolekcija.");
     }
   }, [noviFormat]);
-
+// 👇 V8 AUTOMATSKI PREVOD KATEGORIJE 👇
+  useEffect(() => {
+      if (novaKategorija) {
+          const engleskiPrevod = KATEGORIJE_PREVOD[novaKategorija];
+          if (engleskiPrevod) {
+              setNovaKategorijaEn(engleskiPrevod);
+          } else {
+              setNovaKategorijaEn(novaKategorija); // Ako nema prevoda, ostavlja original da ne bude prazno
+          }
+      }
+  }, [novaKategorija]);
   const fetchPaketi = async () => {
     try {
       const q = query(collection(db, "v8_stock_paketi"), orderBy("createdAt", "desc"));
@@ -94,7 +106,7 @@ const V8StockBerza = () => {
   };
 
   // --- POČETAK FUNKCIJE: prijavaIKupovina ---
-const prijavaIKupovina = async (paket) => {
+  const prijavaIKupovina = async (paket) => {
     if (currentUser) {
         snimiKupcaUBazu(currentUser, paket);
         setShowIpsModal(paket);
@@ -105,12 +117,10 @@ const prijavaIKupovina = async (paket) => {
             await snimiKupcaUBazu(result.user, paket);
             setShowIpsModal(paket); 
         } catch (error) { 
-            // V8 Alert: Prilagođava se jeziku (Engleski za Global, Srpski za Srbiju)
             alert(isGlobal ? "LOGIN REQUIRED: Please log in with your Gmail account to proceed." : "Prijava preko Gmail-a je neophodna za kupovinu."); 
         }
     }
-};
-// --- KRAJ FUNKCIJE: prijavaIKupovina ---
+  };
 
   const snimiKupcaUBazu = async (user, paket) => {
       try {
@@ -151,18 +161,27 @@ const prijavaIKupovina = async (paket) => {
     } catch (err) { alert("Greška kod primera!"); } finally { setIsUploadingPrimer(false); e.target.value = null; }
   };
 
-  const dodajPaket = async (e) => {
+ const dodajPaket = async (e) => {
     e.preventDefault();
     if (!previewUrl || !zipLink) return alert("Preview i ZIP link su obavezni!");
+    
     const paketData = {
         naziv: noviNaziv, 
         nazivEn: noviNazivEn, 
         volume: noviVolume,
         format: noviFormat, 
-        kategorija: novaKategorija, podkategorija: novaPodkategorija, 
-        cena: novaCena, tip: noviTip, opis: noviOpis, previewUrl: previewUrl,
-        zipLink: zipLink, primeri: primeriUrls, updatedAt: serverTimestamp() 
+        kategorija: novaKategorija, 
+        kategorijaEn: novaKategorijaEn, // OVDE JE SADA UBAČEN ZAREZ
+        podkategorija: novaPodkategorija, 
+        cena: novaCena, 
+        tip: noviTip, 
+        opis: noviOpis, 
+        previewUrl: previewUrl,
+        zipLink: zipLink, 
+        primeri: primeriUrls, 
+        updatedAt: serverTimestamp() 
     };
+    
     try {
         if (editingPaketId) {
             await updateDoc(doc(db, "v8_stock_paketi", editingPaketId), paketData);
@@ -181,14 +200,28 @@ const prijavaIKupovina = async (paket) => {
     setNoviNazivEn(paket.nazivEn || ''); 
     setNoviVolume(paket.volume || '');
     setNoviFormat(paket.format || '16:9 (20 SLIKA)'); 
-    setNovaKategorija(paket.kategorija);
-    setNovaPodkategorija(paket.podkategorija || ''); setNovaCena(paket.cena); setNoviTip(paket.tip);
-    setNoviOpis(paket.opis); setPreviewUrl(paket.previewUrl); setZipLink(paket.zipLink);
-    setPrimeriUrls(paket.primeri || []); window.scrollTo({ top: 0, behavior: 'smooth' });
+    setNovaKategorija(paket.kategorija || KATEGORIJE[0]);
+    setNovaKategorijaEn(paket.kategorijaEn || ''); // Povlači ENG kategoriju
+    setNovaPodkategorija(paket.podkategorija || ''); 
+    setNovaCena(paket.cena || '1999'); 
+    setNoviTip(paket.tip || 'Slika');
+    setNoviOpis(paket.opis || ''); 
+    setPreviewUrl(paket.previewUrl || ''); 
+    setZipLink(paket.zipLink || '');
+    setPrimeriUrls(paket.primeri || []); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const stoziEdit = () => {
-    setEditingPaketId(null); setNoviNaziv(''); setNoviNazivEn(''); setNoviVolume(''); setNoviFormat('16:9 (20 SLIKA)'); setPreviewUrl(''); setZipLink(''); setPrimeriUrls([]);
+    setEditingPaketId(null); 
+    setNoviNaziv(''); 
+    setNoviNazivEn(''); 
+    setNoviVolume(''); 
+    setNoviFormat('16:9 (20 SLIKA)'); 
+    setNovaKategorijaEn(''); // Čisti ENG kategoriju
+    setPreviewUrl(''); 
+    setZipLink(''); 
+    setPrimeriUrls([]);
   };
 
   const obrisiPaket = async (id) => {
@@ -296,74 +329,149 @@ const prijavaIKupovina = async (paket) => {
 
         {isAdmin && !showKlijentiPanel && (
           <form onSubmit={dodajPaket} className="bg-[#0a0a0a] border-2 border-[#FF8C00]/50 rounded-[2.5rem] p-8 mb-16 shadow-[0_0_30px_rgba(255,140,0,0.1)]">
-            <h2 className="text-xl font-black text-[#FF8C00] uppercase tracking-widest mb-6 flex items-center gap-2"><Zap className="w-6 h-6" /> {editingPaketId ? 'Izmeni Paket' : 'Dodaj Novi ZIP Paket'}</h2>
+            <h2 className="text-xl font-black text-[#FF8C00] uppercase tracking-widest mb-8 flex items-center gap-2 border-b border-[#FF8C00]/20 pb-4">
+              <Zap className="w-6 h-6" /> {editingPaketId ? 'IZMENI PAKET' : 'DODAJ NOVI ZIP PAKET'}
+            </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input type="text" value={noviNaziv} onChange={(e)=>setNoviNaziv(e.target.value)} placeholder="Naziv Paketa (SRB)" className="bg-black border border-[#FF8C00]/50 p-4 rounded-xl text-[14px] font-black text-white w-full outline-none" required />
-                <input type="text" value={noviNazivEn} onChange={(e)=>setNoviNazivEn(e.target.value)} placeholder="Naziv Paketa (ENG)" className="bg-black border border-blue-500/50 p-4 rounded-xl text-[14px] font-black text-white w-full outline-none" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <textarea value={noviOpis} onChange={(e)=>setNoviOpis(e.target.value)} placeholder="Sadržaj paketa..." rows={3} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white w-full outline-none resize-none" required />
-              <select value={novaKategorija} onChange={(e) => setNovaKategorija(e.target.value)} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white">
-                {KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}
-              </select>
-              <input type="text" value={novaCena} onChange={(e)=>setNovaCena(e.target.value)} placeholder="Cena RSD" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white" />
-            </div>
-
-            <div className="mb-4 flex flex-col gap-2">
-                <label className="text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">Format Paketa (Rezolucije)</label>
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <label className={`cursor-pointer flex-1 p-4 rounded-xl border-2 transition-all text-center font-black text-[12px] uppercase ${noviFormat === '16:9 (20 SLIKA)' ? 'bg-[#FF8C00]/20 border-[#FF8C00] text-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.3)]' : 'bg-black border-white/10 text-zinc-500 hover:border-[#FF8C00]/50 hover:text-white'}`}>
-                        <input type="radio" name="format" value="16:9 (20 SLIKA)" checked={noviFormat === '16:9 (20 SLIKA)'} onChange={(e) => setNoviFormat(e.target.value)} className="hidden" />
-                        Samo 16:9 (20 slika)
+            {/* PRVI RED: Nazivi */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                        <Type size={14} /> NAZIV PAKETA (SRB)
                     </label>
-                    <label className={`cursor-pointer flex-1 p-4 rounded-xl border-2 transition-all text-center font-black text-[12px] uppercase ${noviFormat === 'SVI FORMATI (80 SLIKA)' ? 'bg-[#FF8C00]/20 border-[#FF8C00] text-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.3)]' : 'bg-black border-white/10 text-zinc-500 hover:border-[#FF8C00]/50 hover:text-white'}`}>
-                        <input type="radio" name="format" value="SVI FORMATI (80 SLIKA)" checked={noviFormat === 'SVI FORMATI (80 SLIKA)'} onChange={(e) => setNoviFormat(e.target.value)} className="hidden" />
-                        Svi formati (80 slika)
+                    <input type="text" value={noviNaziv} onChange={(e)=>setNoviNaziv(e.target.value)} placeholder="Npr. Priroda i Pejzaži" className="bg-black border border-[#FF8C00]/50 p-4 rounded-xl text-[14px] font-black text-white w-full outline-none focus:border-[#FF8C00] transition-all" required />
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-blue-400 font-black text-[11px] tracking-widest uppercase">
+                        <Globe size={14} /> NAZIV PAKETA (ENG)
                     </label>
+                    <input type="text" value={noviNazivEn} onChange={(e)=>setNoviNazivEn(e.target.value)} placeholder="Npr. Nature & Landscape" className="bg-black border border-blue-500/50 p-4 rounded-xl text-[14px] font-black text-white w-full outline-none focus:border-blue-400 transition-all" />
                 </div>
             </div>
 
-            {novaKategorija && (
-              <div className="mb-4 flex flex-col gap-2">
-                <label className="text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">Kolekcija (Volume)</label>
-                <input type="text" placeholder="Npr. VOL 1 (Opciono)" value={noviVolume} onChange={(e) => setNoviVolume(e.target.value)} className="bg-black text-white border border-[#FF8C00]/50 p-4 rounded-xl text-[13px] font-black outline-none focus:border-[#FF8C00] transition-all" />
+            {/* DRUGI RED: Opis, Kategorije, Cena */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="flex flex-col gap-2 md:col-span-1">
+                  <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                      <FileText size={14} /> OPIS PAKETA
+                  </label>
+                  <textarea value={noviOpis} onChange={(e)=>setNoviOpis(e.target.value)} placeholder="Sadržaj paketa..." rows={3} className="bg-black border border-white/10 p-4 rounded-xl text-[12px] font-bold text-white w-full outline-none resize-none focus:border-[#FF8C00] transition-all h-full" required />
               </div>
-            )}
 
-            <input type="url" value={zipLink} onChange={(e)=>setZipLink(e.target.value)} placeholder="Google Drive ZIP Link" className="bg-black border border-blue-500/50 p-4 rounded-xl text-[13px] text-white w-full mb-4 outline-none font-bold" required />
-            
-            <div className="flex flex-col gap-4">
-              {(previewUrl || primeriUrls.length > 0) && (
-                <div className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/10 mt-2 mb-2">
-                  {previewUrl && (
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.4)]">
-                      <span className="absolute top-0 left-0 bg-[#FF8C00] text-black text-[9px] font-black px-2 py-0.5 z-10">MAIN</span>
-                      <img src={previewUrl} alt="Main" className="w-full h-full object-cover" />
+              <div className="flex flex-col gap-6 md:col-span-2">
+                  {/* Kategorije SRB i ENG */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                              <Layers size={14} /> KATEGORIJA (SRB)
+                          </label>
+                          <select value={novaKategorija} onChange={(e) => setNovaKategorija(e.target.value)} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white outline-none focus:border-[#FF8C00] transition-all">
+                            {KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}
+                          </select>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-blue-400 font-black text-[11px] tracking-widest uppercase">
+                              <Globe size={14} /> CATEGORY (ENG)
+                          </label>
+                          <input type="text" value={novaKategorijaEn} onChange={(e) => setNovaKategorijaEn(e.target.value)} placeholder="E.g. Nature & Landscapes" className="bg-black border border-blue-500/50 p-4 rounded-xl text-[13px] font-bold text-white outline-none focus:border-blue-400 transition-all" />
+                      </div>
+                  </div>
+
+                  {/* Cena i Format */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                              <Wallet size={14} /> CENA / PRICE (RSD)
+                          </label>
+                          <input type="text" value={novaCena} onChange={(e)=>setNovaCena(e.target.value)} placeholder="Npr. 1999" className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white outline-none focus:border-[#FF8C00] transition-all" />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                              <MonitorPlay size={14} /> FORMAT (REZOLUCIJE)
+                          </label>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                              <label className={`cursor-pointer flex-1 p-3 rounded-xl border-2 transition-all text-center font-black text-[10px] uppercase ${noviFormat === '16:9 (20 SLIKA)' ? 'bg-[#FF8C00]/20 border-[#FF8C00] text-[#FF8C00]' : 'bg-black border-white/10 text-zinc-500'}`}>
+                                  <input type="radio" name="format" value="16:9 (20 SLIKA)" checked={noviFormat === '16:9 (20 SLIKA)'} onChange={(e) => setNoviFormat(e.target.value)} className="hidden" />
+                                  16:9 (20 slika)
+                              </label>
+                              <label className={`cursor-pointer flex-1 p-3 rounded-xl border-2 transition-all text-center font-black text-[10px] uppercase ${noviFormat === 'SVI FORMATI (80 SLIKA)' ? 'bg-[#FF8C00]/20 border-[#FF8C00] text-[#FF8C00]' : 'bg-black border-white/10 text-zinc-500'}`}>
+                                  <input type="radio" name="format" value="SVI FORMATI (80 SLIKA)" checked={noviFormat === 'SVI FORMATI (80 SLIKA)'} onChange={(e) => setNoviFormat(e.target.value)} className="hidden" />
+                                  Svi formati
+                              </label>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Volume (Kolekcija) */}
+                  {novaKategorija && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-[#FF8C00] font-black text-[11px] tracking-widest uppercase">
+                              <FolderArchive size={14} /> KOLEKCIJA (VOLUME)
+                          </label>
+                          <input type="text" placeholder="Npr. VOL 1 (Opciono)" value={noviVolume} onChange={(e) => setNoviVolume(e.target.value)} className="bg-black text-white border border-white/10 p-3.5 rounded-xl text-[13px] font-black outline-none focus:border-[#FF8C00] transition-all" />
+                        </div>
                     </div>
                   )}
-                  {primeriUrls.map((url, idx) => (
-                    <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden border border-white/20">
-                      <img src={url} alt={`Primer ${idx}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-4">
-                <label className="bg-white/10 hover:bg-[#FF8C00] hover:text-black px-6 py-4 rounded-xl font-black text-[11px] uppercase cursor-pointer transition-all"> 
-                  {isUploading ? 'UČITAVAM...' : 'Glavni Preview'} 
-                  <input type="file" onChange={handleUploadPreview} className="hidden" /> 
-                </label>
-                <label className="bg-white/10 hover:bg-[#FF8C00] hover:text-black px-6 py-4 rounded-xl font-black text-[11px] uppercase cursor-pointer transition-all"> 
-                  {isUploadingPrimer ? 'UČITAVAM...' : `Sličice (${primeriUrls.length}/4)`} 
-                  <input type="file" multiple onChange={handleUploadPrimeri} className="hidden" /> 
-                </label>
-                <button type="submit" className="ml-auto px-8 py-4 rounded-xl font-black text-[12px] uppercase bg-[#FF8C00] hover:bg-orange-500 text-black transition-all shadow-[0_0_20px_rgba(255,140,0,0.5)]"> 
-                  {editingPaketId ? 'Sačuvaj Izmene' : 'Sačuvaj Paket'} 
-                </button>
               </div>
+            </div>
+
+            {/* TREĆI RED: Link i Slike */}
+            <div className="border-t border-white/10 pt-6 mt-2">
+                <div className="flex flex-col gap-2 mb-6">
+                    <label className="flex items-center gap-2 text-blue-400 font-black text-[11px] tracking-widest uppercase">
+                        <Link size={14} /> GOOGLE DRIVE ZIP LINK (ISPORUKA)
+                    </label>
+                    <input type="url" value={zipLink} onChange={(e)=>setZipLink(e.target.value)} placeholder="https://drive.google.com/..." className="bg-black border border-blue-500/50 p-4 rounded-xl text-[13px] text-white w-full outline-none font-bold focus:border-blue-400 transition-all" required />
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  {(previewUrl || primeriUrls.length > 0) && (
+                    <div className="flex gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                      {previewUrl && (
+                        <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.4)]">
+                          <span className="absolute top-0 left-0 bg-[#FF8C00] text-black text-[9px] font-black px-2 py-0.5 z-10">MAIN</span>
+                          <img src={previewUrl} alt="Main" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      {primeriUrls.map((url, idx) => (
+                        <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden border border-white/20 relative">
+                          <span className="absolute bottom-0 right-0 bg-black/80 text-white text-[8px] font-black px-1.5 py-0.5 z-10">PREVIEW</span>
+                          <img src={url} alt={`Primer ${idx}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-4 items-end">
+                    <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2 text-zinc-400 font-black text-[10px] tracking-widest uppercase">
+                            <ImageIcon size={12} /> GLAVNA SLIKA
+                        </label>
+                        <label className="bg-zinc-900 hover:bg-[#FF8C00] text-white hover:text-black border border-white/10 hover:border-[#FF8C00] px-6 py-4 rounded-xl font-black text-[11px] uppercase cursor-pointer transition-all flex items-center gap-2"> 
+                          <ImageIcon size={16} /> {isUploading ? 'UČITAVAM...' : 'DODAJ PREVIEW'} 
+                          <input type="file" onChange={handleUploadPreview} className="hidden" /> 
+                        </label>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2 text-zinc-400 font-black text-[10px] tracking-widest uppercase">
+                            <Images size={12} /> DODATNE SLIKE
+                        </label>
+                        <label className="bg-zinc-900 hover:bg-[#FF8C00] text-white hover:text-black border border-white/10 hover:border-[#FF8C00] px-6 py-4 rounded-xl font-black text-[11px] uppercase cursor-pointer transition-all flex items-center gap-2"> 
+                          <Images size={16} /> {isUploadingPrimer ? 'UČITAVAM...' : `DODAJ SLIČICE (${primeriUrls.length}/4)`} 
+                          <input type="file" multiple onChange={handleUploadPrimeri} className="hidden" /> 
+                        </label>
+                    </div>
+
+                    <button type="submit" className="ml-auto px-8 py-4 rounded-xl font-black text-[13px] tracking-widest uppercase bg-[#FF8C00] hover:bg-orange-500 text-black transition-all shadow-[0_0_20px_rgba(255,140,0,0.5)] flex items-center gap-2 hover:scale-105"> 
+                      <Zap size={18} /> {editingPaketId ? 'SAČUVAJ IZMENE' : 'SAČUVAJ PAKET'} 
+                    </button>
+                  </div>
+                </div>
             </div>
           </form>
         )}
@@ -443,12 +551,10 @@ const prijavaIKupovina = async (paket) => {
               {isGlobal ? "INTERNATIONAL WIRE" : "IPS UPLATA"}
             </h2>
             
-            {/* OVO SADA PIŠE "WATCHES VOL 1" NA ENGLESKOM, A "SATOVI VOL 1" NA SRPSKOM */}
             <p className="text-[11px] text-zinc-400 font-black uppercase tracking-widest mb-6 text-center">
               {isGlobal && showIpsModal.nazivEn ? showIpsModal.nazivEn : showIpsModal.naziv} {showIpsModal.volume ? showIpsModal.volume : ''}
             </p>
             
-            {/* --- V8 EMAIL UPUTSTVO (JEDAN KOMAD) --- */}
             {isGlobal && (
               <div className="w-full mb-6 p-4 bg-[#FF8C00]/10 border border-[#FF8C00]/50 rounded-xl text-center">
                   <p className="text-[10px] text-zinc-300 font-black uppercase tracking-widest mb-1">
@@ -462,7 +568,6 @@ const prijavaIKupovina = async (paket) => {
                   </p>
               </div>
             )}
-            {/* --- KRAJ EMAIL UPUTSTVA --- */}
            
             <div className="w-full border border-white/10 rounded-2xl p-6 mb-6 bg-[#0a0a0a] flex flex-col items-center shadow-inner relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FF8C00] to-transparent opacity-50"></div>

@@ -1,3 +1,4 @@
+import PlacNaProdaju from './PlacNaProdaju'; // 🔥 DODAJ OVO ZA PLAC
 import { V8_SOFTVER_REGISTAR } from './v8_config';
 import V8StockBerza from './V8StockBerza'; // 🔥 DODAJ OVO
 import V8Portfolio from './V8Portfolio';
@@ -14,7 +15,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { 
-  PlayCircle, Sparkles, Youtube,  ChevronLeft, Award, 
+  PlayCircle, Sparkles, Youtube, MapPin,  ChevronLeft, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick,Mail,Download, Briefcase, QrCode, X, ChevronRight, Clock, Users, Zap,Camera, Crop, Image as ImageIcon, HelpCircle, ChevronDown,
   ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus,Crown, ExternalLink
@@ -2009,6 +2010,33 @@ const VisitorCounter = () => {
   );
 };
 // KRAJ FUNKCIJE: VisitorCounter
+// POČETAK FUNKCIJE: Plivajuće Dugme za Plac
+const FloatingPlacButton = () => {
+  const location = useLocation();
+  
+  // Ažuriran uslov za novu rutu
+  if (location.pathname === '/nekretnina-na-prodaju') return null;
+
+  return (
+    <Link 
+      to="/nekretnina-na-prodaju" // Nova destinacija
+      className="fixed right-0 top-1/2 -translate-y-1/2 z-[5000] group flex items-center gap-3 bg-gradient-to-l from-emerald-600 to-green-500 text-white p-2 pl-3 pr-4 rounded-l-full shadow-[-10px_0_20px_rgba(16,185,129,0.3)] hover:shadow-[-15px_0_30px_rgba(16,185,129,0.5)] hover:-translate-x-2 transition-all duration-300 border border-r-0 border-green-400/50"
+    >
+      <div className="bg-white/20 p-2.5 rounded-full animate-pulse shadow-inner">
+        <MapPin className="w-5 h-5 text-white" />
+      </div>
+      <div className="flex flex-col text-left">
+        <span className="text-[8px] font-black uppercase tracking-widest text-green-100">Ekskluzivno</span>
+        <span className="text-[12px] font-black uppercase tracking-wider drop-shadow-md">Prodaja Nekretnine</span>
+      </div>
+    </Link>
+  );
+};
+// KRAJ FUNKCIJE: Plivajuće Dugme za Plac
+
+
+
+
 function AppContent({ appsData, refreshData }) {
 const [isBooting, setIsBooting] = useState(true); 
 const [showBanner, setShowBanner] = useState(false); 
@@ -2097,6 +2125,9 @@ return (
             {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
             <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
             
+
+    {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
+            
 {/* --- POČETAK FUNKCIJE: Master Kolekcija Padajući Meni --- */}
 <div className="relative group hidden lg:block">
   <button className="bg-gradient-to-r from-yellow-500 to-orange-600 px-3 md:px-4 py-1.5 rounded-full text-white font-black text-[8px] md:text-[9px] uppercase tracking-wider shadow-[0_0_15px_rgba(234,88,12,0.4)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all border border-orange-400/50 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
@@ -2181,6 +2212,7 @@ return (
         <Route path="/app/:id" element={<SingleProductPage apps={appsData} />} />
         <Route path="/admin" element={<AdminPage apps={appsData} refreshData={refreshData} />} />
         <Route path="/trezor" element={<TrezorPage apps={appsData} />} />
+        <Route path="/nekretnina-na-prodaju" element={<PlacNaProdaju />} />
         
         {/* DODATO: V8 B2B PORTFOLIO RUTA */}
         <Route path="/portfolio" element={<V8Portfolio />} />
@@ -2192,6 +2224,8 @@ return (
 <SmartScrollButton />
     <VisitorCounter />  {/* 🔥 V8 BROJAČ POSETA JE SADA OVDE 🔥 */}
     <V8ContactWidget />
+<FloatingPlacButton />
+
     <footer className="flex flex-col items-center gap-6 text-center text-zinc-100 font-black italic uppercase text-[9px] tracking-[0.5em] py-8 mt-8" style={{ borderTop: '0.5px solid #f97316' }}>
       <div className="flex items-center gap-6">
         <a href="https://x.com/AiToolsProSmart" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/></svg></a>
