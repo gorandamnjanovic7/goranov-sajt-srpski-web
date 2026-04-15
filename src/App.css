@@ -77,8 +77,41 @@
     opacity: 1;
   }
 }
+
 /* V8 ZABRANA PREVLAČENJA I MARKIRANJA SLIKA */
 img {
   -webkit-user-drag: none; /* Ne dozvoljava hvatanje slike mišem */
   user-select: none;       /* Ne dozvoljava markiranje (plavi veo) */
+}
+
+/* =========================================
+   🏎️ V8 GLOBALNI PREMIUM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505; /* Crna pozadina asfalta */
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ea580c; /* V8 Narandžasta */
+  border-radius: 10px;
+  border: 3px solid #050505; /* Crni okvir da izgleda kao da pluta */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316; /* Svetlija narandžasta kad se pređe mišem */
+}
+
+/* Sakrivanje skrolbara za specifične elemente (npr. galerija slika koja se horizontalno skroluje) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

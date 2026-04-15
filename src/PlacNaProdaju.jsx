@@ -7,6 +7,9 @@ const PlacNaProdaju = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // State za PDF preko celog ekrana
+  const [fullscreenPdf, setFullscreenPdf] = useState(null);
 
   // POČETAK FUNKCIJE: trackConversion
   const trackConversion = () => {
@@ -20,14 +23,25 @@ const PlacNaProdaju = () => {
   // KRAJ FUNKCIJE: trackConversion
 
   const imagesPlac = [
-    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1464047736614-af63643285bf?auto=format&fit=crop&w=1200&q=80"
+    "sl-1.png",
+    "sl-2.jpg",
+    "sl-3.png",
+    "sl-4.jpg",
+    "sl-5.jpg",
+    "sl-6.jpg",
+    "sl-7.jpg",
+    "sl-8.jpg",
+    "sl-9.jpg",
+    "sl-10.jpg",
+    "sl-11.jpg",
+    "sl-12.jpg",
+    
   ];
 
   const imagesOkolina = [
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80"
+    "okolina-1.jpg",
+    "okolina-2.jpg",
+    "okolina-3.jpg",
   ];
 
   const currentImages = activeGallery === 'plac' ? imagesPlac : imagesOkolina;
@@ -67,9 +81,9 @@ const PlacNaProdaju = () => {
             <h1 className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tight uppercase drop-shadow-lg">
               Kompletno Imanje: <span className="text-orange-500 font-black">Kuća, Plac i Hladnjača</span>
             </h1>
-            <p className="text-xl text-slate-400 flex items-center gap-2 font-medium">
+            <p className="text-xl text-slate-400 flex items-center gap-2 font-bold">
               <MapPin className="w-6 h-6 text-orange-500" />
-              Vojvodina, Grocka (Odlična mikrolokacija za biznis i život)
+              Beograd, Grocka (Odlična mikrolokacija za biznis i život)
             </p>
           </div>
         </div>
@@ -117,7 +131,6 @@ const PlacNaProdaju = () => {
 
             <div className="bg-gradient-to-br from-[#1a1a1a] to-black rounded-3xl p-8 border border-orange-600/30 shadow-[0_20px_50px_rgba(234,88,12,0.15)] text-center">
                 <p className="text-orange-500 text-sm font-black uppercase mb-1">Cena za ceo paket</p>
-                {/* 🎯 OVDE JE PROMENJENA CENA NA 200.000 € */}
                 <h2 className="text-5xl font-black mb-8 italic">200.000 €</h2>
                 <div className="space-y-4">
                   <a href="tel:+381648201496" onClick={trackConversion} className="flex items-center justify-center gap-3 bg-orange-600 text-white p-5 rounded-2xl font-black hover:scale-105 transition-all shadow-lg text-lg uppercase tracking-wider">
@@ -146,42 +159,102 @@ const PlacNaProdaju = () => {
               </div>
               <div className="bg-white/5 p-8 rounded-3xl border border-white/5">
                 <p className="font-bold text-white mb-4 uppercase text-sm tracking-widest text-orange-500">Specifikacije:</p>
-                <ul className="space-y-4 list-none">
-                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Površina placa:</span> <span className="text-white font-bold">1400m² (14 ari)</span></li>
-                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Stambeni prostor:</span> <span className="text-white font-bold">Standardna kuća</span></li>
-                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Hladnjača:</span> <span className="text-white font-bold">Instalirana i testirana</span></li>
-                   <li className="flex justify-between"><span>Vlasništvo:</span> <span className="text-white font-bold">Uknjiženo 1/1</span></li>
+                <ul className="space-y-4 list-none font-bold">
+                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Površina placa:</span> <span className="text-white">1400m² (14 ari)</span></li>
+                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Stambeni prostor:</span> <span className="text-white">Standardna kuća</span></li>
+                   <li className="flex justify-between border-b border-white/5 pb-2"><span>Hladnjača:</span> <span className="text-white">Instalirana i testirana</span></li>
+                   <li className="flex justify-between"><span>Vlasništvo:</span> <span className="text-white">Uknjiženo 1/1</span></li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        {/* DONJI DEO: 3 PDF KONTEJNERA */}
+        {/* DONJI DEO: 4 PDF KONTEJNERA (2x2 GRID) */}
         <div className="mt-24 pt-12 border-t border-white/10">
           <div className="mb-10 flex items-center gap-3">
             <FileText className="w-8 h-8 text-orange-500" />
             <h2 className="text-3xl font-black uppercase">Projektna Dokumentacija</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[600px] flex flex-col hover:border-orange-500/50 transition-all">
-              <h3 className="text-orange-500 font-bold mb-4 text-center uppercase text-sm tracking-widest">List Nepokretnosti</h3>
-              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222]">
-                <iframe src="/vlasnicki-list.pdf#toolbar=0&view=FitH" className="w-full h-full border-none" title="PDF 1" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* PDF 1 */}
+            <div 
+              className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[800px] flex flex-col hover:border-orange-500/50 transition-all select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="flex justify-between items-center mb-4 px-2">
+                <h3 className="text-orange-500 font-bold uppercase text-sm tracking-widest">List Nepokretnosti</h3>
+                <button 
+                  onClick={() => setFullscreenPdf('/pdf-1.pdf')}
+                  className="bg-white/10 hover:bg-orange-600 text-white p-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+                >
+                  <Maximize2 className="w-4 h-4" /> Uveličaj
+                </button>
+              </div>
+              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222] relative">
+                <iframe src="/pdf-1.pdf#toolbar=0&navpanes=0&view=FitH" className="w-full h-full border-none" title="PDF 1" />
               </div>
             </div>
-            <div className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[600px] flex flex-col hover:border-orange-500/50 transition-all">
-              <h3 className="text-orange-500 font-bold mb-4 text-center uppercase text-sm tracking-widest">Skica Placa</h3>
-              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222]">
-                <iframe src="/skica-placa.pdf#toolbar=0&view=FitH" className="w-full h-full border-none" title="PDF 2" />
+
+            {/* PDF 2 */}
+            <div 
+              className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[800px] flex flex-col hover:border-orange-500/50 transition-all select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="flex justify-between items-center mb-4 px-2">
+                <h3 className="text-orange-500 font-bold uppercase text-sm tracking-widest">Skica Placa</h3>
+                <button 
+                  onClick={() => setFullscreenPdf('/pdf-2.pdf')}
+                  className="bg-white/10 hover:bg-orange-600 text-white p-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+                >
+                  <Maximize2 className="w-4 h-4" /> Uveličaj
+                </button>
+              </div>
+              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222] relative">
+                <iframe src="/pdf-2.pdf#toolbar=0&navpanes=0&view=FitH" className="w-full h-full border-none" title="PDF 2" />
               </div>
             </div>
-            <div className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[600px] flex flex-col hover:border-orange-500/50 transition-all">
-              <h3 className="text-orange-500 font-bold mb-4 text-center uppercase text-sm tracking-widest">Projekat Hladnjače</h3>
-              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222]">
-                <iframe src="/projekat-hladnjace.pdf#toolbar=0&view=FitH" className="w-full h-full border-none" title="PDF 3" />
+
+            {/* PDF 3 */}
+            <div 
+              className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[800px] flex flex-col hover:border-orange-500/50 transition-all select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="flex justify-between items-center mb-4 px-2">
+                <h3 className="text-orange-500 font-bold uppercase text-sm tracking-widest">Prijava za Upis Po Posebnom Zakonu</h3>
+                <button 
+                  onClick={() => setFullscreenPdf('/pdf-3.pdf')}
+                  className="bg-white/10 hover:bg-orange-600 text-white p-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+                >
+                  <Maximize2 className="w-4 h-4" /> Uveličaj
+                </button>
+              </div>
+              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222] relative">
+                <iframe src="/pdf-3.pdf#toolbar=0&navpanes=0&view=FitH" className="w-full h-full border-none" title="PDF 3" />
               </div>
             </div>
+
+            {/* PDF 4 */}
+            <div 
+              className="bg-[#111] rounded-3xl p-4 border border-white/5 shadow-2xl h-[800px] flex flex-col hover:border-orange-500/50 transition-all select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <div className="flex justify-between items-center mb-4 px-2">
+                <h3 className="text-orange-500 font-bold uppercase text-sm tracking-widest">Prijava za Upis Po Posebnom Zakonu</h3>
+                <button 
+                  onClick={() => setFullscreenPdf('/pdf-4.pdf')}
+                  className="bg-white/10 hover:bg-orange-600 text-white p-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+                >
+                  <Maximize2 className="w-4 h-4" /> Uveličaj
+                </button>
+              </div>
+              <div className="flex-grow rounded-2xl overflow-hidden bg-[#222] relative">
+                <iframe src="/pdf-4.pdf#toolbar=0&navpanes=0&view=FitH" className="w-full h-full border-none" title="PDF 4" />
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -227,18 +300,30 @@ const PlacNaProdaju = () => {
         <div className="mt-20 pt-10 border-t border-white/5 flex flex-col items-start gap-2">
             <h4 className="text-2xl font-black uppercase tracking-tighter text-white">Goran Damnjanović</h4>
             <p className="text-orange-500 font-bold">+381 64 820 1496</p>
-            <p className="text-slate-500 text-sm">Grocka, Vojvodina, Srbija | V8 Digital Solutions</p>
+            <p className="text-slate-500 text-sm font-bold">Grocka, Beograd, Srbija | V8 Digital Solutions</p>
         </div>
 
       </div>
 
-      {/* LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL ZA SLIKE */}
       {isFullscreen && (
         <div className="fixed inset-0 z-[9999] bg-black/98 flex items-center justify-center backdrop-blur-md" onClick={() => setIsFullscreen(false)}>
-          <button className="absolute top-6 right-6 text-white hover:text-orange-500 transition-colors"><X className="w-10 h-10" /></button>
-          <img src={currentImages[currentIndex]} alt="Fullscreen" className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl" />
-          <button onClick={prevImage} className="absolute left-6 top-1/2 bg-white/10 p-5 rounded-full hover:bg-orange-600 transition-all"><ChevronLeft className="w-8 h-8 text-white" /></button>
-          <button onClick={nextImage} className="absolute right-6 top-1/2 bg-white/10 p-5 rounded-full hover:bg-orange-600 transition-all"><ChevronRight className="w-8 h-8 text-white" /></button>
+          <button className="absolute top-6 right-6 text-white hover:text-orange-500 transition-colors z-20"><X className="w-10 h-10" /></button>
+          <img src={currentImages[currentIndex]} alt="Fullscreen" className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl relative z-10" />
+          <button onClick={prevImage} className="absolute left-6 top-1/2 bg-white/10 p-5 rounded-full hover:bg-orange-600 transition-all z-20"><ChevronLeft className="w-8 h-8 text-white" /></button>
+          <button onClick={nextImage} className="absolute right-6 top-1/2 bg-white/10 p-5 rounded-full hover:bg-orange-600 transition-all z-20"><ChevronRight className="w-8 h-8 text-white" /></button>
+        </div>
+      )}
+
+      {/* LIGHTBOX MODAL ZA PDF (PREKO CELOG EKRANA) */}
+      {fullscreenPdf && (
+        <div className="fixed inset-0 z-[9999] bg-black/98 flex flex-col items-center justify-center backdrop-blur-md p-4 sm:p-8 select-none" onClick={() => setFullscreenPdf(null)}>
+          <button className="absolute top-6 right-6 text-white hover:text-orange-500 transition-colors z-20" onClick={() => setFullscreenPdf(null)}>
+            <X className="w-10 h-10" />
+          </button>
+          <div className="w-full h-full max-w-6xl bg-[#222] rounded-xl overflow-hidden shadow-[0_0_50px_rgba(234,88,12,0.2)] mt-8 relative" onClick={(e) => e.stopPropagation()}>
+            <iframe src={`${fullscreenPdf}#toolbar=0&navpanes=0&view=FitH`} className="w-full h-full border-none" title="Fullscreen PDF" />
+          </div>
         </div>
       )}
 

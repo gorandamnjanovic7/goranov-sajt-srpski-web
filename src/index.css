@@ -2,22 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* V8 BESKONAČNA TRAKA */
-/* ANIMACIJA ZA BESKONAČNO KLIZANJE */
-@keyframes scroll-v8 {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* KONTEJNER ZA TRAKU */
-.v8-slider-container-small {
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-}
-
-/* ANIMACIJA KOJA POKREĆE TRAKU */
+/* =========================================
+   🏎️ V8 BESKONAČNA TRAKA
+   ========================================= */
 /* V8 TRAKA IDE SLEVA NADESNO */
 @keyframes scroll-v8 {
   0% { transform: translateX(-50%); }
@@ -27,6 +14,7 @@
 .v8-slider-container-small {
   overflow: hidden;
   width: 100%;
+  position: relative;
 }
 
 .v8-track-fast {
@@ -50,48 +38,11 @@
   transform: scale(1.08);
   border-color: #ff4500; /* Narandžasti sjaj kad klijent pređe mišem */
 }
-/* V8 BESKONAČNA TRAKA -KRAJ */
 
 
-/* 🟠 GLOBALNI VERTIKALNI SCROLLBAR 🟠 */
-/* Chrome, Safari, Edge */
-::-webkit-scrollbar {
-  width: 6px; /* Širina skrola - da bude tanak */
-}
-
-::-webkit-scrollbar-track {
-  background: #050505; /* Tamna pozadina koja se stapa sa sajtom */
-}
-
-::-webkit-scrollbar-thumb {
-  background: #f97316; /* Tvoja narandžasta boja */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #fb923c; /* Malo svetlija narandžasta kad se pređe mišem */
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #f97316 #050505;
-}
-
-/* 🟠 HORIZONTALNI SKROL ZA KARUSELE 🟠 */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 4px; /* Tanji horonzontalni skrol */
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #f97316;
-  border-radius: 10px;
-}
-/* 🟢 POČETAK: V8 AI AURA ANIMACIJA (GEMINI STYLE) */
+/* =========================================
+   🟢 V8 AI AURA ANIMACIJA (GEMINI STYLE)
+   ========================================= */
 @keyframes v8-aura-flow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -110,4 +61,60 @@
   background-size: 300% 100%;
   animation: v8-aura-flow 4s linear infinite;
 }
-/* 🔴 KRAJ: V8 AI AURA ANIMACIJA */
+
+
+/* =========================================
+   🟠 HORIZONTALNI SKROL ZA KARUSELE
+   ========================================= */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px; /* Tanji horonzontalni skrol */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   🏎️ V8 GLOBALNI PREMIUM SCROLLBAR (ULTIMATIVNI FIX)
+   ========================================= */
+
+/* 1. Za Firefox (On traži posebna pravila) */
+html {
+  scrollbar-width: auto;
+  scrollbar-color: #ea580c #050505;
+}
+
+/* 2. Za Chrome, Edge, Safari, Brave */
+::-webkit-scrollbar {
+  width: 14px !important; /* Malo širi da lakše "uhvati" */
+}
+
+::-webkit-scrollbar-track {
+  background: #050505 !important; 
+  border-left: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ea580c !important; 
+  border-radius: 10px !important;
+  border: 3px solid #050505 !important; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #f97316 !important; 
+}
+
+/* 3. Sakrivanje skrolbara za tvoju galeriju slika (da se ne vidi ružan skrol ispod slika) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none !important;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
