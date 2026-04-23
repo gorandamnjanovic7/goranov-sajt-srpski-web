@@ -214,7 +214,16 @@ export const TutorialCard = ({ vid }) => {
     <a href={vid.url} target="_blank" rel="noopener noreferrer" className="block p-[2px] bg-gradient-to-br from-zinc-800 to-zinc-900 hover:from-red-600 hover:to-red-900 rounded-[2.5rem] transition-all duration-500 group relative shadow-xl hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]">
       <div className="bg-[#0a0a0a] rounded-[2.4rem] p-6 flex flex-col h-full relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/10 blur-2xl rounded-full group-hover:bg-red-600/20 transition-all duration-500 pointer-events-none"></div>
-        <div className="aspect-video relative rounded-3xl overflow-hidden bg-black border-2 border-white/5 group-hover:border-red-500/50 transition-colors duration-500 mb-6 shadow-inner"><img src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt={vid.title} /><div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-all duration-500"><div className="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.5)] transform group-hover:scale-110 transition-all duration-500"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div className="absolute bottom-3 right-3 bg-black/80 px-2 py-1 rounded text-[9px] font-black text-white tracking-widest border border-white/10">INTEL</div></div>
+        <div className="aspect-video relative rounded-3xl overflow-hidden bg-black border-2 border-white/5 group-hover:border-red-500/50 transition-colors duration-500 mb-6 shadow-inner">
+          <img src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt={vid.title} />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-all duration-500">
+            {/* 👇 V8: Mala, elegantna i CRVENA ikonica 👇 */}
+            <svg className="w-8 h-8 text-red-600 opacity-90 group-hover:opacity-100 transform group-hover:scale-110 transition-all duration-300 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+          <div className="absolute bottom-3 right-3 bg-black/80 px-2 py-1 rounded text-[9px] font-black text-white tracking-widest border border-white/10">INTEL</div>
+        </div>
         <h4 className="text-white font-black text-[13px] uppercase tracking-wide line-clamp-2 leading-relaxed group-hover:text-red-400 transition-colors mb-4">{vid.title}</h4>
         <div className="mt-auto flex items-center justify-between text-zinc-500 text-[10px] font-bold tracking-widest uppercase border-t border-white/5 pt-4"><span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> SYSTEM ACTIVE</span><span className="group-hover:text-red-500 transition-colors flex items-center gap-1">ACCESS <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
       </div>
@@ -1993,3 +2002,5 @@ export const KATEGORIJE_PREVOD = {
     "AI Umetnost": "AI Art",
     "Prilagođeni Stilovi": "Custom Styles"
 };
+// V8 AUTOPILOT: Kompjuter sam vadi sve srpske nazive i pravi niz za padajući meni!
+export const V8_SVE_KATEGORIJE = Object.keys(KATEGORIJE_PREVOD);

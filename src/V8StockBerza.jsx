@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { KATEGORIJE, PODKATEGORIJE, OPISI_SABLONI, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_CLOUD_NAME, V8_TRANSLATIONS, KATEGORIJE_PREVOD } from './data';
+import { V8_SVE_KATEGORIJE, PODKATEGORIJE, OPISI_SABLONI, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_CLOUD_NAME, V8_TRANSLATIONS, KATEGORIJE_PREVOD } from './data';
 import { Sparkles, Download, Zap, ShieldCheck, X, Image as ImageIcon, Video, FolderArchive, Layers, Pencil, Users, CheckCircle, Globe, MapPin, Type, FileText, Wallet, MonitorPlay, Link, Images } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { db, auth } from './firebase';
@@ -36,7 +36,7 @@ const V8StockBerza = () => {
   const [noviNazivEn, setNoviNazivEn] = useState('');
   const [noviVolume, setNoviVolume] = useState('');
   const [noviFormat, setNoviFormat] = useState('16:9 (20 SLIKA)');
-  const [novaKategorija, setNovaKategorija] = useState(KATEGORIJE[0]);
+  const [novaKategorija, setNovaKategorija] = useState(V8_SVE_KATEGORIJE[0]);
   const [novaKategorijaEn, setNovaKategorijaEn] = useState(''); // ENG Kategorija
   const [novaPodkategorija, setNovaPodkategorija] = useState(''); 
   const [novaCena, setNovaCena] = useState('1999');
@@ -165,13 +165,23 @@ const V8StockBerza = () => {
     e.preventDefault();
     if (!previewUrl || !zipLink) return alert("Preview i ZIP link su obavezni!");
     
+    // 👇 V8 AUTOPILOT: Dvosmerna sinhronizacija Naziva i Kategorije 👇
+    
+    // 1. Definišemo konačan NAZIV (Ako je prazno, vuče kategoriju. Ako nije, uzima ono što si kucao)
+    const konacanNaziv = noviNaziv.trim() !== '' ? noviNaziv.trim() : novaKategorija;
+    const konacanNazivEn = noviNazivEn.trim() !== '' ? noviNazivEn.trim() : novaKategorijaEn;
+    
+    // 2. Definišemo konačnu KATEGORIJU (Ako si ukucao svoj naziv, on PREGAZI kategoriju i postaje nova kategorija)
+    const konacnaKategorija = noviNaziv.trim() !== '' ? noviNaziv.trim() : novaKategorija;
+    const konacnaKategorijaEn = noviNazivEn.trim() !== '' ? noviNazivEn.trim() : novaKategorijaEn;
+    
     const paketData = {
-        naziv: noviNaziv, 
-        nazivEn: noviNazivEn, 
+        naziv: konacanNaziv, 
+        nazivEn: konacanNazivEn, 
         volume: noviVolume,
         format: noviFormat, 
-        kategorija: novaKategorija, 
-        kategorijaEn: novaKategorijaEn, // OVDE JE SADA UBAČEN ZAREZ
+        kategorija: konacnaKategorija,     // SADA SE AUTOMATSKI MENJA
+        kategorijaEn: konacnaKategorijaEn, // SADA SE AUTOMATSKI MENJA
         podkategorija: novaPodkategorija, 
         cena: novaCena, 
         tip: noviTip, 
@@ -185,10 +195,10 @@ const V8StockBerza = () => {
     try {
         if (editingPaketId) {
             await updateDoc(doc(db, "v8_stock_paketi", editingPaketId), paketData);
-            alert("Ažurirano!");
+            alert("V8: Paket uspešno ažuriran!");
         } else {
             await addDoc(collection(db, "v8_stock_paketi"), { ...paketData, createdAt: serverTimestamp() });
-            alert("Dodato!");
+            alert("V8: Novi paket je dodat u Berzu!");
         }
         stoziEdit(); fetchPaketi();
     } catch (error) { alert(error.message); }
@@ -200,7 +210,7 @@ const V8StockBerza = () => {
     setNoviNazivEn(paket.nazivEn || ''); 
     setNoviVolume(paket.volume || '');
     setNoviFormat(paket.format || '16:9 (20 SLIKA)'); 
-    setNovaKategorija(paket.kategorija || KATEGORIJE[0]);
+    setNovaKategorija(paket.kategorija || V8_SVE_KATEGORIJE[0]);
     setNovaKategorijaEn(paket.kategorijaEn || ''); // Povlači ENG kategoriju
     setNovaPodkategorija(paket.podkategorija || ''); 
     setNovaCena(paket.cena || '1999'); 
@@ -367,7 +377,7 @@ const V8StockBerza = () => {
                               <Layers size={14} /> KATEGORIJA (SRB)
                           </label>
                           <select value={novaKategorija} onChange={(e) => setNovaKategorija(e.target.value)} className="bg-black border border-white/10 p-4 rounded-xl text-[13px] font-bold text-white outline-none focus:border-[#FF8C00] transition-all">
-                            {KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}
+                            {V8_SVE_KATEGORIJE.map(k => <option key={k} value={k}>{k}</option>)}
                           </select>
                       </div>
                       
@@ -476,9 +486,11 @@ const V8StockBerza = () => {
           </form>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        {/* POČETAK FUNKCIJE: PrikazPaketaKontejner */}
+        <div className="flex flex-wrap justify-center gap-12 max-w-5xl mx-auto">
           {paketi.map(paket => (
-            <div key={paket.id} className="v8-premium-card group transition-all duration-500 hover:scale-[1.02] shadow-[0_0_30px_rgba(255,140,0,0.15)] flex flex-col">
+            <div key={paket.id} className="w-full md:w-[calc(50%-1.5rem)] v8-premium-card group transition-all duration-500 hover:scale-[1.02] shadow-[0_0_30px_rgba(255,140,0,0.15)] flex flex-col">
+        {/* KRAJ FUNKCIJE: PrikazPaketaKontejner */}
               <div className="v8-card-content p-5 md:p-6">
                 
                 <div className="aspect-video relative rounded-2xl overflow-hidden mb-4 bg-black border border-white/5 shadow-inner">

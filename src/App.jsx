@@ -18,7 +18,7 @@ import {
   PlayCircle, Sparkles, Youtube, MapPin,  ChevronLeft, Award, 
   ArrowRight, Maximize, Edit, Loader2, ShieldAlert, Trash2, UploadCloud,
   Dices, Eye, MousePointerClick,Mail,Download, Briefcase, QrCode, X, ChevronRight, Clock, Users, Zap,Camera, Crop, Image as ImageIcon, HelpCircle, ChevronDown,
-  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus,Crown, ExternalLink
+  ChevronUp, Activity, BarChart, Layers, Settings, Lock, LogOut, User, Timer, History, CheckCircle, Plus,Crown, ExternalLink, Globe, Cpu
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -2110,94 +2110,106 @@ return (
     </AnimatePresence>
     <div className="fixed top-0 left-0 w-full z-[1000]">
     {/* POČETAK NAVBARA */}
-<nav className="w-full px-4 md:px-8 py-6 md:py-8 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-lg">
-{/* KRAJ NAVBARA */}
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
-          <Link to="/" onClick={handleHomeClick} className="flex items-center gap-2 md:gap-3 group shrink-0 mr-2">
-  <img src={data.logoUrl} className="h-7 md:h-9 object-contain animate-pulse" alt="logo" />
-  <div className="flex flex-col leading-[0.8] whitespace-nowrap">
-    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.1em] text-blue-500 italic">AI TOOLS</span>
-    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.1em] text-orange-500 italic">PRO SMART</span>
-  </div>
-</Link>
-<div className="flex-1 flex items-center justify-end gap-1 md:gap-1.5 font-black uppercase text-[7px] md:text-[8px] tracking-tighter whitespace-nowrap">
-            <Link to="/" onClick={handleHomeClick} className="bg-emerald-900/60 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-emerald-400 border border-emerald-800 shadow-xl hover:bg-emerald-800 transition-all hidden sm:block">Početna</Link>
-            {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
-            <Link to="/#marketplace" className="bg-blue-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-white shadow-xl hover:bg-blue-500 transition-all hidden md:block">Prodavnica</Link>
+    <nav className="w-full px-4 md:px-8 py-4 md:py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-orange-500/20 shadow-[0_10px_30px_rgba(255,140,0,0.05)] relative z-[9000]">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-2">
+        
+        {/* LOGO */}
+        <Link to="/" onClick={handleHomeClick} className="flex items-center gap-3 group shrink-0 mr-4">
+          <img 
+            src={data.logoUrl} 
+            className="h-10 md:h-12 object-contain animate-pulse group-hover:scale-105 transition-transform" 
+            alt="logo" 
+          />
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <span className="text-[11px] md:text-[14px] font-black uppercase tracking-[0.1em] text-blue-500 italic group-hover:text-orange-500 transition-colors">AI TOOLS</span>
+            <span className="text-[11px] md:text-[14px] font-black uppercase tracking-[0.1em] text-orange-500 italic group-hover:text-blue-500 transition-colors">PRO SMART</span>
+          </div>
+        </Link>
+        {/* LOGO-KRAJ */}
+
+        {/* DESNI DEO SA DUGMIĆIMA */}
+        <div className="flex-1 flex items-center justify-end gap-3 font-black uppercase text-[10px] md:text-[11px] tracking-widest whitespace-nowrap">
+          
+          {/* 🔥 V8 GLAVNI LINKOVI IZVUČENI NAPOLJE (SREĐEN DIZAJN) 🔥 */}
+          {/* 🔥 V8 GLAVNI LINKOVI IZVUČENI NAPOLJE (SREĐEN DIZAJN) 🔥 */}
+          <Link to="/" onClick={handleHomeClick} className="hidden lg:flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-full bg-emerald-900/30 border border-emerald-500/40 text-emerald-400 hover:text-white hover:bg-emerald-800/50 hover:border-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] cursor-pointer">
+            <Globe className="w-4 h-4 text-emerald-500" /> Početna
+          </Link>
+          
+          <Link to="/#marketplace" className="hidden lg:flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-full bg-blue-900/20 border border-blue-500/30 text-blue-300 hover:text-white hover:bg-blue-800/40 hover:border-blue-400 transition-all shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] cursor-pointer">
+            <Award className="w-4 h-4 text-blue-400" /> AI Prodavnica
+          </Link>
+
+          {/* 1. GLAVNI CTA KOJI UVEK STOJI */}
+          {location.pathname !== '/enxance' && (
+            <Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-6 py-2 md:py-2.5 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all flex items-center gap-2 hidden sm:flex">
+              <Zap className="w-4 h-4" /> 10X ENHANCER
+            </Link>
+          )}
+
+          {/* 2. V8 KORISNIČKI KONTROLNI CENTAR */}
+          {isVIPLoggedIn ? (
+             <div className="flex items-center gap-2">
+                {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] hidden md:flex"><Settings className="w-4 h-4" /> ADMIN</Link>)}
+                <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-4 h-4" /> TREZOR</Link>
+                <button onClick={() => { signOut(auth); if(typeof v8Toast !== 'undefined') v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-2 bg-white/5 rounded-full hover:bg-white/10" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
+             </div>
+          ) : (
+            <Link to="/admin" className="bg-zinc-800 px-5 py-2.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all hidden sm:block border border-white/5">
+              <User className="w-4 h-4 inline mr-2" /> LOGIN
+            </Link>
+          )}
+
+          {/* 3. V8 GLAVNI MENI (MEGA DROPDOWN) */}
+          <div className="relative group">
+            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all border border-blue-400/50 flex items-center gap-2 cursor-pointer">
+              <Layers className="w-4 h-4" />
+              V8 MENI
+              <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
+            </button>
             
+            {/* Padajući prozor menija */}
+            <div className="absolute right-0 mt-3 w-64 md:w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-[2000]">
+              <div className="bg-[#0a0a0a] border border-blue-500/30 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.2)] p-2 flex flex-col overflow-hidden relative">
+                <div className="absolute top-0 right-10 w-20 h-20 bg-blue-600/10 blur-2xl rounded-full pointer-events-none"></div>
 
-    {location.pathname !== '/izrada-sajtova' && (<Link to="/izrada-sajtova" className="bg-orange-600/20 px-4 md:px-5 py-1.5 md:py-2 rounded-full text-orange-500 border border-orange-500/30 shadow-xl hover:bg-orange-600 hover:text-white transition-all hidden sm:block">Izrada Sajtova</Link>)}
-            
-{/* --- POČETAK FUNKCIJE: Master Kolekcija Padajući Meni --- */}
-<div className="relative group hidden lg:block">
-  <button className="bg-gradient-to-r from-yellow-500 to-orange-600 px-3 md:px-4 py-1.5 rounded-full text-white font-black text-[8px] md:text-[9px] uppercase tracking-wider shadow-[0_0_15px_rgba(234,88,12,0.4)] hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all border border-orange-400/50 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-    <Crown className="w-3 h-3" />
-    Master Kolekcija
-    <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" />
-  </button>
-  <div className="absolute left-0 mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 z-50">
-    <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.3)] py-3 flex flex-col overflow-hidden">
-      
-      {/* 1. STAVKA - PROMPT VAULT */}
-      <Link to="/v8-trezor" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3 border-b border-white/5">
-        <Crown className="w-4 h-4 text-orange-500" /> Prompt Vault
-      </Link>
-      
-      {/* 2. STAVKA - B2B PORTFOLIO */}
-      <Link to="/portfolio" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-600/20 hover:text-blue-400 transition-colors flex items-center gap-3 border-b border-white/5">
-        <Briefcase className="w-4 h-4 text-blue-500" /> B2B Portfolio
-      </Link>
-
-      {/* 3. STAVKA - STOCK PAKETI (PREBAČENO OVDE) */}
-      <Link to="/berza-paketa" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-purple-600/20 hover:text-purple-400 transition-colors flex items-center gap-3">
-        <Zap className="w-4 h-4 text-purple-500" /> Stock Paketi
-      </Link>
-
-    </div>
-  </div>
-</div>
-{/* --- KRAJ FUNKCIJE: Master Kolekcija Padajući Meni --- */}
-
-            <div className="relative group">
-              <button className="bg-gradient-to-r from-orange-600 to-red-600 border border-orange-400 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black tracking-widest text-[10px] md:text-xs shadow-[0_0_20px_rgba(234,88,12,0.6)] flex items-center gap-2 cursor-pointer">
-                <Zap className="w-4 h-4" /> 
-                V8 ALATI 
-                <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" />
-              </button>
-              <div className="absolute left-0 mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left scale-95 group-hover:scale-100 z-50">
-                <div className="bg-[#0a0a0a] border border-orange-500/30 rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.3)] py-3 flex flex-col overflow-hidden">
-                  <Link to="/v8-pametni-alati" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3 border-b border-white/5">
-                    <Settings className="w-4 h-4 text-orange-500" /> Pametni Alati
-                  </Link>
-                  <Link to="/v8-kreator-slika" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3">
-                    <Eye className="w-4 h-4 text-orange-500" /> Kreator Slika
-                  </Link>
-                  <Link to="/pixar-selfie" className="block px-4 py-2 text-orange-400 hover:text-orange-500 font-bold flex items-center gap-2">
-                    Pixar Selfie Mejker <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded uppercase">Novo</span>
-                  </Link>
-                  <Link to="/custom-studio" className="px-5 py-3 text-white text-[11px] font-black uppercase tracking-widest hover:bg-orange-600/20 hover:text-orange-400 transition-colors flex items-center gap-3">
-  <Camera className="w-4 h-4 text-orange-500" /> Naruči V8 Sliku
-</Link>
+                {/* SEKCIJA 1: Navigacija (Ostala samo Izrada sajtova) */}
+                <div className="p-2 relative z-10">
+                  <p className="text-[9px] text-zinc-500 font-bold mb-2 ml-2">STRANICE</p>
+                  <Link to="/izrada-sajtova" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-white transition-all"><Cpu className="w-4 h-4 text-blue-500" /> Izrada Sajtova</Link>
                 </div>
+
+                <div className="h-[1px] w-full bg-white/5 my-1 relative z-10"></div>
+
+                {/* SEKCIJA 2: Master Kolekcija */}
+                <div className="p-2 relative z-10">
+                  <p className="text-[9px] text-orange-500 font-bold mb-2 ml-2 flex items-center gap-1"><Crown className="w-3 h-3" /> MASTER KOLEKCIJA</p>
+                  <Link to="/v8-trezor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-orange-500/10 hover:text-orange-400 text-zinc-300 transition-all"><Lock className="w-4 h-4" /> Prompt Vault</Link>
+                  <Link to="/portfolio" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-orange-500/10 hover:text-orange-400 text-zinc-300 transition-all"><Briefcase className="w-4 h-4" /> B2B Portfolio</Link>
+                  <Link to="/berza-paketa" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-orange-500/10 hover:text-orange-400 text-zinc-300 transition-all"><Zap className="w-4 h-4" /> Stock Paketi</Link>
+                </div>
+
+                <div className="h-[1px] w-full bg-white/5 my-1 relative z-10"></div>
+
+                {/* SEKCIJA 3: V8 Alati */}
+                <div className="p-2 relative z-10">
+                  <p className="text-[9px] text-red-500 font-bold mb-2 ml-2 flex items-center gap-1"><Zap className="w-3 h-3" /> V8 ALATI</p>
+                  <Link to="/v8-pametni-alati" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-zinc-300 transition-all"><Settings className="w-4 h-4" /> Pametni Alati</Link>
+                  <Link to="/v8-kreator-slika" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-zinc-300 transition-all"><Eye className="w-4 h-4" /> Kreator Slika</Link>
+                  <Link to="/pixar-selfie" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-zinc-300 transition-all">
+                    <Camera className="w-4 h-4" /> Pixar Selfie <span className="bg-red-600 text-white px-1.5 py-0.5 rounded text-[8px] ml-auto">NOVO</span>
+                  </Link>
+                  <Link to="/custom-studio" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 hover:text-red-400 text-zinc-300 transition-all"><ImageIcon className="w-4 h-4" /> Naruči V8 Sliku</Link>
+                </div>
+
               </div>
             </div>
-            
-            {location.pathname !== '/enxance' && (<Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-5 py-1.5 md:py-2 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 10X ENHANCER</Link>)}
-            {isVIPLoggedIn ? (
-               <div className="flex items-center gap-2 md:gap-3 ml-2">
-                  {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)]"><Settings className="w-3.5 h-3.5" /> DASHBOARD</Link>)}
-                  
-                  
-
-                  <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black flex items-center gap-1.5 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-3.5 h-3.5" /> MOJ TREZOR</Link>
-                  <span className="bg-green-900/40 border border-green-500/50 text-green-400 px-3 py-1 rounded-full text-[8px] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] hidden sm:flex"><User className="w-3 h-3" /> {isAdmin ? "MASTER" : "PREMIUM"}</span>
-                  <button onClick={() => { signOut(auth); v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-1" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
-               </div>
-            ) : (<Link to="/admin" className="bg-zinc-800 px-4 py-1.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all ml-2 hidden sm:block">Admin Login</Link>)}
           </div>
+
         </div>
-      </nav>
-      
+      </div>
+    </nav>
+    {/* KRAJ NAVBARA */}
           </div>
     <div className="flex-1 text-left pt-20">
      <Routes>
