@@ -2130,8 +2130,7 @@ return (
         {/* DESNI DEO SA DUGMIĆIMA */}
         <div className="flex-1 flex items-center justify-end gap-3 font-black uppercase text-[10px] md:text-[11px] tracking-widest whitespace-nowrap">
           
-          {/* 🔥 V8 GLAVNI LINKOVI IZVUČENI NAPOLJE (SREĐEN DIZAJN) 🔥 */}
-          {/* 🔥 V8 GLAVNI LINKOVI IZVUČENI NAPOLJE (SREĐEN DIZAJN) 🔥 */}
+          {/* 🔥 V8 GLAVNI LINKOVI IZVUČENI NAPOLJE 🔥 */}
           <Link to="/" onClick={handleHomeClick} className="hidden lg:flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-full bg-emerald-900/30 border border-emerald-500/40 text-emerald-400 hover:text-white hover:bg-emerald-800/50 hover:border-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] cursor-pointer">
             <Globe className="w-4 h-4 text-emerald-500" /> Početna
           </Link>
@@ -2142,7 +2141,7 @@ return (
 
           {/* 1. GLAVNI CTA KOJI UVEK STOJI */}
           {location.pathname !== '/enxance' && (
-            <Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-6 py-2 md:py-2.5 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all flex items-center gap-2 hidden sm:flex">
+            <Link to="/enxance" className="bg-transparent border-2 border-orange-600 text-orange-600 px-4 md:px-6 py-2 md:py-2.5 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)] hover:bg-orange-600 hover:text-white hover:shadow-[0_0_25px_rgba(234,88,12,0.6)] transition-all flex items-center gap-2 hidden sm:flex cursor-pointer">
               <Zap className="w-4 h-4" /> 10X ENHANCER
             </Link>
           )}
@@ -2152,10 +2151,10 @@ return (
              <div className="flex items-center gap-2">
                 {isAdmin && (<Link to="/admin" className="bg-red-600/20 border border-red-500/50 text-red-400 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] hidden md:flex"><Settings className="w-4 h-4" /> ADMIN</Link>)}
                 <Link to="/trezor" className="bg-orange-600/20 border border-orange-500/50 text-orange-400 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-orange-600 hover:text-white transition-all shadow-[0_0_10px_rgba(234,88,12,0.2)]"><Lock className="w-4 h-4" /> TREZOR</Link>
-                <button onClick={() => { signOut(auth); if(typeof v8Toast !== 'undefined') v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-2 bg-white/5 rounded-full hover:bg-white/10" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
+                <button onClick={() => { signOut(auth); if(typeof v8Toast !== 'undefined') v8Toast.success("Uspešno ste odjavljeni."); }} className="text-zinc-500 hover:text-red-500 transition-colors p-2 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer" title="Odjavi se"><LogOut className="w-4 h-4" /></button>
              </div>
           ) : (
-            <Link to="/admin" className="bg-zinc-800 px-5 py-2.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all hidden sm:block border border-white/5">
+            <Link to="/admin" className="bg-zinc-800 px-5 py-2.5 rounded-full text-zinc-400 shadow-xl hover:bg-zinc-700 hover:text-white transition-all hidden sm:block border border-white/5 cursor-pointer">
               <User className="w-4 h-4 inline mr-2" /> LOGIN
             </Link>
           )}
